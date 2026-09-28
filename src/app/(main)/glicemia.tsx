@@ -1,15 +1,3 @@
-import { Text, View } from 'react-native';
+import { GlucoseRegisterScreen } from '@/features/glucose';
 
-export default function GlicemiaRoute() {
-  return (
-    <View
-      style={{
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <Text>Glicemia</Text>
-    </View>
-  );
-}
+export default GlucoseRegisterScreen;
