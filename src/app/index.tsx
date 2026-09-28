@@ -7,7 +7,7 @@ import { SplashScreen } from '../features/auth';
 export default function Index() {
   useEffect(() => {
     const timer = setTimeout(() => {
-      router.replace('/login');
+      router.replace('/(main)/home');
     }, 1500);
 
     return () => {
