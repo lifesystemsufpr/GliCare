@@ -1,0 +1,1 @@
+export { GlucoseRegisterScreen } from './screens/GlucoseRegisterScreen';
