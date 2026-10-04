@@ -38,15 +38,21 @@ export default function MainLayout() {
         },
 
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 9,
           fontWeight: '500',
         },
 
         tabBarIconStyle: {
           marginTop: 2,
         },
+
+        tabBarItemStyle: {
+          paddingHorizontal: 0,
+        },
       }}
     >
+      {/* Início */}
+
       <Tabs.Screen
         name="home"
         options={{
@@ -61,13 +67,15 @@ export default function MainLayout() {
             >
               <Ionicons
                 name={focused ? 'home' : 'home-outline'}
-                size={24}
+                size={22}
                 color={color}
               />
             </View>
           ),
         }}
       />
+
+      {/* Glicemia */}
 
       <Tabs.Screen
         name="glicemia"
@@ -83,13 +91,15 @@ export default function MainLayout() {
             >
               <Ionicons
                 name={focused ? 'water' : 'water-outline'}
-                size={24}
+                size={22}
                 color={color}
               />
             </View>
           ),
         }}
       />
+
+      {/* Insulina */}
 
       <Tabs.Screen
         name="insulina"
@@ -105,13 +115,43 @@ export default function MainLayout() {
             >
               <Ionicons
                 name={focused ? 'medical' : 'medical-outline'}
-                size={24}
+                size={22}
                 color={color}
               />
             </View>
           ),
         }}
       />
+
+      {/* Dashboard */}
+
+      <Tabs.Screen
+        name="dashboard"
+        options={{
+          title: 'Dashboard',
+
+          tabBarIcon: ({ color, focused }) => (
+            <View
+              style={[
+                styles.iconContainer,
+                focused && styles.activeIcon,
+              ]}
+            >
+              <Ionicons
+                name={
+                  focused
+                    ? 'stats-chart'
+                    : 'stats-chart-outline'
+                }
+                size={22}
+                color={color}
+              />
+            </View>
+          ),
+        }}
+      />
+
+      {/* Relatórios */}
 
       <Tabs.Screen
         name="relatorios"
@@ -131,13 +171,15 @@ export default function MainLayout() {
                     ? 'document-text'
                     : 'document-text-outline'
                 }
-                size={24}
+                size={22}
                 color={color}
               />
             </View>
           ),
         }}
       />
+
+      {/* Perfil */}
 
       <Tabs.Screen
         name="perfil"
@@ -153,7 +195,7 @@ export default function MainLayout() {
             >
               <Ionicons
                 name={focused ? 'person' : 'person-outline'}
-                size={24}
+                size={22}
                 color={color}
               />
             </View>
@@ -166,13 +208,13 @@ export default function MainLayout() {
 
 const styles = StyleSheet.create({
   iconContainer: {
-    width: 44,
-    height: 32,
+    width: 38,
+    height: 30,
 
     alignItems: 'center',
     justifyContent: 'center',
 
-    borderRadius: 18,
+    borderRadius: 16,
   },
 
   activeIcon: {
