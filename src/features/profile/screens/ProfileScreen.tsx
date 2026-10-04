@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import {
     Alert,
     Pressable,
@@ -9,7 +10,6 @@ import {
 } from 'react-native';
 
 import { colors } from '@/shared/theme';
-
 import { DiabetesCard } from '../components/DiabetesCard';
 import { EmergencyContactCard } from '../components/EmergencyContactCard';
 import { ProfileCard } from '../components/ProfileCard';
@@ -58,10 +58,17 @@ export function ProfileScreen() {
           </Text>
         </View>
 
-        <Pressable style={styles.notificationButton}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.notificationButton,
+            pressed && styles.notificationButtonPressed,
+          ]}
+          onPress={() => router.push('/lembretes')}
+          hitSlop={12}
+        >
           <Ionicons
             name="notifications-outline"
-            size={21}
+            size={22}
             color={colors.text}
           />
         </Pressable>
@@ -115,14 +122,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#FAFAFA',
   },
 
-content: {
-  paddingHorizontal: 20,
-  paddingTop: 20,
-  paddingBottom: 150,
-  gap: 14,
-},
+  content: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 150,
+    gap: 14,
+  },
 
   header: {
+    width: '100%',
+
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -156,11 +165,17 @@ content: {
   },
 
   notificationButton: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
 
     alignItems: 'center',
     justifyContent: 'center',
+
+    borderRadius: 22,
+  },
+
+  notificationButtonPressed: {
+    backgroundColor: '#F3F4F6',
   },
 
   logoutButton: {

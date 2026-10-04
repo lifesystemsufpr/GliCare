@@ -51,8 +51,6 @@ export default function MainLayout() {
         },
       }}
     >
-      {/* Início */}
-
       <Tabs.Screen
         name="home"
         options={{
@@ -74,8 +72,6 @@ export default function MainLayout() {
           ),
         }}
       />
-
-      {/* Glicemia */}
 
       <Tabs.Screen
         name="glicemia"
@@ -99,8 +95,6 @@ export default function MainLayout() {
         }}
       />
 
-      {/* Insulina */}
-
       <Tabs.Screen
         name="insulina"
         options={{
@@ -122,8 +116,6 @@ export default function MainLayout() {
           ),
         }}
       />
-
-      {/* Dashboard */}
 
       <Tabs.Screen
         name="dashboard"
@@ -151,8 +143,6 @@ export default function MainLayout() {
         }}
       />
 
-      {/* Relatórios */}
-
       <Tabs.Screen
         name="relatorios"
         options={{
@@ -179,8 +169,6 @@ export default function MainLayout() {
         }}
       />
 
-      {/* Perfil */}
-
       <Tabs.Screen
         name="perfil"
         options={{
@@ -200,6 +188,13 @@ export default function MainLayout() {
               />
             </View>
           ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="lembretes"
+        options={{
+          href: null,
         }}
       />
     </Tabs>
