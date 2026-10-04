@@ -26,7 +26,9 @@ export function ProfileCard({
         />
       </View>
 
-      <Text style={styles.name}>{name}</Text>
+      <Text style={styles.name}>
+        {name}
+      </Text>
 
       <Text style={styles.age}>
         {age} anos
@@ -38,15 +40,13 @@ export function ProfileCard({
             Peso
           </Text>
 
-          <View style={styles.valueRow}>
-            <Text style={styles.infoValue}>
-              {weight}
-            </Text>
-
-            <Text style={styles.unit}>
-              kg
-            </Text>
-          </View>
+          <Text
+            style={styles.infoValue}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+          >
+            {`${weight} kg`}
+          </Text>
         </View>
 
         <View style={styles.infoBox}>
@@ -54,15 +54,13 @@ export function ProfileCard({
             Altura
           </Text>
 
-          <View style={styles.valueRow}>
-            <Text style={styles.infoValue}>
-              {height.toFixed(2)}
-            </Text>
-
-            <Text style={styles.unit}>
-              m
-            </Text>
-          </View>
+          <Text
+            style={styles.infoValue}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+          >
+            {`${height.toFixed(2)} m`}
+          </Text>
         </View>
       </View>
     </View>
@@ -71,6 +69,7 @@ export function ProfileCard({
 
 const styles = StyleSheet.create({
   card: {
+    width: '100%',
     alignItems: 'center',
 
     paddingHorizontal: 18,
@@ -116,55 +115,43 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
 
-infoRow: {
-  width: '100%',
-  flexDirection: 'row',
-  gap: 10,
-  marginTop: 16,
-},
+  infoRow: {
+    alignSelf: 'stretch',
 
-infoBox: {
-  flex: 1,
-  minWidth: 0,
-
-  alignItems: 'center',
-  justifyContent: 'center',
-
-  paddingHorizontal: 8,
-  paddingVertical: 12,
-
-  borderRadius: 8,
-  backgroundColor: '#F3F4F6',
-},
-
-infoLabel: {
-  width: '100%',
-
-  marginBottom: 4,
-
-  fontSize: 11,
-  color: colors.textSecondary,
-  textAlign: 'center',
-},
-
-infoValue: {
-  width: '100%',
-
-  fontSize: 15,
-  fontWeight: '600',
-  color: colors.text,
-  textAlign: 'center',
-},
-
-  valueRow: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+
+    gap: 10,
+
+    marginTop: 16,
   },
 
-  unit: {
-    marginLeft: 2,
+  infoBox: {
+    flex: 1,
+
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+
+    borderRadius: 8,
+
+    backgroundColor: '#F3F4F6',
+  },
+
+  infoLabel: {
+    marginBottom: 4,
 
     fontSize: 11,
+    fontWeight: '500',
     color: colors.textSecondary,
+    textAlign: 'center',
+  },
+
+  infoValue: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: colors.text,
+    textAlign: 'center',
   },
 });

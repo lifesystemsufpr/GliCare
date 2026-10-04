@@ -1,5 +1,9 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
-
+import { router } from 'expo-router';
+import {
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 
 import { DailySummary } from '../components/DailySummary';
 import { GlucoseCard } from '../components/GlucoseCard';
@@ -9,6 +13,10 @@ import { ReminderCard } from '../components/ReminderCard';
 import { WeeklyGlucoseChart } from '../components/WeeklyGlucoseChart';
 
 export function HomeScreen() {
+  function handleOpenReminders() {
+    router.push('/lembretes');
+  }
+
   return (
     <ScrollView
       style={styles.container}
@@ -17,9 +25,7 @@ export function HomeScreen() {
     >
       <HomeHeader
         userName="João"
-        onPressNotifications={() => {
-          console.log('Abrir lembretes');
-        }}
+        onPressNotifications={handleOpenReminders}
       />
 
       <GlucoseCard
