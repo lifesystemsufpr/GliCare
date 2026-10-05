@@ -44,19 +44,7 @@ export function ProfileScreen() {
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.header}>
-        <View style={styles.brand}>
-          <View style={styles.brandIcon}>
-            <Ionicons
-              name="medical"
-              size={16}
-              color={colors.primary}
-            />
-          </View>
-
-          <Text style={styles.brandText}>
-            Meu Perfil
-          </Text>
-        </View>
+        <Text style={styles.title}>Meu Perfil</Text>
 
         <Pressable
           style={({ pressed }) => [
@@ -139,29 +127,10 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
 
-  brand: {
-    flexDirection: 'row',
-    alignItems: 'center',
-
-    gap: 10,
-  },
-
-  brandIcon: {
-    width: 34,
-    height: 34,
-
-    alignItems: 'center',
-    justifyContent: 'center',
-
-    borderRadius: 17,
-
-    backgroundColor: '#EEF2FF',
-  },
-
-  brandText: {
-    fontSize: 20,
+  title: {
+    fontSize: 24,
     fontWeight: '700',
-    color: colors.primary,
+    color: colors.text,
   },
 
   notificationButton: {
