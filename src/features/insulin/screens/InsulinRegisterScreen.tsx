@@ -192,8 +192,8 @@ export function InsulinRegisterScreen() {
     );
 
     Alert.alert(
-      'Aplicação registrada',
-      'Sua aplicação de insulina foi registrada com sucesso.',
+      'Simulação de aplicação',
+      'Esta é uma simulação. Os dados da aplicação não foram salvos.',
     );
 
     setInsulinType(null);
