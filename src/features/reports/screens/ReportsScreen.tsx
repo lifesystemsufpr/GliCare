@@ -9,7 +9,7 @@ import {
   View,
 } from "react-native";
 import { AppInput, ScreenContainer } from "@/shared/components";
-import { RoutineHeader } from "@/shared/components/RoutineHeader";
+import { AppDateField } from "@/shared/components/AppDateField";
 import { demoRecords, displayDay, recordDay } from "@/shared/data/demoRecords";
 import { colors } from "@/shared/theme";
 import { ReportRecordCard } from "../components/ReportRecordCard";
@@ -17,12 +17,10 @@ import {
   buildReportHtml,
   filterRecords,
   parseDate,
-  ReportFilters,
 } from "../services/reportData";
 import { exportReport } from "../services/exportReport";
 export function ReportsScreen() {
   const [query, setQuery] = useState("");
-  const [kind, setKind] = useState<ReportFilters["kind"]>("all");
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [exporting, setExporting] = useState(false);
@@ -38,8 +36,8 @@ export function ReportsScreen() {
           ? "A data inicial deve ser anterior ou igual à final."
           : "";
   const filters = useMemo(
-    () => ({ query, kind, start, end }),
-    [query, kind, start, end],
+    () => ({ query, kind: "all" as const, start, end }),
+    [query, start, end],
   );
   const records = useMemo(
     () => (dateError ? [] : filterRecords(demoRecords, filters)),
@@ -66,7 +64,6 @@ export function ReportsScreen() {
   return (
     <ScreenContainer scrollable>
       <View style={styles.content}>
-        <RoutineHeader />
         <Text style={styles.title}>Relatórios</Text>
         <Text style={styles.subtitle}>
           Consulte, filtre e compartilhe seus registros.
@@ -81,56 +78,13 @@ export function ReportsScreen() {
           value={query}
           onChangeText={setQuery}
         />
-        <Text style={styles.section}>Tipo de registro</Text>
-        <View style={styles.row}>
-          {(
-            [
-              { value: "all", label: "Todos" },
-              { value: "glucose", label: "Glicemia" },
-              { value: "insulin", label: "Insulina" },
-            ] as const
-          ).map((option) => (
-            <Pressable
-              key={option.value}
-              accessibilityRole="button"
-              accessibilityState={{ selected: kind === option.value }}
-              onPress={() => setKind(option.value)}
-              style={[styles.chip, kind === option.value && styles.selected]}
-            >
-              <Text
-                style={{
-                  color:
-                    kind === option.value
-                      ? colors.primary
-                      : colors.textSecondary,
-                }}
-              >
-                {option.label}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
         <Text style={styles.section}>Período de coleta</Text>
         <View style={styles.row}>
           <View style={styles.field}>
-            <AppInput
-              label="De"
-              placeholder="dd/mm/aaaa"
-              value={start}
-              onChangeText={setStart}
-              keyboardType="numbers-and-punctuation"
-              maxLength={10}
-            />
+            <AppDateField label="De" value={start} onChange={setStart} />
           </View>
           <View style={styles.field}>
-            <AppInput
-              label="Até"
-              placeholder="dd/mm/aaaa"
-              value={end}
-              onChangeText={setEnd}
-              keyboardType="numbers-and-punctuation"
-              maxLength={10}
-            />
+            <AppDateField label="Até" value={end} onChange={setEnd} />
           </View>
         </View>
         {!!dateError && (
@@ -138,17 +92,6 @@ export function ReportsScreen() {
             {dateError}
           </Text>
         )}
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => {
-            setQuery("");
-            setKind("all");
-            setStart("");
-            setEnd("");
-          }}
-        >
-          <Text style={styles.link}>Limpar filtros</Text>
-        </Pressable>
         <View style={styles.row}>
           {(
             [
@@ -229,15 +172,6 @@ const styles = StyleSheet.create({
   section: { fontSize: 14, fontWeight: "600", color: colors.text },
   row: { flexDirection: "row", gap: 10 },
   field: { flex: 1 },
-  chip: {
-    flex: 1,
-    alignItems: "center",
-    paddingVertical: 10,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    borderRadius: 20,
-  },
-  selected: { borderColor: colors.primary, backgroundColor: "#EAF5FC" },
   action: {
     flex: 1,
     borderRadius: 10,
@@ -250,7 +184,6 @@ const styles = StyleSheet.create({
   actionLabel: { fontSize: 12, color: colors.text },
   disabled: { opacity: 0.4 },
   error: { fontSize: 12, color: colors.error },
-  link: { fontSize: 13, color: colors.primary },
   group: { gap: 10, marginTop: 8 },
   day: { fontSize: 12, fontWeight: "600", color: colors.textSecondary },
   empty: { alignItems: "center", padding: 24, gap: 10 },

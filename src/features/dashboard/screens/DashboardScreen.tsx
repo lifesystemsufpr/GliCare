@@ -1,6 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
 import { ScreenContainer } from "@/shared/components";
-import { RoutineHeader } from "@/shared/components/RoutineHeader";
 import {
   demoRecords,
   displayDay,
@@ -20,7 +19,6 @@ export function DashboardScreen() {
   return (
     <ScreenContainer scrollable>
       <View style={styles.content}>
-        <RoutineHeader />
         <Text style={styles.title}>Dashboard</Text>
         <Text style={styles.subtitle}>
           Visão geral dos seus dados de saúde.

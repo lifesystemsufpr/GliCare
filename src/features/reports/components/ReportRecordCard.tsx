@@ -29,7 +29,9 @@ export function ReportRecordCard({ record }: { record: HealthRecord }) {
           {record.value} <Text style={styles.unit}>{recordUnit(record)}</Text>
         </Text>
       </View>
-      <Text style={styles.time}>{recordTime(record)}</Text>
+      <Text numberOfLines={1} style={styles.time}>
+        {recordTime(record)}
+      </Text>
     </View>
   );
 }
@@ -47,13 +49,21 @@ const styles = StyleSheet.create({
   icon: {
     width: 38,
     height: 38,
+    flexShrink: 0,
     borderRadius: 19,
     alignItems: "center",
     justifyContent: "center",
   },
-  body: { flex: 1, gap: 5 },
+  body: { flex: 1, minWidth: 0, gap: 5 },
   label: { fontSize: 12, color: colors.text },
   value: { fontSize: 20, fontWeight: "700", color: colors.text },
   unit: { fontSize: 12, fontWeight: "400" },
-  time: { fontSize: 11, color: colors.textSecondary },
+  time: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    minWidth: 48,
+    flexShrink: 0,
+    textAlign: "right",
+    fontVariant: ["tabular-nums"],
+  },
 });
