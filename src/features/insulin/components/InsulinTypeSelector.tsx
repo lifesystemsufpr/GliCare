@@ -2,11 +2,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '@/shared/theme';
 
-export type InsulinType =
-  | 'rapid'
-  | 'regular'
-  | 'nph'
-  | 'longActing'
+import type { InsulinType } from '../services/insulin-contract';
+export type { InsulinType } from '../services/insulin-contract';
 
 interface InsulinTypeSelectorProps {
   value: InsulinType | null;

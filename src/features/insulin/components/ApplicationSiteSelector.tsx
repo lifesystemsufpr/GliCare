@@ -2,11 +2,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '@/shared/theme';
 
-export type ApplicationSite =
-  | 'abdomen'
-  | 'arm'
-  | 'thigh'
-  | 'glute';
+import type { ApplicationSite } from '../services/insulin-contract';
+export type { ApplicationSite } from '../services/insulin-contract';
 
 interface ApplicationSiteSelectorProps {
   value: ApplicationSite | null;

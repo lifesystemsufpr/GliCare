@@ -3,9 +3,13 @@ import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker, {
     DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { createInsulin } from '../services/insulin-service';
+import { InsulinHistory } from '../components/InsulinHistory';
+import { errorMessage } from '@/shared/api/errors';
 import {
     Alert,
+    ActivityIndicator,
     KeyboardAvoidingView,
     Platform,
     Pressable,
@@ -31,6 +35,10 @@ import {
 } from '../components/InsulinTypeSelector';
 
 export function InsulinRegisterScreen() {
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [revision, setRevision] = useState(0);
+  const busy = useRef(false);
 
   const [insulinType, setInsulinType] =
     useState<InsulinType | null>(null);
@@ -132,7 +140,9 @@ export function InsulinRegisterScreen() {
     }
   }
 
-  function handleSave() {
+  async function handleSave() {
+    if (busy.current) return;
+    setSaveError('');
     setTypeError('');
     setDoseError('');
     setSiteError('');
@@ -170,41 +180,23 @@ export function InsulinRegisterScreen() {
       return;
     }
 
-    if (dateTime.getTime() > Date.now()) {
-      Alert.alert(
-        'Data inválida',
-        'A data e a hora da aplicação não podem estar no futuro.',
-      );
-      return;
+    busy.current = true;
+    setSaving(true);
+    try {
+      await createInsulin({ type: insulinType, dose, applicationSite, appliedAt: dateTime, notes });
+      setInsulinType(null);
+      setDose('');
+      setApplicationSite(null);
+      setDateTime(new Date());
+      setNotes('');
+      setRevision((value) => value + 1);
+      Alert.alert('Aplicação registrada', 'Os dados da aplicação foram salvos com sucesso.');
+    } catch (error) {
+      setSaveError(errorMessage(error));
+    } finally {
+      busy.current = false;
+      setSaving(false);
     }
-
-    const insulinRecord = {
-      type: insulinType,
-      doseUi: Number(dose.replace(',', '.')),
-      applicationSite,
-      appliedAt: dateTime.toISOString(),
-      notes: notes.trim(),
-    };
-
-    console.log(
-      'Registro de insulina:',
-      insulinRecord,
-    );
-
-    Alert.alert(
-      'Simulação de aplicação',
-      'Esta é uma simulação. Os dados da aplicação não foram salvos.',
-    );
-
-    setInsulinType(null);
-    setDose('');
-    setApplicationSite(null);
-    setDateTime(new Date());
-    setNotes('');
-
-    setTypeError('');
-    setDoseError('');
-    setSiteError('');
   }
 
   return (
@@ -231,7 +223,7 @@ export function InsulinRegisterScreen() {
           </Text>
         </View>
 
-        <View style={styles.form}>
+        <View style={styles.form} pointerEvents={saving ? 'none' : 'auto'}>
           <View style={styles.field}>
             <Text style={styles.label}>
               Tipo de Insulina
@@ -268,7 +260,8 @@ export function InsulinRegisterScreen() {
                 placeholder="Ex: 10"
                 placeholderTextColor="#9CA3AF"
                 keyboardType="decimal-pad"
-                maxLength={6}
+                maxLength={7}
+                editable={!saving}
                 style={styles.doseTextInput}
               />
 
@@ -380,12 +373,14 @@ export function InsulinRegisterScreen() {
               placeholder="Informações adicionais sobre a aplicação..."
               placeholderTextColor="#9CA3AF"
               multiline
-              maxLength={500}
+              maxLength={255}
+              editable={!saving}
               textAlignVertical="top"
               style={styles.notesInput}
             />
           </View>
 
+          {saveError ? <Text accessibilityRole="alert" style={styles.errorText}>{saveError}</Text> : null}
           <Pressable
             style={({ pressed }) => [
               styles.saveButton,
@@ -393,18 +388,22 @@ export function InsulinRegisterScreen() {
                 styles.saveButtonPressed,
             ]}
             onPress={handleSave}
+            disabled={saving}
+            accessibilityRole="button"
+            accessibilityState={{ disabled: saving, busy: saving }}
           >
-            <Ionicons
+            {saving ? <ActivityIndicator color="#FFFFFF" /> : <Ionicons
               name="checkmark-circle-outline"
               size={20}
               color="#FFFFFF"
-            />
+            />}
 
             <Text style={styles.saveButtonText}>
-              Registrar Aplicação
+              {saving ? 'Salvando...' : 'Registrar Aplicação'}
             </Text>
           </Pressable>
         </View>
+        <InsulinHistory revision={revision} />
       </ScrollView>
     </KeyboardAvoidingView>
   );
