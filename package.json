@@ -43,6 +43,7 @@
     "test:profile": "node --test scripts/profile.test.mjs",
     "test:reminders": "node --test scripts/reminders.test.mjs",
     "test:home": "node --test scripts/home.test.mjs",
+    "test:dashboard": "node --test scripts/dashboard.test.mjs",
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
