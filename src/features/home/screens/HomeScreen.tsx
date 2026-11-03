@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { useAuth } from '@/features/auth/hooks/AuthProvider';
 import {
   ScrollView,
   StyleSheet,
@@ -13,6 +14,7 @@ import { ReminderCard } from '../components/ReminderCard';
 import { WeeklyGlucoseChart } from '../components/WeeklyGlucoseChart';
 
 export function HomeScreen() {
+  const { user } = useAuth();
   function handleOpenReminders() {
     router.push('/lembretes');
   }
@@ -24,7 +26,7 @@ export function HomeScreen() {
       showsVerticalScrollIndicator={false}
     >
       <HomeHeader
-        userName="João"
+        userName={user?.nome ?? ''}
         onPressNotifications={handleOpenReminders}
       />
 

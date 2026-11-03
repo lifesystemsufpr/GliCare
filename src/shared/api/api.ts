@@ -17,3 +17,10 @@ export const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+api.interceptors.request.use((config) => {
+  if (!apiUrl || !/^https?:\/\//.test(apiUrl)) {
+    throw new Error('Configure EXPO_PUBLIC_API_URL com o endereço completo da API, incluindo /api.');
+  }
+  return config;
+});

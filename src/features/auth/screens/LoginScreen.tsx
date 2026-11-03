@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { useAuth } from '../hooks/AuthProvider';
+import { errorMessage } from '@/shared/api/errors';
 
 import {
   Image,
@@ -24,14 +26,25 @@ import {
 export function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const busy = useRef(false);
+  const { signIn } = useAuth();
 
-  function handleLogin() {
-    console.log('Login');
-
-    console.log({
-      email,
-      password,
-    });
+  async function handleLogin() {
+    if (busy.current) return;
+    setError('');
+    if (!email.trim() || !password) { setError('Informe seu e-mail e sua senha.'); return; }
+    busy.current = true;
+    setSubmitting(true);
+    try {
+      await signIn(email, password);
+    } catch (cause) {
+      setError(errorMessage(cause));
+    } finally {
+      busy.current = false;
+      setSubmitting(false);
+    }
   }
 
 function handleForgotPassword() {
@@ -92,15 +105,18 @@ function handleCreateAccount() {
           </Pressable>
 
           <View style={styles.buttons}>
+            {error ? <Text accessibilityRole="alert" style={{ color: colors.error, marginBottom: 12 }}>{error}</Text> : null}
             <AppButton
               title="Entrar"
               onPress={handleLogin}
+              loading={submitting}
             />
 
             <AppButton
               title="Criar Conta"
               variant="secondary"
               onPress={handleCreateAccount}
+              disabled={submitting}
               style={styles.createAccountButton}
             />
           </View>

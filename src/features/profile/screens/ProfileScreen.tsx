@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 
 import { colors } from '@/shared/theme';
+import { useAuth } from '@/features/auth/hooks/AuthProvider';
+import { errorMessage } from '@/shared/api/errors';
 import { DiabetesCard } from '../components/DiabetesCard';
 import { EmergencyContactCard } from '../components/EmergencyContactCard';
 import { ProfileCard } from '../components/ProfileCard';
@@ -30,11 +32,10 @@ const mockProfile = {
 };
 
 export function ProfileScreen() {
-  function handleLogout() {
-    Alert.alert(
-      'Sair da conta',
-      'A funcionalidade de logout será integrada posteriormente.',
-    );
+  const { signOut } = useAuth();
+  async function handleLogout() {
+    try { await signOut(); }
+    catch (error) { Alert.alert('Não foi possível limpar a sessão salva', errorMessage(error)); }
   }
 
   return (

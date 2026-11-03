@@ -1,5 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
+import { useAuth } from '@/features/auth/hooks/AuthProvider';
+import { SessionGate } from '@/features/auth/components/SessionGate';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -7,6 +9,9 @@ import { colors } from '@/shared/theme';
 
 export default function MainLayout() {
   const insets = useSafeAreaInsets();
+  const { user, loading, sessionError } = useAuth();
+  if (loading || sessionError) return <SessionGate />;
+  if (!user) return <Redirect href="/(auth)/login" />;
 
   return (
     <Tabs

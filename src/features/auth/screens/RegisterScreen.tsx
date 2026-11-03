@@ -1,6 +1,10 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { registerRequest } from '../services/auth-service';
+import { formatBirthDateInput } from '../services/auth-contract';
+import { errorMessage } from '@/shared/api/errors';
 
 import {
+  Alert,
   Image,
   Pressable,
   StyleSheet,
@@ -30,6 +34,10 @@ import {
 import { PasswordRules } from '../components/PasswordRules';
 
 export function RegisterScreen() {
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [registered, setRegistered] = useState(false);
+  const busy = useRef(false);
   const [name, setName] =
     useState('');
 
@@ -76,28 +84,25 @@ export function RegisterScreen() {
     setEmergencyPhone,
   ] = useState('');
 
-  function handleRegister() {
-    const formData = {
-      name,
-      email,
-      password,
-      confirmPassword,
-      birthDate,
-      height,
-      weight,
-      diabetesType,
-
-      emergencyContact: {
-        name: emergencyName,
-        relation: emergencyRelation,
-        phone: emergencyPhone,
-      },
-    };
-
-    console.log(
-      'Cadastro:',
-      formData,
-    );
+  async function handleRegister() {
+    if (busy.current || registered) return;
+    busy.current = true;
+    setSubmitting(true);
+    setError('');
+    try {
+      await registerRequest({ name, email, password, confirmPassword, birthDate,
+        height, weight, diabetesType, emergencyName, emergencyRelation, emergencyPhone });
+      setRegistered(true);
+      setPassword('');
+      setConfirmPassword('');
+      router.replace('/(auth)/login');
+      Alert.alert('Conta criada', 'Cadastro concluído. Entre com seu e-mail e sua senha.');
+    } catch (cause) {
+      setError(errorMessage(cause));
+    } finally {
+      busy.current = false;
+      setSubmitting(false);
+    }
   }
 
 function handleLogin() {
@@ -213,7 +218,7 @@ function handleLogin() {
           placeholder="dd/mm/aaaa"
           icon="calendar-outline"
           value={birthDate}
-          onChangeText={setBirthDate}
+          onChangeText={(value) => setBirthDate(formatBirthDateInput(value))}
           keyboardType="numeric"
           maxLength={10}
         />
@@ -316,15 +321,19 @@ function handleLogin() {
 
         {/* Ações */}
 
+        {error ? <Text accessibilityRole="alert" style={{ color: colors.error, marginBottom: 12 }}>{error}</Text> : null}
         <AppButton
           title="Criar Conta"
           onPress={handleRegister}
+          loading={submitting}
+          disabled={registered}
         />
 
         <AppButton
           title="Já tenho conta"
           variant="secondary"
           onPress={handleLogin}
+          disabled={submitting}
           style={
             styles.loginButton
           }
