@@ -41,6 +41,7 @@
     "test:glucose": "node --test scripts/glucose.test.mjs",
     "test:insulin": "node --test scripts/insulin.test.mjs",
     "test:profile": "node --test scripts/profile.test.mjs",
+    "test:reminders": "node --test scripts/reminders.test.mjs",
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",

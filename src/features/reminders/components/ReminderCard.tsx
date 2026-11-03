@@ -13,6 +13,8 @@ type ReminderCardProps = {
   time: string;
   title: string;
   active: boolean;
+  date: string;
+  disabled?: boolean;
   onToggle: () => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -22,6 +24,8 @@ export function ReminderCard({
   time,
   title,
   active,
+  date,
+  disabled = false,
   onToggle,
   onEdit,
   onDelete,
@@ -43,6 +47,7 @@ export function ReminderCard({
           >
             {time}
           </Text>
+          <Text>{date}</Text>
 
           <Text
             style={[
@@ -57,6 +62,7 @@ export function ReminderCard({
         <Switch
           value={active}
           onValueChange={onToggle}
+          disabled={disabled}
           trackColor={{
             false: '#D1D5DB',
             true: '#93C5FD',
@@ -76,6 +82,7 @@ export function ReminderCard({
             pressed && styles.actionPressed,
           ]}
           onPress={onEdit}
+          disabled={disabled}
         >
           <Ionicons
             name="create-outline"
@@ -94,6 +101,7 @@ export function ReminderCard({
             pressed && styles.actionPressed,
           ]}
           onPress={onDelete}
+          disabled={disabled}
         >
           <Ionicons
             name="trash-outline"

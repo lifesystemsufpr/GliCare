@@ -1,234 +1,131 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { useState } from 'react';
-import {
-    Alert,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
-} from 'react-native';
-
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { colors } from '@/shared/theme';
-
+import { AppButton } from '@/shared/components';
+import { errorMessage } from '@/shared/api/errors';
 import { ReminderCard } from '../components/ReminderCard';
 import { ReminderFormModal } from '../components/ReminderFormModal';
-
-type Reminder = {
-  id: number;
-  time: string;
-  title: string;
-  active: boolean;
-};
-
-const initialReminders: Reminder[] = [
-  {
-    id: 1,
-    time: '07:00',
-    title: 'Medir Glicemia - Jejum',
-    active: true,
-  },
-  {
-    id: 2,
-    time: '08:00',
-    title: 'Tomar Insulina Basal',
-    active: true,
-  },
-  {
-    id: 3,
-    time: '12:30',
-    title: 'Almoço',
-    active: false,
-  },
-];
+import { reminderToForm, type Reminder, type ReminderForm } from '../services/reminder-contract';
+import { createReminder, deleteReminder, listReminders, setReminderActive, updateReminder } from '../services/reminder-service';
 
 export function RemindersScreen() {
-  const [reminders, setReminders] =
-    useState<Reminder[]>(initialReminders);
+  const [reminders, setReminders] = useState<Reminder[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [actionError, setActionError] = useState('');
+  const [revision, setRevision] = useState(0);
+  const [busy, setBusy] = useState(false);
+  const busyRef = useRef(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<Reminder | null>(null);
+  const initialData = useMemo(() => editingReminder ? reminderToForm(editingReminder) : undefined, [editingReminder]);
 
-  const [modalVisible, setModalVisible] =
-    useState(false);
+  useFocusEffect(useCallback(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    setLoadError('');
+    void listReminders(controller.signal).then((data) => {
+      if (!controller.signal.aborted) setReminders(data);
+    }).catch((cause: unknown) => {
+      if (!controller.signal.aborted) { setReminders([]); setLoadError(errorMessage(cause)); }
+    }).finally(() => {
+      if (!controller.signal.aborted) setLoading(false);
+    });
+    return () => controller.abort();
+  }, [revision]));
 
-  const [editingReminder, setEditingReminder] =
-    useState<Reminder | null>(null);
-
-  function handleToggle(id: number) {
-    setReminders((currentReminders) =>
-      currentReminders.map((reminder) =>
-        reminder.id === id
-          ? {
-              ...reminder,
-              active: !reminder.active,
-            }
-          : reminder,
-      ),
-    );
+  async function mutate(action: () => Promise<void>) {
+    if (busyRef.current) throw new Error('Aguarde a operação em andamento.');
+    busyRef.current = true;
+    setBusy(true);
+    setActionError('');
+    try { await action(); }
+    finally { busyRef.current = false; setBusy(false); }
   }
-
-  function handleOpenCreate() {
+  function openCreate() {
+    if (busyRef.current) return;
     setEditingReminder(null);
     setModalVisible(true);
   }
-
-  function handleOpenEdit(reminder: Reminder) {
-    setEditingReminder(reminder);
-    setModalVisible(true);
-  }
-
-  function handleCloseModal() {
+  function closeModal() {
+    if (busyRef.current) return;
     setModalVisible(false);
     setEditingReminder(null);
   }
-
-  function handleSave(data: {
-    title: string;
-    time: string;
-  }) {
-    if (editingReminder) {
-      setReminders((currentReminders) =>
-        currentReminders.map((reminder) =>
-          reminder.id === editingReminder.id
-            ? {
-                ...reminder,
-                title: data.title,
-                time: data.time,
-              }
-            : reminder,
-        ),
-      );
-    } else {
-      const newReminder: Reminder = {
-        id: Date.now(),
-        title: data.title,
-        time: data.time,
-        active: true,
-      };
-
-      setReminders((currentReminders) => [
-        ...currentReminders,
-        newReminder,
-      ]);
-    }
-
-    handleCloseModal();
+  async function save(form: ReminderForm) {
+    await mutate(async () => {
+      if (editingReminder) await updateReminder(editingReminder, form);
+      else await createReminder(form);
+      setModalVisible(false);
+      setEditingReminder(null);
+      setRevision((value) => value + 1);
+    });
   }
-
-  function handleDelete(reminder: Reminder) {
-    Alert.alert(
-      'Excluir lembrete?',
-      `Tem certeza que deseja excluir "${reminder.title}"?`,
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-        {
-          text: 'Excluir',
-          style: 'destructive',
-          onPress: () => {
-            setReminders((currentReminders) =>
-              currentReminders.filter(
-                (item) => item.id !== reminder.id,
-              ),
-            );
-          },
-        },
-      ],
-    );
+  async function toggle(reminder: Reminder) {
+    try {
+      await mutate(async () => {
+        const saved = await setReminderActive(reminder.id, reminder.status !== 'ATIVO');
+        setReminders((items) => items.map((item) => item.id === saved.id ? saved : item));
+      });
+    } catch (cause) { setActionError(errorMessage(cause)); }
   }
-
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Pressable
-          style={({ pressed }) => [
-            styles.headerButton,
-            pressed && styles.headerButtonPressed,
-          ]}
-          onPress={() => router.back()}
-        >
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={colors.text}
-          />
-        </Pressable>
-
-        <Text style={styles.headerTitle}>
-          Lembretes
-        </Text>
-
-        <View style={styles.headerSpacer} />
-      </View>
-
-      <ScrollView
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={styles.sectionTitle}>
-          Hoje
-        </Text>
-
-        <View style={styles.remindersList}>
-          {reminders.map((reminder) => (
-            <ReminderCard
-              key={reminder.id}
-              time={reminder.time}
-              title={reminder.title}
-              active={reminder.active}
-              onToggle={() =>
-                handleToggle(reminder.id)
-              }
-              onEdit={() =>
-                handleOpenEdit(reminder)
-              }
-              onDelete={() =>
-                handleDelete(reminder)
-              }
-            />
-          ))}
-        </View>
-
-        <Pressable
-          style={({ pressed }) => [
-            styles.addButton,
-            pressed && styles.addButtonPressed,
-          ]}
-          onPress={handleOpenCreate}
-        >
-          <Ionicons
-            name="add"
-            size={20}
-            color="#FFFFFF"
-          />
-
-          <Text style={styles.addButtonText}>
-            Adicionar Lembrete
-          </Text>
-        </Pressable>
-      </ScrollView>
-
-      <ReminderFormModal
-        visible={modalVisible}
-        mode={
-          editingReminder
-            ? 'edit'
-            : 'create'
-        }
-        initialData={
-          editingReminder
-            ? {
-                title: editingReminder.title,
-                time: editingReminder.time,
-              }
-            : undefined
-        }
-        onClose={handleCloseModal}
-        onSave={handleSave}
-      />
+  async function confirmDelete() {
+    if (!pendingDelete) return;
+    try {
+      await mutate(async () => {
+        await deleteReminder(pendingDelete.id);
+        setReminders((items) => items.filter((item) => item.id !== pendingDelete.id));
+        setPendingDelete(null);
+      });
+    } catch (cause) { setActionError(errorMessage(cause)); }
+  }
+  const disabled = loading || busy;
+  return <View style={styles.container}>
+    <View style={styles.header}>
+      <Pressable style={styles.headerButton} onPress={() => router.back()} accessibilityLabel="Voltar">
+        <Ionicons name="arrow-back" size={24} color={colors.text} />
+      </Pressable>
+      <Text style={styles.headerTitle}>Lembretes</Text>
+      <View style={styles.headerSpacer} />
     </View>
-  );
+    <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <Text style={styles.sectionTitle}>Todos os lembretes</Text>
+      <Text>Lembretes para data e hora específicas.</Text>
+      {loading ? <ActivityIndicator accessibilityLabel="Carregando lembretes" color={colors.primary} /> : loadError ?
+        <Text accessibilityRole="alert" style={{ color: colors.error }}>{loadError}</Text> :
+        <View style={styles.remindersList}>
+          {reminders.length === 0 ? <Text>Nenhum lembrete cadastrado.</Text> : reminders.map((reminder) => {
+            const form = reminderToForm(reminder);
+            return <ReminderCard key={reminder.id} time={form.time} date={form.date} title={reminder.titulo}
+              active={reminder.status === 'ATIVO'} disabled={disabled}
+              onToggle={() => void toggle(reminder)}
+              onEdit={() => { if (!busyRef.current) { setEditingReminder(reminder); setModalVisible(true); } }}
+              onDelete={() => { if (!busyRef.current) { setActionError(''); setPendingDelete(reminder); } }} />;
+          })}
+        </View>}
+      {actionError && !pendingDelete ? <Text accessibilityRole="alert" style={{ color: colors.error }}>{actionError}</Text> : null}
+      {busy ? <ActivityIndicator accessibilityLabel="Atualizando lembrete" color={colors.primary} /> : null}
+      <AppButton title="Atualizar lista" variant="secondary" disabled={disabled} onPress={() => { setActionError(''); setRevision((value) => value + 1); }} />
+      <AppButton title="Adicionar lembrete" disabled={disabled} onPress={openCreate} />
+    </ScrollView>
+    <ReminderFormModal visible={modalVisible} mode={editingReminder ? 'edit' : 'create'}
+      initialData={initialData} onClose={closeModal} onSave={save} />
+    <Modal visible={Boolean(pendingDelete)} transparent animationType="fade"
+      onRequestClose={() => { if (!busyRef.current) setPendingDelete(null); }}>
+      <View style={{ flex: 1, backgroundColor: '#00000066', justifyContent: 'center', padding: 24 }}>
+        <View style={{ backgroundColor: '#FFFFFF', padding: 24, borderRadius: 16, gap: 16 }}>
+          <Text style={styles.sectionTitle}>Excluir lembrete?</Text>
+          <Text>{pendingDelete?.titulo}</Text>
+          {actionError ? <Text accessibilityRole="alert" style={{ color: colors.error }}>{actionError}</Text> : null}
+          <AppButton title="Confirmar exclusão" loading={busy} onPress={confirmDelete} />
+          <AppButton title="Cancelar" variant="secondary" disabled={busy} onPress={() => setPendingDelete(null)} />
+        </View>
+      </View>
+    </Modal>
+  </View>;
 }
 
 const styles = StyleSheet.create({

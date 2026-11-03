@@ -1,7 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { errorMessage } from '@/shared/api/errors';
+import { formatBirthDateInput } from '@/features/auth/services/auth-contract';
+import { formatTimeInput, localDate, type ReminderForm } from '../services/reminder-contract';
 import {
   Modal,
+  ScrollView,
   Pressable,
   StyleSheet,
   Text,
@@ -11,17 +15,12 @@ import {
 
 import { colors } from '@/shared/theme';
 
-type ReminderFormData = {
-  title: string;
-  time: string;
-};
-
 type ReminderFormModalProps = {
   visible: boolean;
   mode: 'create' | 'edit';
-  initialData?: ReminderFormData;
+  initialData?: ReminderForm;
   onClose: () => void;
-  onSave: (data: ReminderFormData) => void;
+  onSave: (data: ReminderForm) => Promise<void>;
 };
 
 export function ReminderFormModal({
@@ -33,6 +32,10 @@ export function ReminderFormModal({
 }: ReminderFormModalProps) {
   const [title, setTitle] = useState('');
   const [time, setTime] = useState('');
+  const [date, setDate] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const busy = useRef(false);
 
   useEffect(() => {
     if (!visible) {
@@ -41,31 +44,30 @@ export function ReminderFormModal({
 
     setTitle(initialData?.title ?? '');
     setTime(initialData?.time ?? '');
+    setDate(initialData?.date ?? localDate(new Date()));
+    setError('');
   }, [visible, initialData]);
 
-  function handleSave() {
-    const formattedTitle = title.trim();
-    const formattedTime = time.trim();
-
-    if (!formattedTitle || !formattedTime) {
-      return;
-    }
-
-    onSave({
-      title: formattedTitle,
-      time: formattedTime,
-    });
+  async function handleSave() {
+    if (busy.current) return;
+    busy.current = true;
+    setSaving(true);
+    setError('');
+    try { await onSave({ title, date, time }); }
+    catch (cause) { setError(errorMessage(cause)); }
+    finally { busy.current = false; setSaving(false); }
   }
+  function close() { if (!busy.current) onClose(); }
 
   return (
     <Modal
       visible={visible}
       transparent
       animationType="fade"
-      onRequestClose={onClose}
+      onRequestClose={close}
     >
       <View style={styles.overlay}>
-        <View style={styles.modal}>
+        <ScrollView style={[styles.modal, { maxHeight: '90%' }]} keyboardShouldPersistTaps="handled">
           <View style={styles.header}>
             <Text style={styles.title}>
               {mode === 'create'
@@ -75,7 +77,8 @@ export function ReminderFormModal({
 
             <Pressable
               style={styles.closeButton}
-              onPress={onClose}
+              onPress={close}
+              disabled={saving}
             >
               <Ionicons
                 name="close"
@@ -96,9 +99,17 @@ export function ReminderFormModal({
               onChangeText={setTitle}
               placeholder="Ex: Medir glicemia"
               placeholderTextColor="#9CA3AF"
+              maxLength={150}
+              editable={!saving}
             />
           </View>
 
+          <View style={styles.field}>
+            <Text style={styles.label}>Data</Text>
+            <TextInput style={styles.input} value={date}
+              onChangeText={(value) => setDate(formatBirthDateInput(value))}
+              placeholder="dd/mm/aaaa" keyboardType="numeric" maxLength={10} editable={!saving} />
+          </View>
           <View style={styles.field}>
             <Text style={styles.label}>
               Horário
@@ -107,18 +118,21 @@ export function ReminderFormModal({
             <TextInput
               style={styles.input}
               value={time}
-              onChangeText={setTime}
+              onChangeText={(value) => setTime(formatTimeInput(value))}
               placeholder="Ex: 08:00"
               placeholderTextColor="#9CA3AF"
               keyboardType="numbers-and-punctuation"
               maxLength={5}
+              editable={!saving}
             />
           </View>
 
+          {error ? <Text accessibilityRole="alert" style={{ color: colors.error }}>{error}</Text> : null}
           <View style={styles.actions}>
             <Pressable
               style={styles.cancelButton}
-              onPress={onClose}
+              onPress={close}
+              disabled={saving}
             >
               <Text style={styles.cancelText}>
                 Cancelar
@@ -128,15 +142,17 @@ export function ReminderFormModal({
             <Pressable
               style={styles.saveButton}
               onPress={handleSave}
+              disabled={saving}
+              accessibilityState={{ disabled: saving, busy: saving }}
             >
               <Text style={styles.saveText}>
-                {mode === 'create'
+                {saving ? 'Salvando...' : mode === 'create'
                   ? 'Adicionar'
                   : 'Salvar'}
               </Text>
             </Pressable>
           </View>
-        </View>
+        </ScrollView>
       </View>
     </Modal>
   );
