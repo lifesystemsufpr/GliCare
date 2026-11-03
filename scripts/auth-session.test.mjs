@@ -108,7 +108,7 @@ test('falha ao apagar token exige nova limpeza antes de restaurar', async () => 
   f.storage.clear = async () => { throw new Error('storage'); };
   await assert.rejects(f.session.signOut());
   assert.equal(f.session.getSnapshot().user, null);
-  assert.match(f.session.getSnapshot().error, /remover a sessão/);
+  assert.match(f.session.getSnapshot().error, /limpeza da sessão/);
   f.storage.clear = originalClear; await f.session.restore();
   assert.equal(f.stored(), null); assert.equal(f.session.getSnapshot().user, null);
 });

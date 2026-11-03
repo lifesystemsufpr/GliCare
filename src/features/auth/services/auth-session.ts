@@ -101,7 +101,7 @@ export class AuthSession {
     } catch (error) {
       if (operation === this.generation) {
         this.update({ user: null, loading: false,
-          error: 'Não foi possível remover a sessão salva. Tente sair novamente.' });
+          error: 'Não foi possível concluir a limpeza da sessão neste aparelho. Tente sair novamente.' });
       }
       throw error;
     }

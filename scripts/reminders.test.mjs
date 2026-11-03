@@ -129,3 +129,26 @@ test('erros 400, 401 e 404 permanecem disponíveis ao tratamento compartilhado',
   }
   failure = undefined;
 });
+
+test('mutações confirmadas avisam a sincronização; consultas não disparam novo ciclo', async () => {
+  const { subscribeReminderChanges } = await import('../src/features/reminders/services/reminder-events.ts');
+  let count = 0; const unsubscribe = subscribeReminderChanges(() => { count++; });
+  try {
+    data = record; await createReminder(form);
+    await updateReminder(record, { ...reminderToForm(record), title: 'Outro' });
+    await setReminderActive(record.id, false);
+    await deleteReminder(record.id);
+    assert.equal(count, 4);
+    data = [record]; await listReminders(); assert.equal(count, 4);
+  } finally { unsubscribe(); }
+});
+
+test('falha de rede ou resposta sem confirmação não anuncia lembrete salvo', async () => {
+  const { subscribeReminderChanges } = await import('../src/features/reminders/services/reminder-events.ts');
+  let count = 0; const unsubscribe = subscribeReminderChanges(() => { count++; });
+  try {
+    data = {}; await assert.rejects(createReminder(form));
+    failure = new AxiosError('synthetic timeout'); await assert.rejects(deleteReminder(record.id));
+    assert.equal(count, 0);
+  } finally { failure = undefined; unsubscribe(); }
+});

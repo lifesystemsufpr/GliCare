@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { colors } from '@/shared/theme';
 import { AppButton } from '@/shared/components';
@@ -9,8 +9,11 @@ import { ReminderCard } from '../components/ReminderCard';
 import { ReminderFormModal } from '../components/ReminderFormModal';
 import { reminderToForm, type Reminder, type ReminderForm } from '../services/reminder-contract';
 import { createReminder, deleteReminder, listReminders, setReminderActive, updateReminder } from '../services/reminder-service';
+import { localNotificationsSupported, reminderNotifications } from '../services/reminder-notifications';
 
 export function RemindersScreen() {
+  const notifications = useSyncExternalStore(reminderNotifications.subscribe,
+    reminderNotifications.getSnapshot, reminderNotifications.getSnapshot);
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
@@ -94,6 +97,16 @@ export function RemindersScreen() {
     <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.sectionTitle}>Todos os lembretes</Text>
       <Text>Lembretes para data e hora específicas.</Text>
+      <View style={{ gap: 10, marginVertical: 16 }}>
+        <Text accessibilityLiveRegion="polite">{notifications.message}</Text>
+        {localNotificationsSupported ? <>
+          <AppButton title={notifications.enabled ? 'Desativar alertas neste aparelho' : 'Ativar alertas neste aparelho'}
+            variant="secondary" disabled={notifications.busy || busy}
+            onPress={() => { void (notifications.enabled ? reminderNotifications.disable() : reminderNotifications.enable()).catch(() => undefined); }} />
+          <AppButton title="Sincronizar alertas" variant="secondary" disabled={notifications.busy || busy}
+            onPress={() => { void reminderNotifications.refresh().catch(() => undefined); }} />
+        </> : null}
+      </View>
       {loading ? <ActivityIndicator accessibilityLabel="Carregando lembretes" color={colors.primary} /> : loadError ?
         <Text accessibilityRole="alert" style={{ color: colors.error }}>{loadError}</Text> :
         <View style={styles.remindersList}>
@@ -108,7 +121,7 @@ export function RemindersScreen() {
         </View>}
       {actionError && !pendingDelete ? <Text accessibilityRole="alert" style={{ color: colors.error }}>{actionError}</Text> : null}
       {busy ? <ActivityIndicator accessibilityLabel="Atualizando lembrete" color={colors.primary} /> : null}
-      <AppButton title="Atualizar lista" variant="secondary" disabled={disabled} onPress={() => { setActionError(''); setRevision((value) => value + 1); }} />
+      <AppButton title="Atualizar lista" variant="secondary" disabled={disabled} onPress={() => { setActionError(''); setRevision((value) => value + 1); void reminderNotifications.refresh().catch(() => undefined); }} />
       <AppButton title="Adicionar lembrete" disabled={disabled} onPress={openCreate} />
     </ScrollView>
     <ReminderFormModal visible={modalVisible} mode={editingReminder ? 'edit' : 'create'}

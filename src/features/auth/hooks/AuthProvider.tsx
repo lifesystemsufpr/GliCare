@@ -6,23 +6,33 @@ import { errorMessage } from '@/shared/api/errors';
 import { currentUserRequest, loginRequest } from '../services/auth-service';
 import { AuthSession } from '../services/auth-session';
 import { sessionStorage } from '../services/session-storage';
+import { reminderNotifications } from '@/features/reminders/services/reminder-notifications';
 
 const AuthContext = createContext<AuthSession | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session] = useState(() => new AuthSession({
-    storage: sessionStorage,
+    storage: {
+      ...sessionStorage,
+      clear: async () => {
+        await Promise.all([sessionStorage.clear(), reminderNotifications.clearSession()]);
+      },
+    },
     login: loginRequest,
     currentUser: currentUserRequest,
     isUnauthorized: (error) => axios.isAxiosError(error) && error.response?.status === 401,
     message: errorMessage,
     setToken: (token) => {
+      if (!token) reminderNotifications.setOwner(null);
       if (token) api.defaults.headers.common.Authorization = 'Bearer ' + token;
       else delete api.defaults.headers.common.Authorization;
     },
   }));
 
   useEffect(() => {
+    const unsubscribe = session.subscribe(() => {
+      reminderNotifications.setOwner(session.getSnapshot().user?.id ?? null);
+    });
     const interceptor = api.interceptors.response.use((response) => response, (error: unknown) => {
       if (axios.isAxiosError(error) && error.response?.status === 401) {
         const header = error.config?.headers.Authorization;
@@ -37,6 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (state === 'active' && session.hasSession()) void session.restore();
     });
     return () => {
+      unsubscribe();
       api.interceptors.response.eject(interceptor);
       subscription.remove();
       session.cancelPending();

@@ -1,8 +1,10 @@
 import { Stack } from 'expo-router';
 import { AuthProvider, useAuth } from '@/features/auth/hooks/AuthProvider';
+import { useReminderNotificationNavigation } from '@/features/reminders/hooks/useReminderNotificationNavigation';
 
 function RootNavigator() {
   const { user } = useAuth();
+  useReminderNotificationNavigation(Boolean(user));
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />

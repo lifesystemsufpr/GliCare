@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { remindersChanged } from './reminder-events';
 import { api } from '@/shared/api';
 import { reminderToApi, reminderToPatch, type Reminder, type ReminderForm } from './reminder-contract';
 
@@ -8,7 +9,11 @@ function confirmed(data: Reminder): Reminder {
   return data;
 }
 async function mutation<T>(action: () => Promise<T>): Promise<T> {
-  try { return await action(); }
+  try {
+    const result = await action();
+    remindersChanged();
+    return result;
+  }
   catch (error) {
     if (axios.isAxiosError(error) && !error.response) throw new Error('Não foi possível confirmar a operação. Atualize a lista antes de reenviar.');
     throw error;
