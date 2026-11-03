@@ -5,9 +5,9 @@ import { colors } from '@/shared/theme';
 
 interface ProfileCardProps {
   name: string;
-  age: number;
-  weight: number;
-  height: number;
+  age: number | null;
+  weight: number | null;
+  height: number | null;
 }
 
 export function ProfileCard({
@@ -31,7 +31,7 @@ export function ProfileCard({
       </Text>
 
       <Text style={styles.age}>
-        {age} anos
+        {age == null ? 'Idade não informada' : `${age} anos`}
       </Text>
 
       <View style={styles.infoRow}>
@@ -45,7 +45,7 @@ export function ProfileCard({
             numberOfLines={1}
             adjustsFontSizeToFit
           >
-            {`${weight} kg`}
+            {weight == null ? 'Não informado' : `${weight} kg`}
           </Text>
         </View>
 
@@ -59,7 +59,7 @@ export function ProfileCard({
             numberOfLines={1}
             adjustsFontSizeToFit
           >
-            {`${height.toFixed(2)} m`}
+            {height == null ? 'Não informada' : `${height.toLocaleString('pt-BR', { maximumFractionDigits: 4 })} m`}
           </Text>
         </View>
       </View>

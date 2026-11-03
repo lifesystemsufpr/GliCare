@@ -1,7 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 import {
     Alert,
+    ActivityIndicator,
     Pressable,
     ScrollView,
     StyleSheet,
@@ -16,23 +19,32 @@ import { DiabetesCard } from '../components/DiabetesCard';
 import { EmergencyContactCard } from '../components/EmergencyContactCard';
 import { ProfileCard } from '../components/ProfileCard';
 import { SettingsCard } from '../components/SettingsCard';
-
-const mockProfile = {
-  name: 'Ana Silva',
-  age: 34,
-  weight: 68,
-  height: 1.65,
-  diabetesType: 'Tipo 1',
-
-  emergencyContact: {
-    name: 'Carlos Silva',
-    relationship: 'Marido',
-    phone: '(11) 98765-4321',
-  },
-};
+import { ProfileEditForm } from '../components/ProfileEditForm';
+import { AppButton } from '@/shared/components';
+import { getProfile } from '../services/profile-service';
+import { diabetesLabels, profileToForm, type Profile } from '../services/profile-contract';
 
 export function ProfileScreen() {
   const { signOut } = useAuth();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [editing, setEditing] = useState(false);
+  const [retry, setRetry] = useState(0);
+  useFocusEffect(useCallback(() => {
+    if (editing) return;
+    const controller = new AbortController();
+    setLoading(true);
+    setLoadError('');
+    void getProfile(controller.signal).then((data) => {
+      if (!controller.signal.aborted) setProfile(data);
+    }).catch((error: unknown) => {
+      if (!controller.signal.aborted) { setProfile(null); setLoadError(errorMessage(error)); }
+    }).finally(() => {
+      if (!controller.signal.aborted) setLoading(false);
+    });
+    return () => controller.abort();
+  }, [editing, retry]));
   async function handleLogout() {
     try { await signOut(); }
     catch (error) { Alert.alert('Não foi possível limpar a sessão salva', errorMessage(error)); }
@@ -75,24 +87,23 @@ export function ProfileScreen() {
         </Pressable>
       </View>
 
-      <ProfileCard
-        name={mockProfile.name}
-        age={mockProfile.age}
-        weight={mockProfile.weight}
-        height={mockProfile.height}
-      />
-
-      <DiabetesCard
-        type={mockProfile.diabetesType}
-      />
-
-      <EmergencyContactCard
-        name={mockProfile.emergencyContact.name}
-        relationship={
-          mockProfile.emergencyContact.relationship
-        }
-        phone={mockProfile.emergencyContact.phone}
-      />
+      {loading ? <ActivityIndicator accessibilityLabel="Carregando perfil" color={colors.primary} /> : loadError ? <>
+        <Text accessibilityRole="alert" style={{ color: colors.error }}>{loadError}</Text>
+        <AppButton title="Tentar novamente" onPress={() => setRetry((value) => value + 1)} />
+      </> : profile ? editing ? <ProfileEditForm initial={profile}
+        onSaved={(saved) => { setProfile(saved); setEditing(false); Alert.alert('Perfil atualizado', 'Suas alterações foram salvas.'); }}
+        onCancel={() => setEditing(false)} /> : <>
+        <ProfileCard name={profile.nome} age={profile.idade} weight={profile.pesoKg}
+          height={profile.alturaCm == null ? null : profile.alturaCm / 100} />
+        <Text>Data de nascimento: {profileToForm(profile).birthDate || 'Não informada'}</Text>
+        <DiabetesCard type={profile.tipoDiabetes ? diabetesLabels[profile.tipoDiabetes] : 'Não informado'} />
+        {profile.contatoEmergencia ? <EmergencyContactCard
+          name={profile.contatoEmergencia.nome ?? 'Não informado'}
+          relationship={profile.contatoEmergencia.relacao ?? 'Não informada'}
+          phone={profile.contatoEmergencia.telefone ?? 'Não informado'} /> : <Text>Contato de emergência não informado.</Text>}
+        <AppButton title="Editar perfil" onPress={() => setEditing(true)} />
+        <AppButton title="Atualizar perfil" variant="secondary" onPress={() => setRetry((value) => value + 1)} />
+      </> : null}
 
       <SettingsCard />
 
