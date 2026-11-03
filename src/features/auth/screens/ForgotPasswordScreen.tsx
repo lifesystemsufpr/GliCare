@@ -1,4 +1,7 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { requestPasswordRecovery } from '../services/recovery-service';
+import { RECOVERY_MESSAGE } from '../services/recovery-contract';
+import { errorMessage } from '@/shared/api/errors';
 
 import {
   Pressable,
@@ -22,22 +25,19 @@ import {
 } from '../../../shared/theme';
 
 export function ForgotPasswordScreen() {
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState('');
+  const [sent, setSent] = useState(false);
+  const busy = useRef(false);
   const [email, setEmail] =
     useState('');
 
-  function handleRecoverPassword() {
-    if (!email.trim()) {
-      console.log(
-        'Informe seu e-mail.'
-      );
-
-      return;
-    }
-
-    console.log(
-      'Solicitar recuperação:',
-      email,
-    );
+  async function handleRecoverPassword() {
+    if (busy.current) return;
+    busy.current = true; setSending(true); setError(''); setSent(false);
+    try { await requestPasswordRecovery(email); setSent(true); }
+    catch (cause) { setError(errorMessage(cause)); }
+    finally { busy.current = false; setSending(false); }
   }
 
 function handleBackToLogin() {
@@ -124,18 +124,25 @@ function handleBackToLogin() {
   keyboardType="email-address"
   autoCapitalize="none"
   autoCorrect={false}
+  editable={!sending}
 />
 
 <View style={styles.recoveryButton}>
   <AppButton
     title="Enviar link de recuperação"
     onPress={handleRecoverPassword}
+    loading={sending}
   />
 </View>
 
+          {sent ? <Text accessibilityRole="alert">{RECOVERY_MESSAGE}</Text> : null}
+          {error ? <Text accessibilityRole="alert" style={{ color: colors.error }}>{error}</Text> : null}
+          <AppButton title="Já tenho o código" variant="secondary" disabled={sending}
+            onPress={() => router.push('/reset-password')} />
 
           <AppButton
             title="Voltar para o login"
+            disabled={sending}
             variant="secondary"
             onPress={
               handleBackToLogin

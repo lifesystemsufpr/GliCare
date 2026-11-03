@@ -48,6 +48,7 @@
     "test:home": "node --test scripts/home.test.mjs",
     "test:dashboard": "node --test scripts/dashboard.test.mjs",
     "test:reports": "node --test scripts/reports.test.mjs",
+    "test:recovery": "node --test scripts/recovery.test.mjs",
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
