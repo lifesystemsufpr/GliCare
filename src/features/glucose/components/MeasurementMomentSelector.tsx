@@ -7,14 +7,8 @@ import {
 
 import { colors } from '@/shared/theme';
 
-export type MeasurementMoment =
-  | 'fasting'
-  | 'beforeBreakfast'
-  | 'afterBreakfast'
-  | 'beforeLunch'
-  | 'afterLunch'
-  | 'beforeDinner'
-  | 'afterDinner';
+import type { MeasurementMoment } from '../services/glucose-contract';
+export type { MeasurementMoment } from '../services/glucose-contract';
 
 interface MeasurementMomentSelectorProps {
   value: MeasurementMoment;

@@ -3,9 +3,13 @@ import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker, {
   DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { createGlucose } from '../services/glucose-service';
+import { errorMessage } from '@/shared/api/errors';
+import { GlucoseHistory } from '../components/GlucoseHistory';
 import {
   Alert,
+  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -22,6 +26,10 @@ import {
 } from '../components/MeasurementMomentSelector';
 
 export function GlucoseRegisterScreen() {
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [revision, setRevision] = useState(0);
+  const busy = useRef(false);
   const [glucoseValue, setGlucoseValue] = useState('');
 
   const [moment, setMoment] =
@@ -102,8 +110,10 @@ export function GlucoseRegisterScreen() {
     }
   }
 
-  function handleSave() {
+  async function handleSave() {
+    if (busy.current) return;
     setGlucoseError('');
+    setSaveError('');
 
     if (!glucoseValue.trim()) {
       setGlucoseError(
@@ -112,45 +122,22 @@ export function GlucoseRegisterScreen() {
       return;
     }
 
-    const value = Number(glucoseValue);
-
-    if (Number.isNaN(value) || value <= 0) {
-      setGlucoseError(
-        'Informe um valor válido.',
-      );
-      return;
+    busy.current = true;
+    setSaving(true);
+    try {
+      await createGlucose({ value: glucoseValue, moment, measuredAt: dateTime, notes });
+      setGlucoseValue('');
+      setMoment('fasting');
+      setDateTime(new Date());
+      setNotes('');
+      setRevision((value) => value + 1);
+      Alert.alert('Registro salvo', 'Sua glicemia foi registrada com sucesso.');
+    } catch (error) {
+      setSaveError(errorMessage(error));
+    } finally {
+      busy.current = false;
+      setSaving(false);
     }
-
-    if (dateTime.getTime() > Date.now()) {
-      Alert.alert(
-        'Data inválida',
-        'A data e a hora da medição não podem estar no futuro.',
-      );
-      return;
-    }
-
-    const glucoseRecord = {
-      value,
-      moment,
-      measuredAt: dateTime.toISOString(),
-      notes: notes.trim(),
-    };
-
-    console.log(
-      'Registro de glicemia:',
-      glucoseRecord,
-    );
-
-    Alert.alert(
-      'Registro salvo',
-      'Sua glicemia foi registrada com sucesso.',
-    );
-
-    setGlucoseValue('');
-    setMoment('fasting');
-    setDateTime(new Date());
-    setNotes('');
-    setGlucoseError('');
   }
 
   return (
@@ -181,7 +168,7 @@ export function GlucoseRegisterScreen() {
 
         {/* Formulário */}
 
-        <View style={styles.form}>
+        <View style={styles.form} pointerEvents={saving ? 'none' : 'auto'}>
           {/* Valor */}
 
           <View style={styles.field}>
@@ -202,8 +189,9 @@ export function GlucoseRegisterScreen() {
                 onChangeText={handleGlucoseChange}
                 placeholder="Ex: 105"
                 placeholderTextColor="#9CA3AF"
-                keyboardType="numeric"
-                maxLength={3}
+                keyboardType="decimal-pad"
+                maxLength={6}
+                editable={!saving}
                 style={styles.glucoseTextInput}
               />
 
@@ -324,13 +312,15 @@ export function GlucoseRegisterScreen() {
               placeholderTextColor="#9CA3AF"
               multiline
               textAlignVertical="top"
-              maxLength={500}
+              maxLength={255}
+              editable={!saving}
               style={styles.notesInput}
             />
           </View>
 
           {/* Botão */}
 
+          {saveError ? <Text accessibilityRole="alert" style={styles.errorText}>{saveError}</Text> : null}
           <Pressable
             style={({ pressed }) => [
               styles.saveButton,
@@ -338,18 +328,22 @@ export function GlucoseRegisterScreen() {
                 styles.saveButtonPressed,
             ]}
             onPress={handleSave}
+            disabled={saving}
+            accessibilityRole="button"
+            accessibilityState={{ disabled: saving, busy: saving }}
           >
-            <Ionicons
+            {saving ? <ActivityIndicator color="#FFFFFF" /> : <Ionicons
               name="save-outline"
               size={19}
               color="#FFFFFF"
-            />
+            />}
 
             <Text style={styles.saveButtonText}>
-              Salvar Registro
+              {saving ? 'Salvando...' : 'Salvar Registro'}
             </Text>
           </Pressable>
         </View>
+        <GlucoseHistory revision={revision} />
       </ScrollView>
     </KeyboardAvoidingView>
   );
