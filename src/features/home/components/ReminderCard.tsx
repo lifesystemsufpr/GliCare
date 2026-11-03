@@ -6,11 +6,13 @@ import { colors } from '@/shared/theme';
 interface ReminderCardProps {
   time: string;
   title: string;
+  date?: string;
 }
 
 export function ReminderCard({
   time,
   title,
+  date,
 }: ReminderCardProps) {
   return (
     <View style={styles.card}>
@@ -24,6 +26,7 @@ export function ReminderCard({
       </View>
 
       <Text style={styles.time}>{time}</Text>
+      {date ? <Text style={{ fontSize: 11, color: '#4B5563' }}>{date}</Text> : null}
 
       <Text style={styles.description}>
         {title}

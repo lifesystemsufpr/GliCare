@@ -4,8 +4,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import { colors } from '@/shared/theme';
 
 interface GlucoseCardProps {
-  value: number;
-  status: string;
+  value: number | null;
+  status: 'NORMAL' | 'ALTA' | 'BAIXA' | null;
   measuredAt: string;
 }
 
@@ -14,6 +14,8 @@ export function GlucoseCard({
   status,
   measuredAt,
 }: GlucoseCardProps) {
+  const statusText = status ? { NORMAL: 'Normal', ALTA: 'Alta', BAIXA: 'Baixa' }[status] : 'Sem registro';
+  const statusColor = status === 'NORMAL' ? '#15803D' : status ? '#B45309' : '#6B7280';
   return (
     <View style={styles.card}>
       {/* Gota decorativa no fundo */}
@@ -38,15 +40,15 @@ export function GlucoseCard({
           </Text>
         </View>
 
-        <View style={styles.statusBadge}>
+        <View style={[styles.statusBadge, { backgroundColor: status === 'NORMAL' ? '#EAF7ED' : status ? '#FFF7ED' : '#F3F4F6' }]}>
           <Ionicons
-            name="checkmark-circle-outline"
+            name={status === 'NORMAL' ? 'checkmark-circle-outline' : 'information-circle-outline'}
             size={13}
-            color="#15803D"
+            color={statusColor}
           />
 
-          <Text style={styles.statusText}>
-            {status}
+          <Text style={[styles.statusText, { color: statusColor }]}>
+            {statusText}
           </Text>
         </View>
       </View>
@@ -54,7 +56,7 @@ export function GlucoseCard({
       {/* Valor */}
       <View style={styles.valueRow}>
         <Text style={styles.value}>
-          {value}
+          {value ?? '—'}
         </Text>
 
         <Text style={styles.unit}>

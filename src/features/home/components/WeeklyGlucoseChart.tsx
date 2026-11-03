@@ -1,63 +1,62 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '@/shared/theme';
-
-interface GlucoseData {
-  day: string;
-  value: number;
-}
+import { chartScale, type WeeklyPoint } from '../services/home-model';
 
 interface WeeklyGlucoseChartProps {
-  data: GlucoseData[];
+  data: WeeklyPoint[];
 }
 
 export function WeeklyGlucoseChart({
   data,
 }: WeeklyGlucoseChartProps) {
-  const chartMin = 70;
-  const chartMax = 140;
+  const { min: chartMin, max: chartMax } = chartScale(data);
 
   return (
     <View>
       <View style={styles.header}>
         <Text style={styles.sectionTitle}>Últimos 7 dias</Text>
-        <Text style={styles.details}>Ver detalhes</Text>
       </View>
+      <Text style={{ fontSize: 12, marginBottom: 8, color: '#4B5563' }}>Última medição de cada dia · mg/dL · — sem registro</Text>
 
       <View style={styles.card}>
+        <View style={{ flexDirection: 'row' }}>
+          <View style={{ height: 100, justifyContent: 'space-between', marginRight: 8 }}>
+            <Text style={styles.axisLabel}>{chartMax}</Text>
+            <Text style={styles.axisLabel}>{chartMax / 2}</Text>
+            <Text style={styles.axisLabel}>{chartMin}</Text>
+          </View>
         <View style={styles.chart}>
           {data.map((item) => {
             const normalized = Math.max(
               0,
               Math.min(
                 1,
-                (item.value - chartMin) / (chartMax - chartMin),
+                ((item.value ?? chartMin) - chartMin) / (chartMax - chartMin),
               ),
             );
 
             return (
-              <View key={item.day} style={styles.column}>
+              <View key={item.date} style={styles.column}>
                 <View style={styles.plotArea}>
-                  <View
+                  {item.value != null ? <View
+                    accessibilityLabel={`${item.day}: ${item.value} mg/dL`}
                     style={[
                       styles.point,
                       {
-                        bottom: normalized * 55,
+                         bottom: normalized * 95,
                       },
                     ]}
-                  />
+                  /> : null}
                 </View>
 
                 <Text style={styles.day}>{item.day}</Text>
+                <Text style={{ fontSize: 10 }}>{item.value ?? '—'}</Text>
               </View>
             );
           })}
         </View>
 
-        <View style={styles.labels}>
-          <Text style={styles.axisLabel}>140</Text>
-          <Text style={styles.axisLabel}>105</Text>
-          <Text style={styles.axisLabel}>70</Text>
         </View>
       </View>
     </View>
@@ -87,11 +86,11 @@ details: {
 
 card: {
   position: 'relative',
-  height: 180,
+  height: 190,
   paddingTop: 20,
   paddingRight: 14,
   paddingBottom: 14,
-  paddingLeft: 36,
+  paddingLeft: 12,
   backgroundColor: '#FFFFFF',
   borderRadius: 12,
   borderWidth: 1,
@@ -111,7 +110,7 @@ card: {
   plotArea: {
     position: 'relative',
     width: '100%',
-    height: 64,
+    height: 100,
   },
 
   point: {
@@ -125,7 +124,7 @@ card: {
 
   day: {
     marginTop: 3,
-    fontSize: 7,
+    fontSize: 10,
     color: '#6B7280',
   },
 
@@ -138,7 +137,7 @@ card: {
   },
 
   axisLabel: {
-    fontSize: 6,
+    fontSize: 10,
     color: '#9CA3AF',
   },
 });

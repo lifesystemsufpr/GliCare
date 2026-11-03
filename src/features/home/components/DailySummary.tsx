@@ -40,7 +40,7 @@ function SummaryRow({
           !completed && styles.pendingStatus,
         ]}
       >
-        {completed ? 'Concluído' : 'Pendente'}
+        {completed ? 'Registrado hoje' : 'Sem registro hoje'}
       </Text>
     </View>
   );
@@ -52,7 +52,7 @@ export function DailySummary({
 }: DailySummaryProps) {
   return (
     <View>
-      <Text style={styles.sectionTitle}>Resumo Diário</Text>
+      <Text style={styles.sectionTitle}>Registros de hoje</Text>
 
       <View style={styles.card}>
         <SummaryRow

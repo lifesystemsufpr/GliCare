@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { colors } from '@/shared/theme';
 
 interface InsulinCardProps {
-  dose: number;
+  dose: number | null;
   type: string;
   appliedAt: string;
 }
@@ -26,7 +26,7 @@ export function InsulinCard({
       </View>
 
       <View style={styles.valueRow}>
-        <Text style={styles.value}>{dose}</Text>
+        <Text style={styles.value}>{dose ?? '—'}</Text>
         <Text style={styles.unit}>UI</Text>
       </View>
 

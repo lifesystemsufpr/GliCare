@@ -1,72 +1,66 @@
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useAuth } from '@/features/auth/hooks/AuthProvider';
-import {
-  ScrollView,
-  StyleSheet,
-  View,
-} from 'react-native';
-
+import { AppButton } from '@/shared/components';
+import { errorMessage } from '@/shared/api/errors';
 import { DailySummary } from '../components/DailySummary';
 import { GlucoseCard } from '../components/GlucoseCard';
 import { HomeHeader } from '../components/HomeHeader';
 import { InsulinCard } from '../components/InsulinCard';
 import { ReminderCard } from '../components/ReminderCard';
 import { WeeklyGlucoseChart } from '../components/WeeklyGlucoseChart';
+import { loadHomeSources } from '../services/home-service';
+import { buildHomeSummary, type HomeSources, type HomeSummary } from '../services/home-model';
 
 export function HomeScreen() {
   const { user } = useAuth();
-  function handleOpenReminders() {
-    router.push('/lembretes');
-  }
-
-  return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-      showsVerticalScrollIndicator={false}
-    >
-      <HomeHeader
-        userName={user?.nome ?? ''}
-        onPressNotifications={handleOpenReminders}
-      />
-
-      <GlucoseCard
-        value={98}
-        status="Normal"
-        measuredAt="Hoje, 07:30"
-      />
-
+  const [summary, setSummary] = useState<HomeSummary | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [revision, setRevision] = useState(0);
+  useFocusEffect(useCallback(() => {
+    const controller = new AbortController();
+    let sources: HomeSources | null = null;
+    setLoading(true);
+    setSummary(null);
+    setError('');
+    void loadHomeSources(controller.signal).then((data) => {
+      if (controller.signal.aborted) return;
+      const result = buildHomeSummary(data);
+      sources = data;
+      setSummary(result);
+    }).catch((cause: unknown) => {
+      if (!controller.signal.aborted) setError(errorMessage(cause));
+    }).finally(() => {
+      if (!controller.signal.aborted) setLoading(false);
+    });
+    // Reavalia virada do dia e passagem de lembretes sem repetir as consultas.
+    const clock = setInterval(() => { if (sources) setSummary(buildHomeSummary(sources)); }, 60000);
+    return () => { controller.abort(); clearInterval(clock); };
+  }, [revision]));
+  const glucose = summary?.lastGlucose;
+  const insulin = summary?.lastInsulin;
+  const reminder = summary?.nextReminder;
+  return <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <HomeHeader userName={user?.nome ?? ''} onPressNotifications={() => router.push('/lembretes')} />
+    {loading ? <ActivityIndicator accessibilityLabel="Carregando resumo da rotina" /> : error ?
+      <Text accessibilityRole="alert" style={{ color: '#B91C1C' }}>{error}</Text> : summary ? <>
+      <GlucoseCard value={glucose?.valor ?? null} status={glucose?.status ?? null}
+        measuredAt={glucose ? new Date(glucose.dataHora).toLocaleString('pt-BR') : 'Nenhuma medição registrada.'} />
       <View style={styles.cardsRow}>
-        <InsulinCard
-          dose={18}
-          type="NPH"
-          appliedAt="Hoje, 08:00"
-        />
-
-        <ReminderCard
-          time="20:00"
-          title="Aplicação de Insulina Basal"
-        />
+        <InsulinCard dose={insulin?.doseUi ?? null} type={insulin?.tipo ?? 'Nenhuma aplicação registrada.'}
+          appliedAt={insulin ? new Date(insulin.dataHora).toLocaleString('pt-BR') : ''} />
+        <ReminderCard time={reminder ? new Date(reminder.dataHora).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '—'}
+          date={reminder ? new Date(reminder.dataHora).toLocaleDateString('pt-BR') : ''}
+          title={reminder?.titulo ?? 'Nenhum lembrete ativo futuro.'} />
       </View>
-
-      <DailySummary
-        glucoseRegistered
-        insulinRegistered
-      />
-
-      <WeeklyGlucoseChart
-        data={[
-          { day: 'Seg', value: 98 },
-          { day: 'Ter', value: 105 },
-          { day: 'Qua', value: 92 },
-          { day: 'Qui', value: 110 },
-          { day: 'Sex', value: 101 },
-          { day: 'Sáb', value: 96 },
-          { day: 'Dom', value: 99 },
-        ]}
-      />
-    </ScrollView>
-  );
+      <DailySummary glucoseRegistered={summary.glucoseToday} insulinRegistered={summary.insulinToday} />
+      <WeeklyGlucoseChart data={summary.weekly} />
+    </> : null}
+    <AppButton title={error ? 'Tentar novamente' : 'Atualizar resumo'} variant="secondary" disabled={loading}
+      onPress={() => setRevision((value) => value + 1)} />
+  </ScrollView>;
 }
 
 const styles = StyleSheet.create({
