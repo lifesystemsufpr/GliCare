@@ -12,7 +12,7 @@ export const momentLabels: Record<ApiMoment, string> = {
 };
 export type GlucoseRecord = {
   id: string; valor: number; momento: ApiMoment;
-  status: 'BAIXA' | 'NORMAL' | 'ALTA'; dataHora: string; observacao: string | null;
+  hipoglicemiaNivel2: boolean; status: 'BAIXA' | 'NORMAL' | 'ALTA'; dataHora: string; observacao: string | null;
 };
 export type GlucoseForm = {
   value: string; moment: MeasurementMoment; measuredAt: Date; notes: string;

@@ -2,7 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { makeStyles } from '@/shared/theme';
 
-import type { InsulinType } from '../services/insulin-contract';
+import { insulinTypeLabels, type InsulinType } from '../services/insulin-contract';
 export type { InsulinType } from '../services/insulin-contract';
 
 interface InsulinTypeSelectorProps {
@@ -10,15 +10,7 @@ interface InsulinTypeSelectorProps {
   onChange: (value: InsulinType) => void;
 }
 
-const insulinTypes: {
-  label: string;
-  value: InsulinType;
-}[] = [
-  { label: 'Rápida', value: 'rapid' },
-  { label: 'Regular', value: 'regular' },
-  { label: 'NPH', value: 'nph' },
-  { label: 'Longa duração', value: 'longActing' },
-];
+const insulinTypes = Object.entries(insulinTypeLabels) as [InsulinType, string][];
 
 export function InsulinTypeSelector({
   value,
@@ -27,13 +19,13 @@ export function InsulinTypeSelector({
   const styles = useStyles();
   return (
     <View style={styles.container}>
-      {insulinTypes.map((type) => {
-        const selected = value === type.value;
+      {insulinTypes.map(([type, label]) => {
+        const selected = value === type;
 
         return (
           <Pressable
-            key={type.value}
-            onPress={() => onChange(type.value)}
+            key={type}
+            onPress={() => onChange(type)}
             style={[
               styles.option,
               selected && styles.selectedOption,
@@ -45,7 +37,7 @@ export function InsulinTypeSelector({
                 selected && styles.selectedOptionText,
               ]}
             >
-              {type.label}
+              {label}
             </Text>
           </Pressable>
         );
@@ -56,14 +48,13 @@ export function InsulinTypeSelector({
 
 const useStyles = makeStyles((c) => StyleSheet.create({
   container: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     gap: 6,
     width: '100%',
   },
 
   option: {
-    flex: 1,
-    minHeight: 38,
+    minHeight: 44,
     paddingHorizontal: 4,
     paddingVertical: 8,
 
@@ -82,7 +73,7 @@ const useStyles = makeStyles((c) => StyleSheet.create({
   },
 
   optionText: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '500',
     color: c.gray700,
     textAlign: 'center',

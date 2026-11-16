@@ -4,7 +4,7 @@ import { registerHooks } from 'node:module';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { AxiosError } from 'axios';
-import { insulinToApi, insulinTypeLabels, siteToApi } from '../src/features/insulin/services/insulin-contract.ts';
+import { insulinToApi, insulinTypeLabels, insulinTypeLabel, siteToApi } from '../src/features/insulin/services/insulin-contract.ts';
 
 registerHooks({
   resolve(specifier, context, nextResolve) {
@@ -20,9 +20,9 @@ registerHooks({
 process.env.EXPO_PUBLIC_API_URL = 'https://api.example.test/api';
 const { api } = await import('../src/shared/api/api.ts');
 const { createInsulin, listInsulin } = await import('../src/features/insulin/services/insulin-service.ts');
-const form = { type: 'rapid', dose: '10,25', applicationSite: 'abdomen',
+const form = { type: 'ULTRARRAPIDA', dose: '10,25', applicationSite: 'abdomen',
   appliedAt: new Date('2026-01-01T08:30:00-03:00'), notes: ' Teste sintético ' };
-const record = { id: 'synthetic-id', tipo: 'Rápida', doseUi: 10.25,
+const record = { id: 'synthetic-id', tipo: 'ULTRARRAPIDA', doseUi: 10.25,
   localAplicacao: 'ABDOMEN', dataHora: '2026-01-01T11:30:00.000Z', observacao: 'Teste sintético' };
 const calls = [];
 let data = record;
@@ -35,12 +35,17 @@ api.defaults.adapter = async (config) => {
 };
 
 test('adapta dose decimal, tipo, local e instante com fuso para a API', () => {
-  assert.deepEqual(insulinToApi(form), { tipo: 'Rápida', doseUi: 10.25, localAplicacao: 'ABDOMEN',
+  assert.deepEqual(insulinToApi(form), { tipo: 'ULTRARRAPIDA', doseUi: 10.25, localAplicacao: 'ABDOMEN',
     dataHora: '2026-01-01T11:30:00.000Z', observacao: 'Teste sintético' });
 });
-test('os quatro tipos existentes enviam os rótulos da interface', () => {
-  assert.deepEqual(Object.values(insulinTypeLabels), ['Rápida', 'Regular', 'NPH', 'Longa duração']);
-  for (const type of Object.keys(insulinTypeLabels)) assert.equal(insulinToApi({ ...form, type }).tipo, insulinTypeLabels[type]);
+test('tipos fechados enviam códigos e exibem rótulos, preservando textos antigos', () => {
+  assert.deepEqual(Object.keys(insulinTypeLabels), ['ULTRARRAPIDA', 'RAPIDA', 'INTERMEDIARIA', 'LONGA', 'ULTRALONGA', 'PRE_MISTURADA']);
+  for (const type of Object.keys(insulinTypeLabels)) {
+    assert.equal(insulinToApi({ ...form, type }).tipo, type);
+    assert.equal(insulinTypeLabel(type), insulinTypeLabels[type]);
+  }
+  assert.equal(insulinTypeLabel('Outro nome'), 'Outro nome');
+  assert.equal(insulinTypeLabel('toString'), 'toString');
 });
 test('os quatro locais são mapeados para o enum do backend', () => {
   assert.deepEqual(Object.values(siteToApi), ['ABDOMEN', 'BRACO', 'COXA', 'GLUTEO']);

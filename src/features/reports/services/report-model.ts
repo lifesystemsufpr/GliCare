@@ -1,3 +1,4 @@
+import { insulinTypeLabel } from '../../insulin/services/insulin-contract';
 import { formatNumber, glucoseStatusLabels, type GlucoseStatus } from '../../../shared/format';
 import { periodDays, type DashboardSummary, type Period } from '../../dashboard/services/dashboard-model';
 import { momentLabels, type ApiMoment } from '../../glucose/services/glucose-contract';
@@ -42,7 +43,7 @@ function toRow(record: ApiRecord): ReportRow {
     return {
       id: 'insulin:' + record.id, kind: 'Insulina', occurredAt: record.dateTime,
       value: `${formatNumber(i.doseUi)} UI`,
-      detail: `${i.tipo} · ${i.localAplicacao ? siteLabels[i.localAplicacao] ?? i.localAplicacao : 'Local não informado'}`,
+      detail: `${insulinTypeLabel(i.tipo)} · ${i.localAplicacao ? siteLabels[i.localAplicacao] ?? i.localAplicacao : 'Local não informado'}`,
       notes: i.observacao ?? '',
     };
   }

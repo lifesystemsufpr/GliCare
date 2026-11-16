@@ -1,3 +1,4 @@
+import { insulinTypeLabel } from '../services/insulin-contract';
 import { formatDateTime, formatNumber } from '@/shared/format';
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
@@ -41,7 +42,7 @@ export function InsulinHistory({ revision }: { revision: number }) {
     </> : <>
       {records.length === 0 ? <Text style={{ color: c.defaultText }}>Nenhuma aplicação registrada.</Text> : records.slice(0, visible).map((record) => (
         <View key={record.id} style={styles.card}>
-          <Text style={styles.value}>{formatNumber(record.doseUi)} UI · {record.tipo}</Text>
+          <Text style={styles.value}>{formatNumber(record.doseUi)} UI · {insulinTypeLabel(record.tipo)}</Text>
           <Text style={{ color: c.defaultText }}>{record.localAplicacao ? siteLabels[record.localAplicacao] ?? record.localAplicacao : 'Local não informado'}</Text>
           <Text style={{ color: c.defaultText }}>{formatDateTime(record.dataHora)}</Text>
           {record.observacao ? <Text style={{ color: c.defaultText }}>{record.observacao}</Text> : null}

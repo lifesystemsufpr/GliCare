@@ -127,13 +127,13 @@ export function GlucoseRegisterScreen() {
     busy.current = true;
     setSaving(true);
     try {
-      await createGlucose({ value: glucoseValue, moment, measuredAt: dateTime, notes });
+      const saved = await createGlucose({ value: glucoseValue, moment, measuredAt: dateTime, notes });
       setGlucoseValue('');
       setMoment('fasting');
       setDateTime(new Date());
       setNotes('');
       setRevision((value) => value + 1);
-      Alert.alert('Registro salvo', 'Sua glicemia foi registrada com sucesso.');
+      Alert.alert(saved.hipoglicemiaNivel2 ? 'Atenção: glicemia muito baixa' : 'Registro salvo', saved.hipoglicemiaNivel2 ? 'Glicemia abaixo de 54 mg/dL. Isso é uma hipoglicemia que precisa de atenção agora. Siga o plano para hipoglicemia combinado com sua equipe de saúde e meça de novo. Se houver confusão, desmaio ou convulsão, ligue 192 (SAMU).' : 'Sua glicemia foi registrada com sucesso.');
     } catch (error) {
       setSaveError(errorMessage(error));
     } finally {

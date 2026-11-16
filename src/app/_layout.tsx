@@ -18,6 +18,8 @@ function RootNavigator() {
       }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="reset-password" />
+        <Stack.Screen name="termos" />
+        <Stack.Screen name="privacidade" />
         <Stack.Protected guard={Boolean(user)}>
           <Stack.Screen name="(main)" />
         </Stack.Protected>

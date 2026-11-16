@@ -7,12 +7,14 @@ interface GlucoseCardProps {
   value: number | null;
   status: 'NORMAL' | 'ALTA' | 'BAIXA' | null;
   measuredAt: string;
+  hipoglicemiaNivel2: boolean;
 }
 
 export function GlucoseCard({
   value,
   status,
   measuredAt,
+  hipoglicemiaNivel2,
 }: GlucoseCardProps) {
   const styles = useStyles();
   const c = useThemeColors();
@@ -66,6 +68,7 @@ export function GlucoseCard({
         </Text>
       </View>
 
+      {hipoglicemiaNivel2 ? <Text accessibilityRole="alert" style={styles.warning}>Abaixo de 54 mg/dL: siga o plano para hipoglicemia e meça de novo.</Text> : null}
       {/* Horário da medição */}
       <Text style={styles.date}>
         {measuredAt}
@@ -155,6 +158,7 @@ const useStyles = makeStyles((c) => StyleSheet.create({
     color: c.gray500,
   },
 
+  warning: { color: c.danger, marginTop: 8 },
   date: {
     marginTop: 3,
     fontSize: 11,
