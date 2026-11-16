@@ -168,7 +168,8 @@ O MVP possui:
 6. Perfil
    - informações pessoais
    - informações sobre diabetes
-   - contato de emergência
+   - (o contato de emergência foi removido do produto em nov/2026, por
+     decisão do PM; o cadastro tem duas etapas e o perfil é completado depois)
 
 7. Dashboard
    - indicadores de glicemia

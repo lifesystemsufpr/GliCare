@@ -40,14 +40,17 @@ export function ProfileScreen() {
     setLoading(true);
     setLoadError('');
     void getProfile(controller.signal).then((data) => {
-      if (!controller.signal.aborted) setProfile(data);
+      if (controller.signal.aborted) return;
+      setProfile(data);
+      // Mantém a sessão em dia se o perfil foi completado em outro aparelho.
+      if (typeof data.perfilCompleto === 'boolean') setProfileComplete(data.perfilCompleto);
     }).catch((error: unknown) => {
       if (!controller.signal.aborted) { setProfile(null); setLoadError(errorMessage(error)); }
     }).finally(() => {
       if (!controller.signal.aborted) setLoading(false);
     });
     return () => controller.abort();
-  }, [editing, retry]));
+  }, [editing, retry, setProfileComplete]));
   async function handleDeleteAccount() {
     if (deleting) return;
     setDeleting(true);
