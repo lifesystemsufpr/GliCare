@@ -63,13 +63,13 @@ export function ReportsScreen() {
     catch (cause) { if (!controller.signal.aborted) setExportError(errorMessage(cause)); }
     finally { busy.current = false; setExporting(false); exportAbort.current = null; }
   }
-  return <ScrollView style={{ flex: 1, backgroundColor: '#FAFAFA' }} contentContainerStyle={{ ...contentWidth, padding: 20, gap: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+  return <ScrollView style={{ flex: 1, backgroundColor: colors.screen }} contentContainerStyle={{ ...contentWidth, padding: 20, gap: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
     <Text style={{ fontSize: 26, fontWeight: '700', color: colors.text }}>Relatórios</Text>
     <Text>Consulte e exporte glicemias e aplicações de insulina.</Text>
     <View style={{ flexDirection: 'row', gap: 8 }}>{([7, 30, 90] as const).map((days) => <View key={days} style={{ flex: 1 }}>
       <AppButton title={`${days} dias`} variant={selected === days ? 'primary' : 'secondary'} disabled={exporting} onPress={() => choose(days)} />
     </View>)}</View>
-    <View style={{ backgroundColor: '#FFFFFF', padding: 16, borderRadius: 12, gap: 8 }}>
+    <View style={{ backgroundColor: colors.white, padding: 16, borderRadius: 12, gap: 8 }}>
       <Text>Período personalizado · até 366 dias</Text>
       <AppInput label="Data inicial" value={start} onChangeText={(value) => setStart(formatBirthDateInput(value))} maxLength={10} keyboardType="numeric" editable={!exporting} />
       <AppInput label="Data final" value={end} onChangeText={(value) => setEnd(formatBirthDateInput(value))} maxLength={10} keyboardType="numeric" editable={!exporting} />
@@ -82,7 +82,7 @@ export function ReportsScreen() {
       <Text>O PDF inclui todos os registros e observações deste período.</Text>
       <AppButton title={Platform.OS === 'web' ? 'Imprimir / salvar PDF' : 'Gerar e compartilhar PDF'} loading={exporting} onPress={share} />
       {exportError ? <Text accessibilityRole="alert" style={{ color: colors.error }}>{exportError}</Text> : null}
-      {report.rows.length === 0 ? <Text>Nenhum registro no período selecionado.</Text> : report.rows.slice(0, visible).map((row) => <View key={row.id} style={{ padding: 16, gap: 5, backgroundColor: '#FFFFFF', borderRadius: 12 }}>
+      {report.rows.length === 0 ? <Text>Nenhum registro no período selecionado.</Text> : report.rows.slice(0, visible).map((row) => <View key={row.id} style={{ padding: 16, gap: 5, backgroundColor: colors.white, borderRadius: 12 }}>
         <Text style={{ fontSize: 17, fontWeight: '600' }}>{row.kind} · {row.value}</Text>
         <Text>{formatDateTime(row.occurredAt)}</Text><Text>{row.detail}</Text>
         {row.notes ? <Text>{row.notes}</Text> : null}

@@ -20,7 +20,7 @@ export function HomeHeader({
           <Ionicons
             name="person"
             size={16}
-            color="#9CA3AF"
+            color={colors.gray400}
           />
         </View>
 
@@ -70,14 +70,14 @@ avatar: {
   width: 38,
   height: 38,
   borderRadius: 19,
-  backgroundColor: '#E8EAF0',
+  backgroundColor: colors.avatarBackground,
   alignItems: 'center',
   justifyContent: 'center',
 },
 
 greeting: {
   fontSize: 13,
-  color: '#4B5563',
+  color: colors.gray600,
 },
 
 name: {

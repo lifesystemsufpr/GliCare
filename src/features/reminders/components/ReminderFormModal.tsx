@@ -98,7 +98,7 @@ export function ReminderFormModal({
               value={title}
               onChangeText={setTitle}
               placeholder="Ex: Medir glicemia"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={colors.gray400}
               maxLength={150}
               editable={!saving}
             />
@@ -120,7 +120,7 @@ export function ReminderFormModal({
               value={time}
               onChangeText={(value) => setTime(formatTimeInput(value))}
               placeholder="Ex: 08:00"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={colors.gray400}
               keyboardType="numbers-and-punctuation"
               maxLength={5}
               editable={!saving}
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
 
     borderRadius: 14,
 
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.white,
   },
 
   header: {
@@ -225,13 +225,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
 
     borderWidth: 1,
-    borderColor: '#D1D5DB',
+    borderColor: colors.gray300,
     borderRadius: 8,
 
     fontSize: 14,
     color: colors.text,
 
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.white,
   },
 
   actions: {
@@ -250,10 +250,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
 
     borderWidth: 1,
-    borderColor: '#D1D5DB',
+    borderColor: colors.gray300,
     borderRadius: 8,
 
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.white,
   },
 
   cancelText: {
@@ -277,6 +277,6 @@ const styles = StyleSheet.create({
   saveText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: colors.white,
   },
 });

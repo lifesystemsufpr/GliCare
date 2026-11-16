@@ -189,7 +189,7 @@ export function GlucoseRegisterScreen() {
                 value={glucoseValue}
                 onChangeText={handleGlucoseChange}
                 placeholder="Ex: 105"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={colors.gray400}
                 keyboardType="decimal-pad"
                 maxLength={6}
                 editable={!saving}
@@ -310,7 +310,7 @@ export function GlucoseRegisterScreen() {
               value={notes}
               onChangeText={setNotes}
               placeholder="Sintomas, refeições atípicas..."
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={colors.gray400}
               multiline
               textAlignVertical="top"
               maxLength={255}
@@ -333,10 +333,10 @@ export function GlucoseRegisterScreen() {
             accessibilityRole="button"
             accessibilityState={{ disabled: saving, busy: saving }}
           >
-            {saving ? <ActivityIndicator color="#FFFFFF" /> : <Ionicons
+            {saving ? <ActivityIndicator color={colors.white} /> : <Ionicons
               name="save-outline"
               size={19}
-              color="#FFFFFF"
+              color={colors.white}
             />}
 
             <Text style={styles.saveButtonText}>
@@ -353,7 +353,7 @@ export function GlucoseRegisterScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: colors.screen,
   },
 
   content: {
@@ -382,11 +382,11 @@ const styles = StyleSheet.create({
   form: {
     padding: 18,
 
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.white,
 
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: colors.gray200,
 
     gap: 20,
 
@@ -412,14 +412,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
 
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: colors.slate300,
     borderRadius: 8,
 
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.white,
   },
 
   inputError: {
-    borderColor: '#DC2626',
+    borderColor: colors.error,
   },
 
   glucoseTextInput: {
@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
 
     fontSize: 11,
-    color: '#DC2626',
+    color: colors.error,
   },
 
   dateTimeRow: {
@@ -463,10 +463,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
 
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: colors.slate300,
     borderRadius: 8,
 
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.white,
   },
 
   dateTimeText: {
@@ -482,10 +482,10 @@ const styles = StyleSheet.create({
     padding: 14,
 
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: colors.slate300,
     borderRadius: 8,
 
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.white,
 
     fontSize: 13,
     color: colors.text,
@@ -513,6 +513,6 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: colors.white,
   },
 });

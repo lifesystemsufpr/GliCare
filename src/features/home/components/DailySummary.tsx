@@ -27,7 +27,7 @@ function SummaryRow({
           <Ionicons
             name={completed ? 'checkmark' : 'time-outline'}
             size={11}
-            color={completed ? '#15803D' : '#6B7280'}
+            color={completed ? colors.success : colors.gray500}
           />
         </View>
 
@@ -80,10 +80,10 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.white,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#F1F1F1',
+    borderColor: colors.neutralSoft,
     overflow: 'hidden',
   },
 
@@ -107,32 +107,32 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#EAF7ED',
+    backgroundColor: colors.successSoft,
   },
 
   pendingCircle: {
-    backgroundColor: '#F1F1F1',
+    backgroundColor: colors.neutralSoft,
   },
 
   label: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#222222',
+    color: colors.inkSoft,
   },
 
   status: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#15803D',
+    color: colors.success,
   },
 
   pendingStatus: {
-    color: '#6B7280',
+    color: colors.gray500,
   },
 
   divider: {
     height: 1,
     marginHorizontal: 12,
-    backgroundColor: '#F1F1F1',
+    backgroundColor: colors.neutralSoft,
   },
 });

@@ -1,3 +1,4 @@
+import { colors } from '@/shared/theme';
 import { formatDateTime } from '@/shared/format';
 import { contentWidth } from '@/shared/theme';
 import { router, useFocusEffect } from 'expo-router';
@@ -65,7 +66,7 @@ export function HomeScreen() {
       <AppButton title="Completar perfil" onPress={() => router.push('/perfil')} />
     </View> : null}
     {loading ? <ActivityIndicator accessibilityLabel="Carregando resumo da rotina" /> : error ?
-      <Text accessibilityRole="alert" style={{ color: '#B91C1C' }}>{error}</Text> : summary ? <>
+      <Text accessibilityRole="alert" style={{ color: colors.danger }}>{error}</Text> : summary ? <>
       <GlucoseCard value={glucose?.valor ?? null} status={glucose?.status ?? null}
         measuredAt={glucose ? formatDateTime(glucose.dataHora) : 'Nenhuma medição registrada.'} />
       <View style={styles.cardsRow}>
@@ -86,7 +87,7 @@ export function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: colors.screen,
   },
 
   content: {
@@ -102,8 +103,8 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#93C5FD',
-    backgroundColor: '#EFF6FF',
+    borderColor: colors.blue300,
+    backgroundColor: colors.blue50,
   },
 
   incompleteTitle: {

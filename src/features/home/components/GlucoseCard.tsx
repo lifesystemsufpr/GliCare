@@ -15,14 +15,14 @@ export function GlucoseCard({
   measuredAt,
 }: GlucoseCardProps) {
   const statusText = status ? { NORMAL: 'Normal', ALTA: 'Alta', BAIXA: 'Baixa' }[status] : 'Sem registro';
-  const statusColor = status === 'NORMAL' ? '#15803D' : status ? '#B45309' : '#6B7280';
+  const statusColor = status === 'NORMAL' ? colors.success : status ? colors.warning : colors.gray500;
   return (
     <View style={styles.card}>
       {/* Gota decorativa no fundo */}
       <Ionicons
         name="water-outline"
         size={72}
-        color="#F1F3F5"
+        color={colors.watermark}
         style={styles.watermark}
       />
 
@@ -40,7 +40,7 @@ export function GlucoseCard({
           </Text>
         </View>
 
-        <View style={[styles.statusBadge, { backgroundColor: status === 'NORMAL' ? '#EAF7ED' : status ? '#FFF7ED' : '#F3F4F6' }]}>
+        <View style={[styles.statusBadge, { backgroundColor: status === 'NORMAL' ? colors.successSoft : status ? colors.warningSoft : colors.gray100 }]}>
           <Ionicons
             name={status === 'NORMAL' ? 'checkmark-circle-outline' : 'information-circle-outline'}
             size={13}
@@ -80,15 +80,15 @@ const styles = StyleSheet.create({
     minHeight: 145,
     padding: 18,
 
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.white,
 
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: colors.gray200,
 
     elevation: 2,
 
-    shadowColor: '#000000',
+    shadowColor: colors.black,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -124,13 +124,13 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
 
     borderRadius: 12,
-    backgroundColor: '#EAF7ED',
+    backgroundColor: colors.successSoft,
   },
 
   statusText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#15803D',
+    color: colors.success,
   },
 
   valueRow: {
@@ -143,20 +143,20 @@ const styles = StyleSheet.create({
     fontSize: 38,
     lineHeight: 42,
     fontWeight: '700',
-    color: '#111111',
+    color: colors.ink,
   },
 
   unit: {
     marginLeft: 5,
     fontSize: 12,
     fontWeight: '500',
-    color: '#6B7280',
+    color: colors.gray500,
   },
 
   date: {
     marginTop: 3,
     fontSize: 11,
-    color: '#6B7280',
+    color: colors.gray500,
   },
 
   watermark: {

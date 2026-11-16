@@ -271,10 +271,10 @@ const styles =
     emergencyCard: {
   width: '100%',
 
-  backgroundColor: '#F5FAFE',
+  backgroundColor: colors.blueTintLight,
 
   borderWidth: 1,
-  borderColor: '#D8EAF7',
+  borderColor: colors.blueBorderSoft,
   borderRadius: 16,
 
   padding: spacing.md,

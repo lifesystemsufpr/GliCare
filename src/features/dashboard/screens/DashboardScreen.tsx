@@ -119,18 +119,18 @@ export function DashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAFA' },
+  container: { flex: 1, backgroundColor: colors.screen },
   content: { ...contentWidth, padding: 20, paddingBottom: 40, gap: 16 },
   heading: { fontSize: 26, fontWeight: '700', color: colors.text },
   subheading: { fontSize: 17, fontWeight: '600', color: colors.text },
   presets: { flexDirection: 'row', gap: 8 },
-  filter: { backgroundColor: '#FFFFFF', borderRadius: 12, padding: 16, gap: 12 },
+  filter: { backgroundColor: colors.white, borderRadius: 12, padding: 16, gap: 12 },
   metrics: { gap: 12 },
-  metric: { backgroundColor: '#FFFFFF', borderRadius: 12, padding: 16, gap: 6 },
+  metric: { backgroundColor: colors.white, borderRadius: 12, padding: 16, gap: 6 },
   value: { fontSize: 24, fontWeight: '700', color: colors.primary },
   error: { color: colors.error },
   note: { color: colors.textSecondary, fontSize: 13 },
-  track: { height: 8, backgroundColor: '#E2E8F0', borderRadius: 4 },
+  track: { height: 8, backgroundColor: colors.slate200, borderRadius: 4 },
   bar: { height: 8, backgroundColor: colors.primary, borderRadius: 4 },
   barAlert: { backgroundColor: colors.error },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 4 },

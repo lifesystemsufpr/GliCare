@@ -259,7 +259,7 @@ const styles =
         'center',
 
       backgroundColor:
-        '#EAF4FC',
+        colors.blueTintAlt,
     },
 
     lockContainer: {
