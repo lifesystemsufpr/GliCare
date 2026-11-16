@@ -1,19 +1,19 @@
 export type AuthUser = { id: string; nome: string; email: string };
 export type CurrentUser = AuthUser & {
+  // false enquanto faltar algum dado de saúde. Ausente em versões antigas da API.
+  perfilCompleto?: boolean;
   perfil?: {
     dataNascimento: string | null;
     tipoDiabetes: 'TIPO_1' | 'TIPO_2' | 'OUTRO' | null;
     alturaCm: number | null;
     pesoKg: number | null;
-    contatoEmergencia: { nome: string; relacao: string; telefone: string } | null;
   } | null;
 };
 
+// Cadastro em duas etapas: a conta nasce só com nome, e-mail e senha. Os dados
+// de saúde são completados depois, no Perfil.
 export type RegistrationForm = {
   name: string; email: string; password: string; confirmPassword: string;
-  birthDate: string; height: string; weight: string;
-  diabetesType: 'type1' | 'type2' | 'other' | null;
-  emergencyName: string; emergencyRelation: string; emergencyPhone: string;
 };
 
 export function formatBirthDateInput(value: string): string {
@@ -35,18 +35,9 @@ export function birthDateToApi(value: string): string {
   return `${year}-${month}-${day}`;
 }
 
-function decimal(value: string, label: string): number {
-  const normalized = value.trim().replace(',', '.');
-  if (!/^\d+(?:\.\d{1,2})?$/.test(normalized)) {
-    throw new Error(`Informe ${label} com até duas casas decimais.`);
-  }
-  return Number(normalized);
-}
-
 export function registrationToApi(form: RegistrationForm) {
-  if (!form.name.trim() || !form.email.trim() || !form.emergencyName.trim() ||
-      !form.emergencyRelation.trim() || !form.emergencyPhone.trim()) {
-    throw new Error('Preencha os dados pessoais e o contato de emergência.');
+  if (!form.name.trim() || !form.email.trim()) {
+    throw new Error('Preencha seu nome e seu e-mail.');
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
     throw new Error('Informe um e-mail válido.');
@@ -56,18 +47,8 @@ export function registrationToApi(form: RegistrationForm) {
     throw new Error('A senha deve ter de 8 a 72 caracteres, com letras e números.');
   }
   if (form.password !== form.confirmPassword) throw new Error('As senhas não coincidem.');
-  if (!form.diabetesType) throw new Error('Selecione o tipo de diabetes.');
-  const alturaCm = Math.round(decimal(form.height, 'a altura em metros') * 10000) / 100;
-  const pesoKg = decimal(form.weight, 'o peso em quilos');
-  if (alturaCm < 30 || alturaCm > 272) throw new Error('Informe a altura entre 0,30 e 2,72 metros.');
-  if (pesoKg < 1 || pesoKg > 500) throw new Error('Informe o peso entre 1 e 500 kg.');
-  const diabetes = { type1: 'TIPO_1', type2: 'TIPO_2', other: 'OUTRO' } as const;
   return {
     nome: form.name.trim(), email: form.email.trim().toLowerCase(),
     senha: form.password, confirmarSenha: form.confirmPassword,
-    dataNascimento: birthDateToApi(form.birthDate),
-    tipoDiabetes: diabetes[form.diabetesType], alturaCm, pesoKg,
-    contatoEmergencia: { nome: form.emergencyName.trim(), relacao: form.emergencyRelation.trim(),
-      telefone: form.emergencyPhone.trim() },
   };
 }

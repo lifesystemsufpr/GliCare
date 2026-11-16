@@ -59,6 +59,11 @@ export function HomeScreen() {
   const reminder = summary?.nextReminder;
   return <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
     <HomeHeader userName={user?.nome ?? ''} onPressNotifications={() => router.push('/lembretes')} />
+    {user?.perfilCompleto === false ? <View style={styles.incomplete}>
+      <Text style={styles.incompleteTitle}>Complete seu perfil</Text>
+      <Text>Faltam seus dados de saúde. Depois disso, você pode registrar glicemia e insulina.</Text>
+      <AppButton title="Completar perfil" onPress={() => router.push('/perfil')} />
+    </View> : null}
     {loading ? <ActivityIndicator accessibilityLabel="Carregando resumo da rotina" /> : error ?
       <Text accessibilityRole="alert" style={{ color: '#B91C1C' }}>{error}</Text> : summary ? <>
       <GlucoseCard value={glucose?.valor ?? null} status={glucose?.status ?? null}
@@ -90,6 +95,20 @@ const styles = StyleSheet.create({
     paddingTop: 28,
     paddingBottom: 36,
     gap: 20,
+  },
+
+  incomplete: {
+    gap: 10,
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#93C5FD',
+    backgroundColor: '#EFF6FF',
+  },
+
+  incompleteTitle: {
+    fontSize: 16,
+    fontWeight: '700',
   },
 
   cardsRow: {

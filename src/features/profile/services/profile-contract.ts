@@ -7,15 +7,13 @@ export const diabetesLabels: Record<DiabetesType, string> = {
 export type Profile = {
   nome: string; dataNascimento: string | null; idade: number | null;
   alturaCm: number | null; pesoKg: number | null; tipoDiabetes: DiabetesType | null;
-  contatoEmergencia: { nome: string | null; relacao: string | null; telefone: string | null } | null;
+  perfilCompleto?: boolean;
 };
 export type ProfileForm = {
   birthDate: string; height: string; weight: string; diabetesType: DiabetesType | '';
-  emergencyName: string; emergencyRelation: string; emergencyPhone: string;
 };
 export type ProfilePatch = Partial<{
   dataNascimento: string; alturaCm: number; pesoKg: number; tipoDiabetes: DiabetesType;
-  contatoEmergencia: { nome: string; relacao: string; telefone: string };
 }>;
 
 export function profileToForm(profile: Profile): ProfileForm {
@@ -25,9 +23,6 @@ export function profileToForm(profile: Profile): ProfileForm {
     height: profile.alturaCm == null ? '' : String(profile.alturaCm / 100).replace('.', ','),
     weight: profile.pesoKg == null ? '' : String(profile.pesoKg).replace('.', ','),
     diabetesType: profile.tipoDiabetes ?? '',
-    emergencyName: profile.contatoEmergencia?.nome ?? '',
-    emergencyRelation: profile.contatoEmergencia?.relacao ?? '',
-    emergencyPhone: profile.contatoEmergencia?.telefone ?? '',
   };
 }
 
@@ -56,17 +51,6 @@ export function profileToPatch(form: ProfileForm, initial: Profile): ProfilePatc
   if (form.diabetesType !== previous.diabetesType) {
     if (!Object.hasOwn(diabetesLabels, form.diabetesType)) throw new Error('Selecione o tipo de diabetes.');
     patch.tipoDiabetes = form.diabetesType as DiabetesType;
-  }
-  if (['emergencyName', 'emergencyRelation', 'emergencyPhone'].some((key) =>
-    form[key as keyof ProfileForm] !== previous[key as keyof ProfileForm])) {
-    const nome = form.emergencyName.trim();
-    const relacao = form.emergencyRelation.trim();
-    const telefone = form.emergencyPhone.trim();
-    if (!nome || nome.length > 100 || !relacao || relacao.length > 50 ||
-        !/^[\d\s+()-]{8,20}$/.test(telefone)) {
-      throw new Error('Preencha o contato completo: nome (até 100 caracteres), relação (até 50) e telefone válido (8 a 20).');
-    }
-    patch.contatoEmergencia = { nome, relacao, telefone };
   }
   if (!Object.keys(patch).length) throw new Error('Nenhuma alteração para salvar.');
   return patch;

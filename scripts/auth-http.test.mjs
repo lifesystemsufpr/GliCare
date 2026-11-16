@@ -53,11 +53,10 @@ test('restauração consulta /users/me com Bearer explícito', async () => {
 test('cadastro envia payload adaptado, sem campos do formulário', async () => {
   responseData = {};
   await registerRequest({ name: 'Teste', email: 'teste@example.com', password: 'senha123',
-    confirmPassword: 'senha123', birthDate: '01/01/1995', height: '1,65', weight: '60',
-    diabetesType: 'type2', emergencyName: 'Contato', emergencyRelation: 'Familiar', emergencyPhone: '41999999999' });
+    confirmPassword: 'senha123' });
   assert.equal(api.getUri(lastRequest), 'https://api.example.test/api/auth/register');
   const dto = JSON.parse(lastRequest.data);
-  assert.equal(dto.alturaCm, 165); assert.equal(dto.tipoDiabetes, 'TIPO_2');
+  assert.deepEqual(Object.keys(dto).sort(), ['confirmarSenha', 'email', 'nome', 'senha']);
   assert.equal(dto.senha, 'senha123'); assert.equal('password' in dto, false);
 });
 

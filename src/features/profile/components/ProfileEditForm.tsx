@@ -40,10 +40,6 @@ export function ProfileEditForm({ initial, onSaved, onCancel }: {
         onChangeText={(value) => change('weight', value)} keyboardType="decimal-pad" editable={!saving} />
       <DiabetesTypeSelector value={form.diabetesType ? toSelector[form.diabetesType] : null}
         onChange={(value) => change('diabetesType', fromSelector[value])} />
-      <Text style={{ fontSize: 17, fontWeight: '600' }}>Contato de emergência</Text>
-      <AppInput label="Nome do contato" value={form.emergencyName} onChangeText={(value) => change('emergencyName', value)} maxLength={100} editable={!saving} />
-      <AppInput label="Relação" value={form.emergencyRelation} onChangeText={(value) => change('emergencyRelation', value)} maxLength={50} editable={!saving} />
-      <AppInput label="Telefone" value={form.emergencyPhone} onChangeText={(value) => change('emergencyPhone', value)} keyboardType="phone-pad" maxLength={20} editable={!saving} />
     </View>
     {error ? <Text accessibilityRole="alert" style={{ color: colors.error }}>{error}</Text> : null}
     <AppButton title="Salvar alterações" loading={saving} onPress={save} />

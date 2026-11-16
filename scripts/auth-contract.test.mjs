@@ -4,9 +4,7 @@ import { birthDateToApi, formatBirthDateInput, registrationToApi } from '../src/
 
 const form = {
   name: ' Pessoa Teste ', email: ' TESTE@EXAMPLE.COM ', password: ' abc12345 ',
-  confirmPassword: ' abc12345 ', birthDate: '12/04/1995', height: '1,70', weight: '68,30',
-  diabetesType: 'type1', emergencyName: ' Contato ', emergencyRelation: ' Familiar ',
-  emergencyPhone: '(41) 99999-9999',
+  confirmPassword: ' abc12345 ',
 };
 
 test('nascimento pode ser digitado no teclado numérico e colado com separadores', () => {
@@ -15,23 +13,14 @@ test('nascimento pode ser digitado no teclado numérico e colado com separadores
   assert.equal(formatBirthDateInput('1204'), '12/04');
 });
 
-test('cadastro converte contrato, unidades e decimais sem alterar senha', () => {
+test('cadastro em duas etapas envia só nome, e-mail e senha, sem alterar a senha', () => {
   const dto = registrationToApi(form);
   assert.deepEqual(dto, {
-    nome: 'Pessoa Teste', email: 'teste@example.com', senha: ' abc12345 ',
-    confirmarSenha: ' abc12345 ', dataNascimento: '1995-04-12',
-    tipoDiabetes: 'TIPO_1', alturaCm: 170, pesoKg: 68.3,
-    contatoEmergencia: { nome: 'Contato', relacao: 'Familiar', telefone: '(41) 99999-9999' },
+    nome: 'Pessoa Teste', email: 'teste@example.com', senha: ' abc12345 ', confirmarSenha: ' abc12345 ',
   });
-  assert.equal('password' in dto, false);
-  assert.equal('height' in dto, false);
-});
-
-test('todos os tipos de diabetes têm mapeamento explícito', () => {
-  for (const [mobile, api] of [['type1', 'TIPO_1'], ['type2', 'TIPO_2'], ['other', 'OUTRO']]) {
-    assert.equal(registrationToApi({ ...form, diabetesType: mobile }).tipoDiabetes, api);
+  for (const field of ['dataNascimento', 'tipoDiabetes', 'alturaCm', 'pesoKg', 'contatoEmergencia', 'password']) {
+    assert.equal(field in dto, false);
   }
-  assert.throws(() => registrationToApi({ ...form, diabetesType: null }), /tipo de diabetes/);
 });
 
 test('datas inválidas, futuras e formato incorreto são rejeitados', () => {
@@ -42,17 +31,9 @@ test('datas inválidas, futuras e formato incorreto são rejeitados', () => {
 });
 
 test('não envia cadastro incompleto ou senhas divergentes', () => {
-  assert.throws(() => registrationToApi({ ...form, emergencyName: ' ' }));
+  assert.throws(() => registrationToApi({ ...form, name: ' ' }), /nome/);
+  assert.throws(() => registrationToApi({ ...form, email: '' }));
   assert.throws(() => registrationToApi({ ...form, confirmPassword: 'diferente' }));
-  assert.throws(() => registrationToApi({ ...form, password: 'abcdefgh' }));
+  assert.throws(() => registrationToApi({ ...form, password: 'abcdefgh', confirmPassword: 'abcdefgh' }));
   assert.throws(() => registrationToApi({ ...form, email: 'invalido' }));
-});
-
-test('unidades e números inválidos são rejeitados antes da chamada HTTP', () => {
-  for (const height of ['170', 'Infinity', '1,234', '0,29', '2,73', '']) {
-    assert.throws(() => registrationToApi({ ...form, height }));
-  }
-  for (const weight of ['0', '501', 'NaN', '-1', '68kg', '1e2']) {
-    assert.throws(() => registrationToApi({ ...form, weight }));
-  }
 });
