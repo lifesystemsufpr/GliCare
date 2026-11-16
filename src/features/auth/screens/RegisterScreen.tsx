@@ -109,18 +109,6 @@ function handleLogin() {
   router.replace('/login');
 }
 
-  function handleTerms() {
-    console.log(
-      'Termos de Uso',
-    );
-  }
-
-  function handlePrivacy() {
-    console.log(
-      'Política de Privacidade',
-    );
-  }
-
   return (
     <ScreenContainer scrollable>
       <View style={styles.container}>
@@ -339,61 +327,6 @@ function handleLogin() {
           }
         />
 
-        {/* Termos */}
-
-        <View
-          style={
-            styles.termsContainer
-          }
-        >
-          <Text
-            style={styles.termsText}
-          >
-            Ao criar uma conta,
-            você concorda com nossos
-          </Text>
-
-          <View
-            style={styles.termsLinks}
-          >
-            <Pressable
-              onPress={
-                handleTerms
-              }
-            >
-              <Text
-                style={
-                  styles.link
-                }
-              >
-                Termos de Uso
-              </Text>
-            </Pressable>
-
-            <Text
-              style={
-                styles.termsText
-              }
-            >
-              {' e '}
-            </Text>
-
-            <Pressable
-              onPress={
-                handlePrivacy
-              }
-            >
-              <Text
-                style={
-                  styles.link
-                }
-              >
-                Política de
-                Privacidade
-              </Text>
-            </Pressable>
-          </View>
-        </View>
       </View>
     </ScreenContainer>
   );
@@ -481,46 +414,6 @@ const styles =
 
     loginButton: {
       marginTop: spacing.sm,
-    },
-
-    termsContainer: {
-      alignItems: 'center',
-
-      marginTop: spacing.lg,
-      marginBottom:
-        spacing.lg,
-    },
-
-    termsText: {
-      color:
-        colors.textSecondary,
-
-      fontSize:
-        typography.sizes.xs,
-
-      textAlign: 'center',
-    },
-
-    termsLinks: {
-      flexDirection: 'row',
-
-      justifyContent:
-        'center',
-
-      flexWrap: 'wrap',
-
-      marginTop: spacing.xs,
-    },
-
-    link: {
-      color: colors.primary,
-
-      fontSize:
-        typography.sizes.xs,
-
-      fontWeight:
-        typography.weights
-          .semibold,
     },
     emergencyCard: {
   width: '100%',
