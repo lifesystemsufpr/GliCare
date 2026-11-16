@@ -1,3 +1,4 @@
+import { makeStyles, useThemeColors } from '@/shared/theme';
 import {
   StyleSheet,
   Text,
@@ -6,11 +7,7 @@ import {
 
 import { Ionicons } from '@expo/vector-icons';
 
-import {
-  colors,
-  spacing,
-  typography,
-} from '../../../shared/theme';
+import { spacing, typography } from '../../../shared/theme';
 
 type PasswordRulesProps = {
   password: string;
@@ -19,6 +16,7 @@ type PasswordRulesProps = {
 export function PasswordRules({
   password,
 }: PasswordRulesProps) {
+  const styles = useStyles();
   const hasMinimumLength =
     password.length >= 8;
 
@@ -55,6 +53,8 @@ function Rule({
   valid,
   text,
 }: RuleProps) {
+  const styles = useStyles();
+  const c = useThemeColors();
   return (
     <View style={styles.rule}>
       <Ionicons
@@ -66,8 +66,8 @@ function Rule({
         size={14}
         color={
           valid
-            ? colors.primary
-            : colors.textSecondary
+            ? c.primary
+            : c.textSecondary
         }
       />
 
@@ -84,7 +84,7 @@ function Rule({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
   container: {
     marginTop: -spacing.sm,
     marginBottom: spacing.md,
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
   },
 
   ruleText: {
-    color: colors.textSecondary,
+    color: c.textSecondary,
 
     fontSize: typography.sizes.xs,
 
@@ -106,6 +106,6 @@ const styles = StyleSheet.create({
   },
 
   validText: {
-    color: colors.primary,
+    color: c.primary,
   },
-});
+}));

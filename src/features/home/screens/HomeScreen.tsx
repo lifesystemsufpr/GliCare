@@ -1,4 +1,4 @@
-import { colors } from '@/shared/theme';
+import { makeStyles, useThemeColors } from '@/shared/theme';
 import { formatDateTime } from '@/shared/format';
 import { contentWidth } from '@/shared/theme';
 import { router, useFocusEffect } from 'expo-router';
@@ -17,6 +17,8 @@ import { loadHomeSources } from '../services/home-service';
 import { buildHomeSummary, homeNeedsReload, type HomeSources, type HomeSummary } from '../services/home-model';
 
 export function HomeScreen() {
+  const styles = useStyles();
+  const c = useThemeColors();
   const { user } = useAuth();
   const [summary, setSummary] = useState<HomeSummary | null>(null);
   const [loading, setLoading] = useState(true);
@@ -61,12 +63,12 @@ export function HomeScreen() {
   return <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
     <HomeHeader userName={user?.nome ?? ''} onPressNotifications={() => router.push('/lembretes')} />
     {user?.perfilCompleto === false ? <View style={styles.incomplete}>
-      <Text style={styles.incompleteTitle}>Complete seu perfil</Text>
-      <Text>Faltam seus dados de saúde. Depois disso, você pode registrar glicemia e insulina.</Text>
+      <Text style={[styles.incompleteTitle, { color: c.defaultText }]}>Complete seu perfil</Text>
+      <Text style={{ color: c.defaultText }}>Faltam seus dados de saúde. Depois disso, você pode registrar glicemia e insulina.</Text>
       <AppButton title="Completar perfil" onPress={() => router.push('/perfil')} />
     </View> : null}
     {loading ? <ActivityIndicator accessibilityLabel="Carregando resumo da rotina" /> : error ?
-      <Text accessibilityRole="alert" style={{ color: colors.danger }}>{error}</Text> : summary ? <>
+      <Text accessibilityRole="alert" style={{ color: c.danger }}>{error}</Text> : summary ? <>
       <GlucoseCard value={glucose?.valor ?? null} status={glucose?.status ?? null}
         measuredAt={glucose ? formatDateTime(glucose.dataHora) : 'Nenhuma medição registrada.'} />
       <View style={styles.cardsRow}>
@@ -84,10 +86,10 @@ export function HomeScreen() {
   </ScrollView>;
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.screen,
+    backgroundColor: c.screen,
   },
 
   content: {
@@ -103,8 +105,8 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.blue300,
-    backgroundColor: colors.blue50,
+    borderColor: c.blue300,
+    backgroundColor: c.blue50,
   },
 
   incompleteTitle: {
@@ -116,4 +118,4 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
   },
-});
+}));

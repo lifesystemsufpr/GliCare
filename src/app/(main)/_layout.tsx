@@ -5,9 +5,11 @@ import { SessionGate } from '@/features/auth/components/SessionGate';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors } from '@/shared/theme';
+import { makeStyles, useThemeColors } from '@/shared/theme';
 
 export default function MainLayout() {
+  const styles = useStyles();
+  const c = useThemeColors();
   const insets = useSafeAreaInsets();
   const { user, loading, sessionError } = useAuth();
   if (loading || sessionError) return <SessionGate />;
@@ -21,25 +23,25 @@ export default function MainLayout() {
         // Área segura do topo (recorte/barra de status) para todas as abas.
         sceneStyle: {
           paddingTop: insets.top,
-          backgroundColor: colors.screen,
+          backgroundColor: c.screen,
         },
 
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.gray600,
+        tabBarActiveTintColor: c.primary,
+        tabBarInactiveTintColor: c.gray600,
 
         tabBarStyle: {
           height: 68 + insets.bottom,
           paddingTop: 6,
           paddingBottom: Math.max(insets.bottom, 8),
 
-          backgroundColor: colors.white,
+          backgroundColor: c.white,
 
           borderTopWidth: 1,
-          borderTopColor: colors.gray200,
+          borderTopColor: c.gray200,
 
           elevation: 8,
 
-          shadowColor: colors.black,
+          shadowColor: c.black,
           shadowOffset: {
             width: 0,
             height: -2,
@@ -220,7 +222,7 @@ export default function MainLayout() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
   iconContainer: {
     width: 38,
     height: 30,
@@ -232,6 +234,6 @@ const styles = StyleSheet.create({
   },
 
   activeIcon: {
-    backgroundColor: colors.secondary,
+    backgroundColor: c.secondary,
   },
-});
+}));

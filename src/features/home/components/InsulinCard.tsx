@@ -2,7 +2,7 @@ import { formatNumber } from '@/shared/format';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { colors } from '@/shared/theme';
+import { makeStyles, useThemeColors } from '@/shared/theme';
 
 interface InsulinCardProps {
   dose: number | null;
@@ -15,13 +15,15 @@ export function InsulinCard({
   type,
   appliedAt,
 }: InsulinCardProps) {
+  const styles = useStyles();
+  const c = useThemeColors();
   return (
     <View style={styles.card}>
       <View style={styles.titleRow}>
         <Ionicons
           name="medical"
           size={12}
-          color={colors.primary}
+          color={c.primary}
         />
         <Text style={styles.title}>Última Insulina</Text>
       </View>
@@ -37,15 +39,15 @@ export function InsulinCard({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
   card: {
     flex: 1,
     minHeight: 135,
     padding: 16,
-    backgroundColor: colors.white,
+    backgroundColor: c.white,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.neutralSoftAlt,
+    borderColor: c.neutralSoftAlt,
     elevation: 2,
   },
 
@@ -58,7 +60,7 @@ const styles = StyleSheet.create({
 title: {
   fontSize: 12,
   fontWeight: '700',
-  color: colors.primary,
+  color: c.primary,
 },
 
 valueRow: {
@@ -70,24 +72,24 @@ valueRow: {
 value: {
   fontSize: 27,
   fontWeight: '700',
-  color: colors.ink,
+  color: c.ink,
 },
 
 unit: {
   marginLeft: 4,
   fontSize: 11,
-  color: colors.gray500,
+  color: c.gray500,
 },
 
 type: {
   marginTop: 3,
   fontSize: 12,
-  color: colors.ink,
+  color: c.ink,
 },
 
 date: {
   marginTop: 5,
   fontSize: 10,
-  color: colors.gray500,
+  color: c.gray500,
 },
-});
+}));

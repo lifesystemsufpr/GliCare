@@ -1,3 +1,4 @@
+import { makeStyles, useThemeColors } from '@/shared/theme';
 import { useRef, useState } from 'react';
 import { useAuth } from '../hooks/AuthProvider';
 import { errorMessage } from '@/shared/api/errors';
@@ -17,13 +18,11 @@ import {
   ScreenContainer,
 } from '../../../shared/components';
 
-import {
-  colors,
-  spacing,
-  typography,
-} from '../../../shared/theme';
+import { spacing, typography } from '../../../shared/theme';
 
 export function LoginScreen() {
+  const styles = useStyles();
+  const c = useThemeColors();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -105,7 +104,7 @@ function handleCreateAccount() {
           </Pressable>
 
           <View style={styles.buttons}>
-            {error ? <Text accessibilityRole="alert" style={{ color: colors.error, marginBottom: 12 }}>{error}</Text> : null}
+            {error ? <Text accessibilityRole="alert" style={{ color: c.error, marginBottom: 12 }}>{error}</Text> : null}
             <AppButton
               title="Entrar"
               onPress={handleLogin}
@@ -126,7 +125,7 @@ function handleCreateAccount() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
   container: {
     flex: 1,
 
@@ -149,7 +148,7 @@ logoImage: {
 },
 
 title: {
-  color: colors.primary,
+  color: c.primary,
 
   fontSize: typography.sizes.xl,
   fontWeight: typography.weights.bold,
@@ -158,7 +157,7 @@ title: {
 },
 
 subtitle: {
-  color: colors.textSecondary,
+  color: c.textSecondary,
 
   fontSize: typography.sizes.sm,
   lineHeight: 20,
@@ -184,7 +183,7 @@ subtitle: {
   },
 
   forgotPasswordText: {
-    color: colors.primary,
+    color: c.primary,
 
     fontSize: typography.sizes.xs,
     fontWeight: typography.weights.semibold,
@@ -198,4 +197,4 @@ subtitle: {
   createAccountButton: {
     marginTop: spacing.sm,
   },
-});
+}));

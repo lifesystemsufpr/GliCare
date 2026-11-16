@@ -7,7 +7,7 @@ import {
     View,
 } from 'react-native';
 
-import { colors } from '@/shared/theme';
+import { makeStyles, useThemeColors } from '@/shared/theme';
 
 type ReminderCardProps = {
   time: string;
@@ -30,6 +30,8 @@ export function ReminderCard({
   onEdit,
   onDelete,
 }: ReminderCardProps) {
+  const styles = useStyles();
+  const c = useThemeColors();
   return (
     <View
       style={[
@@ -47,7 +49,7 @@ export function ReminderCard({
           >
             {time}
           </Text>
-          <Text>{date}</Text>
+          <Text style={{ color: c.defaultText }}>{date}</Text>
 
           <Text
             style={[
@@ -64,15 +66,15 @@ export function ReminderCard({
           onValueChange={onToggle}
           disabled={disabled}
           trackColor={{
-            false: colors.gray300,
-            true: colors.blue300,
+            false: c.gray300,
+            true: c.blue300,
           }}
           thumbColor={
             active
-              ? colors.primary
-              : colors.white
+              ? c.primary
+              : c.white
           }
-          {...({ activeThumbColor: colors.primary } as object)}
+          {...({ activeThumbColor: c.primary } as object)}
         />
       </View>
 
@@ -88,7 +90,7 @@ export function ReminderCard({
           <Ionicons
             name="create-outline"
             size={19}
-            color={colors.primary}
+            color={c.primary}
           />
 
           <Text style={styles.editText}>
@@ -107,7 +109,7 @@ export function ReminderCard({
           <Ionicons
             name="trash-outline"
             size={19}
-            color={colors.error}
+            color={c.error}
           />
 
           <Text style={styles.deleteText}>
@@ -119,7 +121,7 @@ export function ReminderCard({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
   card: {
     width: '100%',
 
@@ -127,14 +129,14 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
 
     borderWidth: 1,
-    borderColor: colors.gray200,
+    borderColor: c.gray200,
     borderRadius: 12,
 
-    backgroundColor: colors.white,
+    backgroundColor: c.white,
 
     elevation: 1,
 
-    shadowColor: colors.black,
+    shadowColor: c.black,
     shadowOffset: {
       width: 0,
       height: 1,
@@ -144,7 +146,7 @@ const styles = StyleSheet.create({
   },
 
   cardInactive: {
-    backgroundColor: colors.gray50,
+    backgroundColor: c.gray50,
   },
 
   mainRow: {
@@ -164,17 +166,17 @@ const styles = StyleSheet.create({
 
     fontSize: 16,
     fontWeight: '700',
-    color: colors.primary,
+    color: c.primary,
   },
 
   title: {
     fontSize: 14,
     fontWeight: '500',
-    color: colors.text,
+    color: c.text,
   },
 
   inactiveText: {
-    color: colors.textSecondary,
+    color: c.textSecondary,
   },
 
   actions: {
@@ -187,7 +189,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
 
     borderTopWidth: 1,
-    borderTopColor: colors.gray100,
+    borderTopColor: c.gray100,
   },
 
   actionButton: {
@@ -203,18 +205,18 @@ const styles = StyleSheet.create({
   },
 
   actionPressed: {
-    backgroundColor: colors.gray100,
+    backgroundColor: c.gray100,
   },
 
   editText: {
     fontSize: 12,
     fontWeight: '500',
-    color: colors.primary,
+    color: c.primary,
   },
 
   deleteText: {
     fontSize: 12,
     fontWeight: '500',
-    color: colors.error,
+    color: c.error,
   },
-});
+}));

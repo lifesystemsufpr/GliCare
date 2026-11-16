@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { colors } from '@/shared/theme';
+import { makeStyles, useThemeColors } from '@/shared/theme';
 import { chartScale, type WeeklyPoint } from '../services/home-model';
 
 interface WeeklyGlucoseChartProps {
@@ -10,6 +10,8 @@ interface WeeklyGlucoseChartProps {
 export function WeeklyGlucoseChart({
   data,
 }: WeeklyGlucoseChartProps) {
+  const styles = useStyles();
+  const c = useThemeColors();
   const { min: chartMin, max: chartMax } = chartScale(data);
 
   return (
@@ -17,7 +19,7 @@ export function WeeklyGlucoseChart({
       <View style={styles.header}>
         <Text style={styles.sectionTitle}>Últimos 7 dias</Text>
       </View>
-      <Text style={{ fontSize: 12, marginBottom: 8, color: colors.gray600 }}>Última medição de cada dia · mg/dL · — sem registro</Text>
+      <Text style={{ fontSize: 12, marginBottom: 8, color: c.gray600 }}>Última medição de cada dia · mg/dL · — sem registro</Text>
 
       <View style={styles.card}>
         <View style={{ flexDirection: 'row' }}>
@@ -51,7 +53,7 @@ export function WeeklyGlucoseChart({
                 </View>
 
                 <Text style={styles.day}>{item.day}</Text>
-                <Text style={{ fontSize: 10 }}>{item.value ?? '—'}</Text>
+                <Text style={[{ fontSize: 10 }, { color: c.defaultText }]}>{item.value ?? '—'}</Text>
               </View>
             );
           })}
@@ -63,7 +65,7 @@ export function WeeklyGlucoseChart({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
 header: {
   marginTop: 2,
   marginBottom: 12,
@@ -75,13 +77,13 @@ header: {
 sectionTitle: {
   fontSize: 20,
   fontWeight: '600',
-  color: colors.text,
+  color: c.text,
 },
 
 details: {
   fontSize: 11,
   fontWeight: '600',
-  color: colors.primary,
+  color: c.primary,
 },
 
 card: {
@@ -91,10 +93,10 @@ card: {
   paddingRight: 14,
   paddingBottom: 14,
   paddingLeft: 12,
-  backgroundColor: colors.white,
+  backgroundColor: c.white,
   borderRadius: 12,
   borderWidth: 1,
-  borderColor: colors.gray200,
+  borderColor: c.gray200,
 },
 
   chart: {
@@ -119,13 +121,13 @@ card: {
     width: 5,
     height: 5,
     borderRadius: 3,
-    backgroundColor: colors.primary,
+    backgroundColor: c.primary,
   },
 
   day: {
     marginTop: 3,
     fontSize: 10,
-    color: colors.gray500,
+    color: c.gray500,
   },
 
   labels: {
@@ -138,6 +140,6 @@ card: {
 
   axisLabel: {
     fontSize: 10,
-    color: colors.gray400,
+    color: c.gray400,
   },
-});
+}));

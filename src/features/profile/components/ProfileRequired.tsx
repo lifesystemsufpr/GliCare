@@ -4,13 +4,14 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { useAuth } from '@/features/auth/hooks/AuthProvider';
 import { AppButton } from '@/shared/components';
-import { colors, contentWidth } from '@/shared/theme';
+import { makeStyles, contentWidth } from '@/shared/theme';
 
 // Com o perfil incompleto, a API responde 403 (PERFIL_INCOMPLETO) em
 // glicemia, insulina, lembretes, dashboard e relatórios. Em vez de mostrar o
 // erro, a tela pede para completar o perfil. Sem a informação (API antiga),
 // a tela abre normalmente.
 export function ProfileRequired({ children }: { children: ReactNode }) {
+  const styles = useStyles();
   const { user } = useAuth();
   if (user?.perfilCompleto !== false) return <>{children}</>;
   return (
@@ -26,12 +27,12 @@ export function ProfileRequired({ children }: { children: ReactNode }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
   screen: {
     flex: 1,
     justifyContent: 'center',
     padding: 20,
-    backgroundColor: colors.screen,
+    backgroundColor: c.screen,
   },
   card: {
     ...contentWidth,
@@ -39,17 +40,17 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.gray200,
-    backgroundColor: colors.white,
+    borderColor: c.gray200,
+    backgroundColor: c.white,
   },
   title: {
     fontSize: 20,
     fontWeight: '700',
-    color: colors.text,
+    color: c.text,
   },
   text: {
     fontSize: 15,
     lineHeight: 22,
-    color: colors.text,
+    color: c.text,
   },
-});
+}));

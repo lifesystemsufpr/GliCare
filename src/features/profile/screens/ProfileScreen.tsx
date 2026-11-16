@@ -1,4 +1,4 @@
-import { contentWidth } from '@/shared/theme';
+import { makeStyles, useThemeColors, contentWidth } from '@/shared/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useFocusEffect } from 'expo-router';
@@ -15,7 +15,7 @@ import {
     View,
 } from 'react-native';
 
-import { colors, useTheme } from '@/shared/theme';
+import { useTheme } from '@/shared/theme';
 import { useAuth } from '@/features/auth/hooks/AuthProvider';
 import { errorMessage } from '@/shared/api/errors';
 import { DiabetesCard } from '../components/DiabetesCard';
@@ -26,6 +26,8 @@ import { deleteAccount, getProfile } from '../services/profile-service';
 import { diabetesLabels, profileToForm, type Profile } from '../services/profile-contract';
 
 export function ProfileScreen() {
+  const styles = useStyles();
+  const c = useThemeColors();
   const { signOut, setProfileComplete } = useAuth();
   const theme = useTheme();
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -86,7 +88,7 @@ export function ProfileScreen() {
             <Ionicons
               name="medical"
               size={16}
-              color={colors.primary}
+              color={c.primary}
             />
           </View>
 
@@ -106,20 +108,20 @@ export function ProfileScreen() {
           <Ionicons
             name="notifications-outline"
             size={22}
-            color={colors.text}
+            color={c.text}
           />
         </Pressable>
       </View>
 
-      {loading ? <ActivityIndicator accessibilityLabel="Carregando perfil" color={colors.primary} /> : loadError ? <>
-        <Text accessibilityRole="alert" style={{ color: colors.error }}>{loadError}</Text>
+      {loading ? <ActivityIndicator accessibilityLabel="Carregando perfil" color={c.primary} /> : loadError ? <>
+        <Text accessibilityRole="alert" style={{ color: c.error }}>{loadError}</Text>
         <AppButton title="Tentar novamente" onPress={() => setRetry((value) => value + 1)} />
       </> : profile ? editing ? <ProfileEditForm initial={profile}
         onSaved={(saved) => { setProfile(saved); setEditing(false); if (typeof saved.perfilCompleto === 'boolean') setProfileComplete(saved.perfilCompleto); Alert.alert('Perfil atualizado', 'Suas alterações foram salvas.'); }}
         onCancel={() => setEditing(false)} /> : <>
         {profile.perfilCompleto === false ? <View style={styles.incomplete}>
           <Text style={styles.incompleteTitle}>Complete seu perfil</Text>
-          <Text>Informe data de nascimento, tipo de diabetes, altura e peso para registrar glicemia e insulina e ver seus relatórios.</Text>
+          <Text style={{ color: c.defaultText }}>Informe data de nascimento, tipo de diabetes, altura e peso para registrar glicemia e insulina e ver seus relatórios.</Text>
           <AppButton title="Completar perfil" onPress={() => setEditing(true)} />
         </View> : null}
         <ProfileCard name={profile.nome} age={profile.idade} weight={profile.pesoKg}
@@ -139,20 +141,20 @@ export function ProfileScreen() {
           onPress={() => router.push('/notificacoes')}
           accessibilityRole="button"
         >
-          <Ionicons name="notifications-outline" size={19} color={colors.text} />
+          <Ionicons name="notifications-outline" size={19} color={c.text} />
           <Text style={styles.settingsText}>Notificações</Text>
-          <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
+          <Ionicons name="chevron-forward" size={18} color={c.textSecondary} />
         </Pressable>
         <View style={styles.settingsItem}>
-          <Ionicons name="moon-outline" size={19} color={colors.text} />
+          <Ionicons name="moon-outline" size={19} color={c.text} />
           <Text style={styles.settingsText}>Tema escuro</Text>
           <Switch
             value={theme.mode === 'dark'}
             onValueChange={(on) => theme.setMode(on ? 'dark' : 'light')}
             accessibilityLabel="Tema escuro"
-            trackColor={{ false: colors.gray300, true: colors.blue300 }}
-            thumbColor={theme.mode === 'dark' ? colors.primary : colors.white}
-            {...({ activeThumbColor: colors.primary } as object)}
+            trackColor={{ false: c.gray300, true: c.blue300 }}
+            thumbColor={theme.mode === 'dark' ? c.primary : c.white}
+            {...({ activeThumbColor: c.primary } as object)}
           />
         </View>
       </View>
@@ -167,7 +169,7 @@ export function ProfileScreen() {
         <Ionicons
           name="log-out-outline"
           size={19}
-          color={colors.error}
+          color={c.error}
         />
 
         <Text style={styles.logoutText}>
@@ -191,14 +193,14 @@ export function ProfileScreen() {
             <Text style={styles.modalText}>
               Seu perfil, glicemias, aplicações de insulina e lembretes serão apagados. Essa ação não pode ser desfeita.
             </Text>
-            {deleteError ? <Text accessibilityRole="alert" style={{ color: colors.error }}>{deleteError}</Text> : null}
+            {deleteError ? <Text accessibilityRole="alert" style={{ color: c.error }}>{deleteError}</Text> : null}
             <Pressable
               style={({ pressed }) => [styles.modalDanger, (pressed || deleting) && styles.logoutPressed]}
               onPress={() => void handleDeleteAccount()}
               disabled={deleting}
               accessibilityRole="button"
             >
-              {deleting ? <ActivityIndicator color={colors.white} /> : <Text style={styles.modalDangerText}>Excluir conta</Text>}
+              {deleting ? <ActivityIndicator color={c.onPrimary} /> : <Text style={styles.modalDangerText}>Excluir conta</Text>}
             </Pressable>
             <AppButton title="Cancelar" variant="secondary" disabled={deleting} onPress={() => setConfirmingDelete(false)} />
           </View>
@@ -208,10 +210,10 @@ export function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.screen,
+    backgroundColor: c.screen,
   },
 
   content: {
@@ -248,13 +250,13 @@ const styles = StyleSheet.create({
 
     borderRadius: 17,
 
-    backgroundColor: colors.indigo50,
+    backgroundColor: c.indigo50,
   },
 
   brandText: {
     fontSize: 20,
     fontWeight: '700',
-    color: colors.primary,
+    color: c.primary,
   },
 
   notificationButton: {
@@ -268,7 +270,7 @@ const styles = StyleSheet.create({
   },
 
   notificationButtonPressed: {
-    backgroundColor: colors.gray100,
+    backgroundColor: c.gray100,
   },
 
   incomplete: {
@@ -276,21 +278,21 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.blue300,
-    backgroundColor: colors.blue50,
+    borderColor: c.blue300,
+    backgroundColor: c.blue50,
   },
 
   incompleteTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: colors.text,
+    color: c.text,
   },
 
   settings: {
     borderWidth: 1,
-    borderColor: colors.gray200,
+    borderColor: c.gray200,
     borderRadius: 10,
-    backgroundColor: colors.white,
+    backgroundColor: c.white,
     overflow: 'hidden',
   },
 
@@ -299,8 +301,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 17,
     fontWeight: '600',
-    color: colors.text,
-    backgroundColor: colors.screen,
+    color: c.text,
+    backgroundColor: c.screen,
   },
 
   settingsItem: {
@@ -310,13 +312,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 16,
     borderTopWidth: 1,
-    borderTopColor: colors.gray200,
+    borderTopColor: c.gray200,
   },
 
   settingsText: {
     flex: 1,
     fontSize: 15,
-    color: colors.text,
+    color: c.text,
   },
 
   actions: {
@@ -332,13 +334,13 @@ const styles = StyleSheet.create({
   deleteText: {
     fontSize: 14,
     fontWeight: '600',
-    color: colors.danger,
+    color: c.danger,
     textDecorationLine: 'underline',
   },
 
   modalBackdrop: {
     flex: 1,
-    backgroundColor: colors.overlay,
+    backgroundColor: c.overlay,
     justifyContent: 'center',
     padding: 24,
   },
@@ -347,7 +349,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 420,
     alignSelf: 'center',
-    backgroundColor: colors.white,
+    backgroundColor: c.white,
     padding: 24,
     borderRadius: 16,
     gap: 16,
@@ -356,13 +358,13 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: colors.text,
+    color: c.text,
   },
 
   modalText: {
     fontSize: 14,
     lineHeight: 20,
-    color: colors.text,
+    color: c.text,
   },
 
   modalDanger: {
@@ -370,13 +372,13 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.danger,
+    backgroundColor: c.danger,
   },
 
   modalDangerText: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.white,
+    color: c.onPrimary,
   },
 
   logoutButton: {
@@ -391,19 +393,19 @@ const styles = StyleSheet.create({
     marginTop: 2,
 
     borderWidth: 1,
-    borderColor: colors.dangerBorder,
+    borderColor: c.dangerBorder,
     borderRadius: 10,
 
-    backgroundColor: colors.white,
+    backgroundColor: c.white,
   },
 
   logoutPressed: {
-    backgroundColor: colors.dangerSoft,
+    backgroundColor: c.dangerSoft,
   },
 
   logoutText: {
     fontSize: 14,
     fontWeight: '500',
-    color: colors.error,
+    color: c.error,
   },
-});
+}));

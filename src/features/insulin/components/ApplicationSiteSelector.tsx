@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors } from '@/shared/theme';
+import { makeStyles } from '@/shared/theme';
 
 import type { ApplicationSite } from '../services/insulin-contract';
 export type { ApplicationSite } from '../services/insulin-contract';
@@ -24,6 +24,7 @@ export function ApplicationSiteSelector({
   value,
   onChange,
 }: ApplicationSiteSelectorProps) {
+  const styles = useStyles();
   return (
     <View style={styles.container}>
       {sites.map((site) => {
@@ -53,7 +54,7 @@ export function ApplicationSiteSelector({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
   container: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -69,24 +70,24 @@ const styles = StyleSheet.create({
 
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: colors.slate300,
+    borderColor: c.slate300,
 
-    backgroundColor: colors.white,
+    backgroundColor: c.white,
   },
 
   selectedOption: {
-    borderColor: colors.primary,
-    backgroundColor: colors.blueTint,
+    borderColor: c.primary,
+    backgroundColor: c.blueTint,
   },
 
   optionText: {
     fontSize: 12,
     fontWeight: '500',
-    color: colors.gray700,
+    color: c.gray700,
   },
 
   selectedOptionText: {
     fontWeight: '600',
-    color: colors.primary,
+    color: c.primary,
   },
-});
+}));

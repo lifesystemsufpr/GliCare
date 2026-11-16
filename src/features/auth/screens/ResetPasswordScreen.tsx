@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { clearInitialURL, useLinkingURL } from 'expo-linking';
 import { Text, View } from 'react-native';
 import { AppButton, AppInput, PasswordInput, ScreenContainer } from '@/shared/components';
-import { colors } from '@/shared/theme';
+import { useThemeColors } from '@/shared/theme';
 import { errorMessage } from '@/shared/api/errors';
 import { useAuth } from '../hooks/AuthProvider';
 import { PasswordRules } from '../components/PasswordRules';
@@ -11,6 +11,7 @@ import { recoveryTokenFromLink } from '../services/recovery-contract';
 import { confirmPasswordReset } from '../services/recovery-service';
 
 export function ResetPasswordScreen() {
+  const c = useThemeColors();
   const link = useLinkingURL();
   const [token, setToken] = useState('');
   const [password, setPassword] = useState('');
@@ -58,9 +59,9 @@ export function ResetPasswordScreen() {
     finally { busy.current = false; setSaving(false); }
   }
   return <ScreenContainer scrollable><View style={{ gap: 16, paddingVertical: 30 }}>
-    <Text style={{ fontSize: 26, fontWeight: '700', color: colors.primary }}>Redefinir senha</Text>
-    {complete ? <Text>Senha redefinida com sucesso. Entre novamente com a nova senha.</Text> : <>
-      <Text>Abra o link recebido ou cole o código do e-mail abaixo.</Text>
+    <Text style={{ fontSize: 26, fontWeight: '700', color: c.primary }}>Redefinir senha</Text>
+    {complete ? <Text style={{ color: c.defaultText }}>Senha redefinida com sucesso. Entre novamente com a nova senha.</Text> : <>
+      <Text style={{ color: c.defaultText }}>Abra o link recebido ou cole o código do e-mail abaixo.</Text>
       <AppInput label="Código de recuperação" value={token} onChangeText={setToken} secureTextEntry
         autoCapitalize="none" autoCorrect={false} maxLength={512} editable={!saving} />
       <PasswordInput label="Nova senha" value={password} onChangeText={setPassword} maxLength={72} editable={!saving} />
@@ -70,7 +71,7 @@ export function ResetPasswordScreen() {
       <AppButton title="Solicitar novo código" variant="secondary" disabled={saving}
         onPress={requestAgain} />
     </>}
-    {error ? <Text accessibilityRole="alert" style={{ color: colors.error }}>{error}</Text> : null}
+    {error ? <Text accessibilityRole="alert" style={{ color: c.error }}>{error}</Text> : null}
     <AppButton title="Voltar ao login" variant="secondary" onPress={login} disabled={saving} />
   </View></ScreenContainer>;
 }

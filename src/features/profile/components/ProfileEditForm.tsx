@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 import { AppButton, AppInput } from '@/shared/components';
-import { colors } from '@/shared/theme';
+import { useThemeColors } from '@/shared/theme';
 import { errorMessage } from '@/shared/api/errors';
 import { formatBirthDateInput } from '@/features/auth/services/auth-contract';
 import { DiabetesTypeSelector } from '@/features/auth/components/DiabetesTypeSelector';
@@ -11,6 +11,7 @@ import { updateProfile } from '../services/profile-service';
 export function ProfileEditForm({ initial, onSaved, onCancel }: {
   initial: Profile; onSaved: (profile: Profile) => void; onCancel: () => void;
 }) {
+  const c = useThemeColors();
   const [form, setForm] = useState(() => profileToForm(initial));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -30,7 +31,7 @@ export function ProfileEditForm({ initial, onSaved, onCancel }: {
   const toSelector = { TIPO_1: 'type1', TIPO_2: 'type2', OUTRO: 'other' } as const;
   const fromSelector = { type1: 'TIPO_1', type2: 'TIPO_2', other: 'OUTRO' } as const;
   return <View style={{ gap: 12 }}>
-    <Text style={{ fontSize: 20, fontWeight: '700', color: colors.text }}>Editar perfil</Text>
+    <Text style={{ fontSize: 20, fontWeight: '700', color: c.text }}>Editar perfil</Text>
     <View pointerEvents={saving ? 'none' : 'auto'}>
       <AppInput label="Data de nascimento" placeholder="dd/mm/aaaa" value={form.birthDate}
         onChangeText={(value) => change('birthDate', formatBirthDateInput(value))} keyboardType="numeric" maxLength={10} editable={!saving} />
@@ -41,7 +42,7 @@ export function ProfileEditForm({ initial, onSaved, onCancel }: {
       <DiabetesTypeSelector value={form.diabetesType ? toSelector[form.diabetesType] : null}
         onChange={(value) => change('diabetesType', fromSelector[value])} />
     </View>
-    {error ? <Text accessibilityRole="alert" style={{ color: colors.error }}>{error}</Text> : null}
+    {error ? <Text accessibilityRole="alert" style={{ color: c.error }}>{error}</Text> : null}
     <AppButton title="Salvar alterações" loading={saving} onPress={save} />
     <AppButton title="Cancelar edição" variant="secondary" disabled={saving} onPress={onCancel} />
   </View>;

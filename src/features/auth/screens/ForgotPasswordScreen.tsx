@@ -1,3 +1,4 @@
+import { makeStyles, useThemeColors } from '@/shared/theme';
 import { useRef, useState } from 'react';
 import { requestPasswordRecovery } from '../services/recovery-service';
 import { RECOVERY_MESSAGE } from '../services/recovery-contract';
@@ -18,13 +19,11 @@ import {
   ScreenContainer,
 } from '../../../shared/components';
 
-import {
-  colors,
-  spacing,
-  typography,
-} from '../../../shared/theme';
+import { spacing, typography } from '../../../shared/theme';
 
 export function ForgotPasswordScreen() {
+  const styles = useStyles();
+  const c = useThemeColors();
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
@@ -56,7 +55,7 @@ function handleBackToLogin() {
             <Ionicons
               name="medical-outline"
               size={28}
-              color={colors.white}
+              color={c.onPrimary}
             />
           </View>
 
@@ -86,7 +85,7 @@ function handleBackToLogin() {
               name="mail-outline"
               size={54}
               color={
-                colors.textSecondary
+                c.textSecondary
               }
             />
 
@@ -98,7 +97,7 @@ function handleBackToLogin() {
               <Ionicons
                 name="lock-closed"
                 size={16}
-                color={colors.white}
+                color={c.onPrimary}
               />
             </View>
           </View>
@@ -135,8 +134,8 @@ function handleBackToLogin() {
   />
 </View>
 
-          {sent ? <Text accessibilityRole="alert">{RECOVERY_MESSAGE}</Text> : null}
-          {error ? <Text accessibilityRole="alert" style={{ color: colors.error }}>{error}</Text> : null}
+          {sent ? <Text style={{ color: c.defaultText }} accessibilityRole="alert">{RECOVERY_MESSAGE}</Text> : null}
+          {error ? <Text accessibilityRole="alert" style={{ color: c.error }}>{error}</Text> : null}
           <AppButton title="Já tenho o código" variant="secondary" disabled={sending}
             onPress={() => router.push('/reset-password')} />
 
@@ -181,8 +180,7 @@ function handleBackToLogin() {
   );
 }
 
-const styles =
-  StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
     container: {
       flex: 1,
 
@@ -211,14 +209,14 @@ const styles =
         'center',
 
       backgroundColor:
-        colors.primary,
+        c.primary,
 
       marginBottom:
         spacing.md,
     },
 
     title: {
-      color: colors.primary,
+      color: c.primary,
 
       fontSize:
         typography.sizes.xl,
@@ -231,7 +229,7 @@ const styles =
 
     subtitle: {
       color:
-        colors.textSecondary,
+        c.textSecondary,
 
       fontSize:
         typography.sizes.sm,
@@ -259,7 +257,7 @@ const styles =
         'center',
 
       backgroundColor:
-        colors.blueTintAlt,
+        c.blueTintAlt,
     },
 
     lockContainer: {
@@ -278,12 +276,12 @@ const styles =
         'center',
 
       backgroundColor:
-        colors.primary,
+        c.primary,
     },
 
     description: {
       color:
-        colors.textSecondary,
+        c.textSecondary,
 
       fontSize:
         typography.sizes.sm,
@@ -315,14 +313,14 @@ const styles =
 
     footerText: {
       color:
-        colors.textSecondary,
+        c.textSecondary,
 
       fontSize:
         typography.sizes.xs,
     },
 
     loginLink: {
-      color: colors.primary,
+      color: c.primary,
 
       fontSize:
         typography.sizes.xs,
@@ -336,4 +334,4 @@ const styles =
     recoveryButton: {
   marginTop: spacing.md,
 },
-  });
+  }));

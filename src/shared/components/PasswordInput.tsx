@@ -1,3 +1,4 @@
+import { makeStyles, useThemeColors } from '@/shared/theme';
 import { useState } from 'react';
 
 import {
@@ -11,8 +12,6 @@ import {
 
 import { Ionicons } from '@expo/vector-icons';
 
-import { colors } from '../theme';
-
 type PasswordInputProps = TextInputProps & {
   label: string;
   error?: string;
@@ -24,6 +23,8 @@ export function PasswordInput({
   style,
   ...rest
 }: PasswordInputProps) {
+  const styles = useStyles();
+  const c = useThemeColors();
   const [isPasswordVisible, setIsPasswordVisible] =
     useState(false);
 
@@ -46,7 +47,7 @@ export function PasswordInput({
         <Ionicons
           name="lock-closed-outline"
           size={18}
-          color={colors.textSecondary}
+          color={c.textSecondary}
           style={styles.leftIcon}
         />
 
@@ -56,7 +57,7 @@ export function PasswordInput({
             style,
           ]}
           secureTextEntry={!isPasswordVisible}
-          placeholderTextColor={colors.textSecondary}
+          placeholderTextColor={c.textSecondary}
           autoCapitalize="none"
           autoCorrect={false}
           {...rest}
@@ -74,7 +75,7 @@ export function PasswordInput({
                 : 'eye-outline'
             }
             size={20}
-            color={colors.textSecondary}
+            color={c.textSecondary}
           />
         </Pressable>
       </View>
@@ -88,7 +89,7 @@ export function PasswordInput({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
   container: {
     width: '100%',
 
@@ -96,7 +97,7 @@ const styles = StyleSheet.create({
   },
 
   label: {
-    color: colors.text,
+    color: c.text,
 
     fontSize: 14,
     fontWeight: '500',
@@ -111,10 +112,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
 
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: c.border,
     borderRadius: 8,
 
-    backgroundColor: colors.surface,
+    backgroundColor: c.surface,
   },
 
   leftIcon: {
@@ -128,7 +129,7 @@ const styles = StyleSheet.create({
 
     paddingHorizontal: 12,
 
-    color: colors.text,
+    color: c.text,
 
     fontSize: 16,
   },
@@ -142,14 +143,14 @@ const styles = StyleSheet.create({
   },
 
   inputError: {
-    borderColor: colors.error,
+    borderColor: c.error,
   },
 
   errorText: {
-    color: colors.error,
+    color: c.error,
 
     fontSize: 12,
 
     marginTop: 4,
   },
-});
+}));

@@ -4,11 +4,13 @@ import { useFocusEffect } from 'expo-router';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { AppButton } from '@/shared/components';
 import { errorMessage } from '@/shared/api/errors';
-import { colors } from '@/shared/theme';
+import { makeStyles, useThemeColors } from '@/shared/theme';
 import { listInsulin } from '../services/insulin-service';
 import { siteLabels, type InsulinRecord } from '../services/insulin-contract';
 
 export function InsulinHistory({ revision }: { revision: number }) {
+  const styles = useStyles();
+  const c = useThemeColors();
   const [records, setRecords] = useState<InsulinRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -33,16 +35,16 @@ export function InsulinHistory({ revision }: { revision: number }) {
 
   return <View style={styles.container}>
     <Text style={styles.heading}>Histórico de aplicações</Text>
-    {loading ? <ActivityIndicator accessibilityLabel="Carregando histórico de insulina" color={colors.primary} /> : error ? <>
+    {loading ? <ActivityIndicator accessibilityLabel="Carregando histórico de insulina" color={c.primary} /> : error ? <>
       <Text accessibilityRole="alert" style={styles.error}>{error}</Text>
       <AppButton title="Tentar novamente" onPress={() => setRetry((value) => value + 1)} />
     </> : <>
-      {records.length === 0 ? <Text>Nenhuma aplicação registrada.</Text> : records.slice(0, visible).map((record) => (
+      {records.length === 0 ? <Text style={{ color: c.defaultText }}>Nenhuma aplicação registrada.</Text> : records.slice(0, visible).map((record) => (
         <View key={record.id} style={styles.card}>
           <Text style={styles.value}>{formatNumber(record.doseUi)} UI · {record.tipo}</Text>
-          <Text>{record.localAplicacao ? siteLabels[record.localAplicacao] ?? record.localAplicacao : 'Local não informado'}</Text>
-          <Text>{formatDateTime(record.dataHora)}</Text>
-          {record.observacao ? <Text>{record.observacao}</Text> : null}
+          <Text style={{ color: c.defaultText }}>{record.localAplicacao ? siteLabels[record.localAplicacao] ?? record.localAplicacao : 'Local não informado'}</Text>
+          <Text style={{ color: c.defaultText }}>{formatDateTime(record.dataHora)}</Text>
+          {record.observacao ? <Text style={{ color: c.defaultText }}>{record.observacao}</Text> : null}
         </View>
       ))}
       {records.length > visible ? <AppButton title="Mostrar mais registros" variant="secondary" onPress={() => setVisible((value) => value + 20)} /> : null}
@@ -51,10 +53,10 @@ export function InsulinHistory({ revision }: { revision: number }) {
   </View>;
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
   container: { marginTop: 28, gap: 12 },
-  heading: { fontSize: 20, fontWeight: '700', color: colors.text },
-  card: { padding: 16, gap: 5, backgroundColor: colors.white, borderRadius: 12, borderWidth: 1, borderColor: colors.gray200 },
-  value: { fontSize: 19, fontWeight: '600', color: colors.text },
-  error: { color: colors.error },
-});
+  heading: { fontSize: 20, fontWeight: '700', color: c.text },
+  card: { padding: 16, gap: 5, backgroundColor: c.white, borderRadius: 12, borderWidth: 1, borderColor: c.gray200 },
+  value: { fontSize: 19, fontWeight: '600', color: c.text },
+  error: { color: c.error },
+}));

@@ -1,3 +1,4 @@
+import { makeStyles } from '@/shared/theme';
 import { ReactNode } from 'react';
 
 import {
@@ -10,7 +11,7 @@ import {
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { colors, contentWidth } from '../theme';
+import { contentWidth } from '../theme';
 
 type ScreenContainerProps = {
   children: ReactNode;
@@ -21,6 +22,7 @@ export function ScreenContainer({
   children,
   scrollable = false,
 }: ScreenContainerProps) {
+  const styles = useStyles();
   if (scrollable) {
     return (
       <SafeAreaView style={styles.safeArea}>
@@ -54,10 +56,10 @@ export function ScreenContainer({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: c.background,
   },
 
   flex: {
@@ -76,4 +78,4 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingBottom: 32,
   },
-});
+}));

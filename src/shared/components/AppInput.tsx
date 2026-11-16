@@ -1,3 +1,4 @@
+import { makeStyles, useThemeColors } from '@/shared/theme';
 import {
   StyleSheet,
   Text,
@@ -7,8 +8,6 @@ import {
 } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
-
-import { colors } from '../theme';
 
 type AppInputProps = TextInputProps & {
   label: string;
@@ -24,6 +23,8 @@ export function AppInput({
   style,
   ...rest
 }: AppInputProps) {
+  const styles = useStyles();
+  const c = useThemeColors();
   return (
     <View style={styles.container}>
       <Text style={styles.label}>
@@ -40,7 +41,7 @@ export function AppInput({
           <Ionicons
             name={icon}
             size={18}
-            color={colors.textSecondary}
+            color={c.textSecondary}
             style={styles.icon}
           />
         ) : null}
@@ -50,7 +51,7 @@ export function AppInput({
             styles.input,
             style,
           ]}
-          placeholderTextColor={colors.textSecondary}
+          placeholderTextColor={c.textSecondary}
           {...rest}
         />
       </View>
@@ -64,7 +65,7 @@ export function AppInput({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
   container: {
     width: '100%',
 
@@ -72,7 +73,7 @@ const styles = StyleSheet.create({
   },
 
   label: {
-    color: colors.text,
+    color: c.text,
 
     fontSize: 14,
     fontWeight: '500',
@@ -88,10 +89,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
 
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: c.border,
     borderRadius: 8,
 
-    backgroundColor: colors.surface,
+    backgroundColor: c.surface,
   },
 
   icon: {
@@ -105,20 +106,20 @@ const styles = StyleSheet.create({
 
     paddingHorizontal: 12,
 
-    color: colors.text,
+    color: c.text,
 
     fontSize: 16,
   },
 
   inputError: {
-    borderColor: colors.error,
+    borderColor: c.error,
   },
 
   errorText: {
-    color: colors.error,
+    color: c.error,
 
     fontSize: 12,
 
     marginTop: 4,
   },
-});
+}));

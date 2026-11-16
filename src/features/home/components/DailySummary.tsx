@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { colors } from '@/shared/theme';
+import { makeStyles, useThemeColors } from '@/shared/theme';
 
 interface DailySummaryProps {
   glucoseRegistered: boolean;
@@ -15,6 +15,8 @@ function SummaryRow({
   label: string;
   completed: boolean;
 }) {
+  const styles = useStyles();
+  const c = useThemeColors();
   return (
     <View style={styles.row}>
       <View style={styles.left}>
@@ -27,7 +29,7 @@ function SummaryRow({
           <Ionicons
             name={completed ? 'checkmark' : 'time-outline'}
             size={11}
-            color={completed ? colors.success : colors.gray500}
+            color={completed ? c.success : c.gray500}
           />
         </View>
 
@@ -50,6 +52,7 @@ export function DailySummary({
   glucoseRegistered,
   insulinRegistered,
 }: DailySummaryProps) {
+  const styles = useStyles();
   return (
     <View>
       <Text style={styles.sectionTitle}>Registros de hoje</Text>
@@ -71,19 +74,19 @@ export function DailySummary({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
   sectionTitle: {
     marginBottom: 12,
     fontSize: 20,
     fontWeight: '600',
-    color: colors.text,
+    color: c.text,
   },
 
   card: {
-    backgroundColor: colors.white,
+    backgroundColor: c.white,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.neutralSoft,
+    borderColor: c.neutralSoft,
     overflow: 'hidden',
   },
 
@@ -107,32 +110,32 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.successSoft,
+    backgroundColor: c.successSoft,
   },
 
   pendingCircle: {
-    backgroundColor: colors.neutralSoft,
+    backgroundColor: c.neutralSoft,
   },
 
   label: {
     fontSize: 14,
     fontWeight: '500',
-    color: colors.inkSoft,
+    color: c.inkSoft,
   },
 
   status: {
     fontSize: 11,
     fontWeight: '600',
-    color: colors.success,
+    color: c.success,
   },
 
   pendingStatus: {
-    color: colors.gray500,
+    color: c.gray500,
   },
 
   divider: {
     height: 1,
     marginHorizontal: 12,
-    backgroundColor: colors.neutralSoft,
+    backgroundColor: c.neutralSoft,
   },
-});
+}));

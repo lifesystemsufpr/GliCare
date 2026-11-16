@@ -5,7 +5,7 @@ import {
     View,
 } from 'react-native';
 
-import { colors } from '@/shared/theme';
+import { makeStyles } from '@/shared/theme';
 
 import type { MeasurementMoment } from '../services/glucose-contract';
 export type { MeasurementMoment } from '../services/glucose-contract';
@@ -32,6 +32,7 @@ export function MeasurementMomentSelector({
   value,
   onChange,
 }: MeasurementMomentSelectorProps) {
+  const styles = useStyles();
   return (
     <View style={styles.container}>
       {moments.map((moment) => {
@@ -61,7 +62,7 @@ export function MeasurementMomentSelector({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
   container: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -74,24 +75,24 @@ const styles = StyleSheet.create({
 
     borderRadius: 20,
 
-    backgroundColor: colors.gray100,
+    backgroundColor: c.gray100,
 
     borderWidth: 1,
-    borderColor: colors.gray200,
+    borderColor: c.gray200,
   },
 
   selectedChip: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    backgroundColor: c.primary,
+    borderColor: c.primary,
   },
 
   chipText: {
     fontSize: 12,
     fontWeight: '500',
-    color: colors.gray700,
+    color: c.gray700,
   },
 
   selectedChipText: {
-    color: colors.white,
+    color: c.onPrimary,
   },
-});
+}));
