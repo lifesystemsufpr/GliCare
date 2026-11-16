@@ -11,7 +11,6 @@ function RootNavigator() {
       <Stack.Screen name="reset-password" />
       <Stack.Protected guard={Boolean(user)}>
         <Stack.Screen name="(main)" />
-        <Stack.Screen name="explore" />
       </Stack.Protected>
       <Stack.Protected guard={!user}>
         <Stack.Screen name="(auth)" />

@@ -1,56 +1,87 @@
-# Welcome to your Expo app 👋
+# GliCare (app)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+App para pessoas com diabetes registrarem glicemia e insulina, receberem
+lembretes e acompanharem a rotina em gráficos e relatórios. Feito com React
+Native, Expo, TypeScript e Expo Router. A API fica em outro repositório
+(`minha-rotina-diabetica`, NestJS).
 
-## Get started
+## Pré-requisitos
 
-1. Install dependencies
+- Node.js 22 e npm.
+- A API rodando (veja o README da API).
+- Para Android: Android Studio com um emulador, ou um celular com Expo Go na
+  mesma rede do computador.
+- Para iOS: macOS com Xcode, ou um iPhone com Expo Go.
+
+## Como rodar
+
+1. Instale as dependências:
 
    ```bash
-   npm install
+   npm ci
    ```
 
-2. Start the app
+2. Copie `.env.example` para `.env` e ajuste o endereço da API. Ele precisa
+   terminar em `/api`:
+
+   | Onde o app roda | `EXPO_PUBLIC_API_URL` |
+   | --- | --- |
+   | Navegador no mesmo computador | `http://localhost:3000/api` |
+   | Emulador Android | `http://10.0.2.2:3000/api` |
+   | Celular físico | `http://<IP do computador na rede>:3000/api` |
+
+   No celular, `localhost` aponta para o próprio celular, não para o
+   computador. Depois de mudar o `.env`, reinicie o Expo.
+
+3. Inicie:
 
    ```bash
-   npx expo start
+   npm start
    ```
 
-In the output, you'll find options to open the app in a
+   No terminal do Expo, `a` abre no Android, `i` no iOS e `w` no navegador.
+   Também dá para usar `npm run android`, `npm run ios` ou `npm run web`.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Verificações
 
 ```bash
-npm run reset-project
+npm run typecheck
+npm run test:auth
+npm run test:glucose
+npm run test:insulin
+npm run test:profile
+npm run test:reminders
+npm run test:home
+npm run test:dashboard
+npm run test:reports
+npm run test:recovery
+npm run test:notifications
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+O repositório ainda não tem CI. Rode as verificações antes de abrir o PR.
 
-### Other setup steps
+## Estrutura
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+- `src/app`: rotas do Expo Router. Os grupos são `(auth)`, para login,
+  cadastro e recuperação de senha, e `(main)`, para as abas do app.
+- `src/features`: uma pasta por funcionalidade (auth, home, glucose, insulin,
+  reminders, dashboard, reports, profile), com telas, componentes e serviços.
+- `src/shared`: cliente HTTP (`api`), componentes reutilizáveis, tema e
+  formatação (`format.ts`).
+- `scripts/*.test.mjs`: testes de cada feature, rodados com `node --test`.
 
-## Learn more
+As regras para quem contribui estão em `AGENTS.md`.
 
-To learn more about developing your project with Expo, look at the following resources:
+## Limitações conhecidas
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- **Navegador:** a sessão fica só na memória, então recarregar a página pede
+  login de novo. Alertas locais dos lembretes e compartilhamento nativo do PDF
+  só funcionam no Android e no iOS. No navegador, o PDF abre a janela de
+  impressão.
+- **Recuperação de senha:** o link do e-mail usa o esquema
+  `glicaremobile://reset-password`. Ele só abre o app em build nativo ou no
+  Expo Go com o esquema configurado.
+- **Tema escuro e notificações:** não implementados. Os itens foram tirados
+  do Perfil até existirem.
+- **Termos de Uso e Política de Privacidade:** os textos ainda não existem, e
+  o cadastro não mostra esses links.
