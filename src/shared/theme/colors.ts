@@ -11,6 +11,8 @@ export const lightColors = {
 
   text: '#111827',
   textSecondary: '#6B7280',
+  // Para textos que antes não tinham cor: preto, o padrão do React Native.
+  defaultText: '#000000',
 
   border: '#9CA3AF',
 
@@ -79,6 +81,7 @@ export const darkColors: ThemeColors = {
 
   text: '#E8EAED',
   textSecondary: '#A9B0BA',
+  defaultText: '#E8EAED',
 
   border: '#6B7480',
 

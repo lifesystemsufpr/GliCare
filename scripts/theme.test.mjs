@@ -37,7 +37,7 @@ function contrast(a, b) {
 test('tema escuro: texto legível (4,5:1) nos pares principais', () => {
   const d = darkColors;
   for (const [fg, bg] of [
-    [d.text, d.screen], [d.text, d.surface], [d.textSecondary, d.surface],
+    [d.text, d.screen], [d.text, d.surface], [d.defaultText, d.surface], [d.textSecondary, d.surface],
     [d.primary, d.screen], [d.primary, d.surface], [d.onPrimary, d.primary],
     [d.onSecondary, d.secondary], [d.onPrimary, d.danger], [d.onPrimary, d.success],
     [d.success, d.successSoft], [d.warning, d.warningSoft], [d.danger, d.dangerSoft],
