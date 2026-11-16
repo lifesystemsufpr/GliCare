@@ -1,3 +1,4 @@
+import { formatDateTime } from '@/shared/format';
 import { contentWidth } from '@/shared/theme';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -48,10 +49,10 @@ export function HomeScreen() {
     {loading ? <ActivityIndicator accessibilityLabel="Carregando resumo da rotina" /> : error ?
       <Text accessibilityRole="alert" style={{ color: '#B91C1C' }}>{error}</Text> : summary ? <>
       <GlucoseCard value={glucose?.valor ?? null} status={glucose?.status ?? null}
-        measuredAt={glucose ? new Date(glucose.dataHora).toLocaleString('pt-BR') : 'Nenhuma medição registrada.'} />
+        measuredAt={glucose ? formatDateTime(glucose.dataHora) : 'Nenhuma medição registrada.'} />
       <View style={styles.cardsRow}>
         <InsulinCard dose={insulin?.doseUi ?? null} type={insulin?.tipo ?? 'Nenhuma aplicação registrada.'}
-          appliedAt={insulin ? new Date(insulin.dataHora).toLocaleString('pt-BR') : ''} />
+          appliedAt={insulin ? formatDateTime(insulin.dataHora) : ''} />
         <ReminderCard time={reminder ? new Date(reminder.dataHora).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '—'}
           date={reminder ? new Date(reminder.dataHora).toLocaleDateString('pt-BR') : ''}
           title={reminder?.titulo ?? 'Nenhum lembrete ativo futuro.'} />

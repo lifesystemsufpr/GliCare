@@ -72,6 +72,7 @@ export function ReminderCard({
               ? colors.primary
               : '#FFFFFF'
           }
+          {...({ activeThumbColor: colors.primary } as object)}
         />
       </View>
 

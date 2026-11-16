@@ -1,3 +1,4 @@
+import { formatDateTime, formatNumber } from '@/shared/format';
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
@@ -38,9 +39,9 @@ export function InsulinHistory({ revision }: { revision: number }) {
     </> : <>
       {records.length === 0 ? <Text>Nenhuma aplicação registrada.</Text> : records.slice(0, visible).map((record) => (
         <View key={record.id} style={styles.card}>
-          <Text style={styles.value}>{record.doseUi} UI · {record.tipo}</Text>
+          <Text style={styles.value}>{formatNumber(record.doseUi)} UI · {record.tipo}</Text>
           <Text>{record.localAplicacao ? siteLabels[record.localAplicacao] ?? record.localAplicacao : 'Local não informado'}</Text>
-          <Text>{new Date(record.dataHora).toLocaleString('pt-BR')}</Text>
+          <Text>{formatDateTime(record.dataHora)}</Text>
           {record.observacao ? <Text>{record.observacao}</Text> : null}
         </View>
       ))}

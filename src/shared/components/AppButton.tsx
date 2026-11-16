@@ -49,9 +49,9 @@ export function AppButton({
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={colors.white} />
+        <ActivityIndicator color={variant === 'secondary' ? colors.onSecondary : colors.white} />
       ) : (
-        <Text style={styles.text}>{title}</Text>
+        <Text style={[styles.text, variant === 'secondary' && styles.secondaryText]}>{title}</Text>
       )}
     </Pressable>
   );
@@ -82,6 +82,10 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontSize: 16,
     fontWeight: '600',
+  },
+
+  secondaryText: {
+    color: colors.onSecondary,
   },
 
   pressed: {

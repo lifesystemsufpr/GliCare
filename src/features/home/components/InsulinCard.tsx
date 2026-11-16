@@ -1,3 +1,4 @@
+import { formatNumber } from '@/shared/format';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -26,7 +27,7 @@ export function InsulinCard({
       </View>
 
       <View style={styles.valueRow}>
-        <Text style={styles.value}>{dose ?? '—'}</Text>
+        <Text style={styles.value}>{dose == null ? '—' : formatNumber(dose)}</Text>
         <Text style={styles.unit}>UI</Text>
       </View>
 

@@ -1,3 +1,4 @@
+import { greetingFor } from '@/shared/format';
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -24,7 +25,7 @@ export function HomeHeader({
         </View>
 
         <View style={styles.texts}>
-          <Text style={styles.greeting}>Bom dia,</Text>
+          <Text style={styles.greeting}>{greetingFor()},</Text>
           <Text style={styles.name} numberOfLines={1}>{userName}!</Text>
         </View>
       </View>

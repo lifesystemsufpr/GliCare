@@ -1,3 +1,4 @@
+import { formatDateTime, glucoseStatusLabels } from '@/shared/format';
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
@@ -39,8 +40,8 @@ export function GlucoseHistory({ revision }: { revision: number }) {
       {records.length === 0 ? <Text>Nenhuma medição registrada.</Text> : records.slice(0, visible).map((record) => (
         <View key={record.id} style={styles.card}>
           <Text style={styles.value}>{record.valor} mg/dL</Text>
-          <Text>{momentLabels[record.momento] ?? record.momento} · {record.status}</Text>
-          <Text>{new Date(record.dataHora).toLocaleString('pt-BR')}</Text>
+          <Text>{momentLabels[record.momento] ?? record.momento} · {glucoseStatusLabels[record.status] ?? record.status}</Text>
+          <Text>{formatDateTime(record.dataHora)}</Text>
           {record.observacao ? <Text>{record.observacao}</Text> : null}
         </View>
       ))}

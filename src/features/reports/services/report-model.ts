@@ -1,3 +1,4 @@
+import { formatNumber } from '../../../shared/format';
 import { buildDashboard, periodDays, type DashboardSources, type DashboardSummary, type Period } from '../../dashboard/services/dashboard-model';
 import { dayKey } from '../../home/services/home-model';
 import { momentLabels } from '../../glucose/services/glucose-contract';
@@ -25,7 +26,7 @@ export function buildReport(sources: DashboardSources, period: Period, now = new
     })),
     ...sources.insulin.filter((record) => included(record.dataHora)).map((record): ReportRow => ({
       id: 'insulin:' + record.id, kind: 'Insulina', occurredAt: record.dataHora,
-      value: `${record.doseUi} UI`, detail: `${record.tipo} · ${record.localAplicacao ? siteLabels[record.localAplicacao] ?? record.localAplicacao : 'Local não informado'}`,
+      value: `${formatNumber(record.doseUi)} UI`, detail: `${record.tipo} · ${record.localAplicacao ? siteLabels[record.localAplicacao] ?? record.localAplicacao : 'Local não informado'}`,
       notes: record.observacao ?? '',
     })),
   ];

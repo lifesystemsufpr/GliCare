@@ -1,3 +1,4 @@
+import { formatDateTime } from '@/shared/format';
 import { contentWidth } from '@/shared/theme';
 import { useCallback, useRef, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
@@ -16,6 +17,7 @@ import type { Report } from '../services/report-model';
 export function ReportsScreen() {
   const { user } = useAuth();
   const [period, setPeriod] = useState<Period>(() => presetPeriod(30));
+  const [selected, setSelected] = useState<7 | 30 | 90 | 'custom'>(30);
   const [start, setStart] = useState(() => displayDay(period.start));
   const [end, setEnd] = useState(() => displayDay(period.end));
   const [filterError, setFilterError] = useState('');
@@ -44,13 +46,13 @@ export function ReportsScreen() {
     if (busy.current) return;
     const next = presetPeriod(days);
     setStart(displayDay(next.start)); setEnd(displayDay(next.end));
-    setFilterError(''); setReport(null); setLoading(true); setPeriod(next);
+    setSelected(days); setFilterError(''); setReport(null); setLoading(true); setPeriod(next);
   }
   function apply() {
     if (busy.current) return;
     try {
       const next = { start: periodInput(start), end: periodInput(end) }; periodDays(next);
-      setFilterError(''); setReport(null); setLoading(true); setPeriod(next);
+      setSelected('custom'); setFilterError(''); setReport(null); setLoading(true); setPeriod(next);
     } catch (cause) { setFilterError(errorMessage(cause)); }
   }
   async function share() {
@@ -65,7 +67,7 @@ export function ReportsScreen() {
     <Text style={{ fontSize: 26, fontWeight: '700', color: colors.text }}>Relatórios</Text>
     <Text>Consulte e exporte glicemias e aplicações de insulina.</Text>
     <View style={{ flexDirection: 'row', gap: 8 }}>{([7, 30, 90] as const).map((days) => <View key={days} style={{ flex: 1 }}>
-      <AppButton title={`${days} dias`} variant="secondary" disabled={exporting} onPress={() => choose(days)} />
+      <AppButton title={`${days} dias`} variant={selected === days ? 'primary' : 'secondary'} disabled={exporting} onPress={() => choose(days)} />
     </View>)}</View>
     <View style={{ backgroundColor: '#FFFFFF', padding: 16, borderRadius: 12, gap: 8 }}>
       <Text>Período personalizado · até 366 dias</Text>
@@ -82,7 +84,7 @@ export function ReportsScreen() {
       {exportError ? <Text accessibilityRole="alert" style={{ color: colors.error }}>{exportError}</Text> : null}
       {report.rows.length === 0 ? <Text>Nenhum registro no período selecionado.</Text> : report.rows.slice(0, visible).map((row) => <View key={row.id} style={{ padding: 16, gap: 5, backgroundColor: '#FFFFFF', borderRadius: 12 }}>
         <Text style={{ fontSize: 17, fontWeight: '600' }}>{row.kind} · {row.value}</Text>
-        <Text>{new Date(row.occurredAt).toLocaleString('pt-BR')}</Text><Text>{row.detail}</Text>
+        <Text>{formatDateTime(row.occurredAt)}</Text><Text>{row.detail}</Text>
         {row.notes ? <Text>{row.notes}</Text> : null}
       </View>)}
       {report.rows.length > visible ? <AppButton title="Mostrar mais registros" variant="secondary" onPress={() => setVisible((value) => value + 20)} /> : null}
