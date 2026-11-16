@@ -130,6 +130,19 @@ export function ProfileScreen() {
         </View>
       </> : null}
 
+      <View style={styles.settings}>
+        <Text style={styles.settingsTitle}>Configurações</Text>
+        <Pressable
+          style={({ pressed }) => [styles.settingsItem, pressed && styles.logoutPressed]}
+          onPress={() => router.push('/notificacoes')}
+          accessibilityRole="button"
+        >
+          <Ionicons name="notifications-outline" size={19} color={colors.text} />
+          <Text style={styles.settingsText}>Notificações</Text>
+          <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
+        </Pressable>
+      </View>
+
       <Pressable
         style={({ pressed }) => [
           styles.logoutButton,
@@ -256,6 +269,39 @@ const styles = StyleSheet.create({
   incompleteTitle: {
     fontSize: 16,
     fontWeight: '700',
+    color: colors.text,
+  },
+
+  settings: {
+    borderWidth: 1,
+    borderColor: colors.gray200,
+    borderRadius: 10,
+    backgroundColor: colors.white,
+    overflow: 'hidden',
+  },
+
+  settingsTitle: {
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 17,
+    fontWeight: '600',
+    color: colors.text,
+    backgroundColor: colors.screen,
+  },
+
+  settingsItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 16,
+    borderTopWidth: 1,
+    borderTopColor: colors.gray200,
+  },
+
+  settingsText: {
+    flex: 1,
+    fontSize: 15,
     color: colors.text,
   },
 
