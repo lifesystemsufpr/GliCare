@@ -18,6 +18,7 @@ registerHooks({
 });
 process.env.EXPO_PUBLIC_API_URL = 'https://api.example.test/api';
 const { buildReport } = await import('../src/features/reports/services/report-model.ts');
+const { toDashboardSummary } = await import('../src/features/dashboard/services/dashboard-model.ts');
 const { reportHtml, escapeHtml } = await import('../src/features/reports/services/report-html.ts');
 const { exportPdf } = await import('../src/features/reports/services/report-export-core.ts');
 const { exportReport: printWeb } = await import('../src/features/reports/services/report-export.web.ts');
@@ -25,70 +26,85 @@ const { loadReport } = await import('../src/features/reports/services/report-ser
 const { api } = await import('../src/shared/api/api.ts');
 const now = new Date(2026, 0, 3, 12);
 const period = { start: '2026-01-01', end: '2026-01-03' };
-const g = (id, day = 1) => ({ id, valor: 100, momento: 'JEJUM', status: 'NORMAL',
-  dataHora: new Date(2026, 0, day, 8).toISOString(), observacao: null });
-const i = (id, day = 2) => ({ id, doseUi: 10, tipo: 'NPH', localAplicacao: null,
-  dataHora: new Date(2026, 0, day, 8).toISOString(), observacao: null });
-const sources = { glucose: [g('g')], insulin: [i('i')] };
+const g = (id, day = 1, extra = {}) => ({ type: 'GLYCEMIA', id, dateTime: new Date(2026, 0, day, 8).toISOString(),
+  glycemia: { valor: 100, momento: 'JEJUM', status: 'NORMAL', observacao: null, ...extra }, insulin: null });
+const i = (id, day = 2, extra = {}) => ({ type: 'INSULIN', id, dateTime: new Date(2026, 0, day, 8).toISOString(),
+  glycemia: null, insulin: { tipo: 'NPH', doseUi: 10, localAplicacao: null, observacao: null, ...extra } });
+const band = (quantidade, percentual) => ({ quantidade, percentual });
+const dashboardApi = (total = 1) => ({
+  mediaGlicemia: total ? 100 : null,
+  maiorValor: total ? { valor: 100, dataHora: new Date(2026, 0, 1, 8).toISOString(), momento: 'JEJUM' } : null,
+  menorValor: total ? { valor: 100, dataHora: new Date(2026, 0, 1, 8).toISOString(), momento: 'JEJUM' } : null,
+  glicemiaAoLongoDoDia: [], insulinaTotalDiaria: total ? [{ data: '2026-01-02', totalUi: 10, quantidade: 1 }] : [],
+  distribuicaoLeituras: { total, muitoBaixa: band(0, 0), baixa: band(0, 0), noAlvo: band(total, total ? 100 : null), alta: band(0, 0), muitoAlta: band(0, 0) },
+  mediaPorMomento: [],
+});
+const dashboard = (total = 1) => toDashboardSummary(dashboardApi(total));
+const records = [i('i'), g('g')];
 
-test('combina tipos de registros em ordem cronológica inversa sem colisão de IDs', () => {
-  const result = buildReport({ glucose: [g('same')], insulin: [i('same')] }, period, now);
+test('mantém a ordem da API e evita colisão de IDs entre tipos', () => {
+  const result = buildReport([i('same'), g('same')], dashboard(), period, now);
   assert.deepEqual(result.rows.map((row) => row.id), ['insulin:same', 'glucose:same']);
   assert.equal(result.rows[0].value, '10 UI'); assert.equal(result.rows[1].value, '100 mg/dL');
 });
-test('inclui apenas o período local e exclui instantes futuros', () => {
-  const result = buildReport({ glucose: [g('before', 0), g('inside', 1), g('future', 4)], insulin: [] }, period, now);
-  assert.equal(result.rows.length, 1); assert.equal(result.rows[0].id, 'glucose:inside');
+test('decimais com vírgula e status com rótulo', () => {
+  const result = buildReport([i('i', 2, { doseUi: 4.5 }), g('g', 1, { status: 'ALTA' })], dashboard(), period, now);
+  assert.equal(result.rows[0].value, '4,5 UI'); assert.match(result.rows[1].detail, /Jejum · Alta/);
 });
-test('campos opcionais ausentes não inventam observações ou local', () => {
-  const result = buildReport(sources, period, now);
+test('observações vêm do histórico da API; ausentes não são inventadas', () => {
+  const result = buildReport([i('i'), g('g', 1, { observacao: 'Após caminhada' })], dashboard(), period, now);
   assert.equal(result.rows[0].notes, ''); assert.match(result.rows[0].detail, /Local não informado/);
+  assert.equal(result.rows[1].notes, 'Após caminhada');
 });
-test('resumo corresponde exatamente aos registros do relatório', () => {
-  const result = buildReport(sources, period, now);
-  assert.equal(result.summary.measurements, 1); assert.equal(result.summary.applications, 1);
-  assert.equal(result.summary.mean, 100); assert.equal(result.rows.length, 2);
+test('resumo vem do Dashboard da API', () => {
+  const result = buildReport(records, dashboard(), period, now);
+  assert.deepEqual(result.summary, { measurements: 1, applications: 1, mean: 100, min: 100, max: 100 });
 });
 test('período sem registros permanece vazio e exportável', () => {
-  const result = buildReport({ glucose: [], insulin: [] }, period, now);
+  const result = buildReport([], dashboard(0), period, now);
   const html = reportHtml(result, 'Pessoa sintética');
   assert.match(html, /Nenhum registro no período selecionado/); assert.match(html, /Sem dados/);
 });
 test('período inválido e dados incompatíveis são rejeitados', () => {
-  assert.throws(() => buildReport(sources, { start: period.end, end: period.start }, now));
-  assert.throws(() => buildReport({ glucose: [{ ...g('g'), valor: NaN }], insulin: [] }, period, now));
+  assert.throws(() => buildReport(records, dashboard(), { start: period.end, end: period.start }, now));
+  assert.throws(() => buildReport([g('g', 1, { valor: NaN })], dashboard(), period, now));
+  assert.throws(() => buildReport([{ ...g('g'), glycemia: null }], dashboard(), period, now));
+  assert.throws(() => buildReport({ records: [] }, dashboard(), period, now));
 });
 test('HTML escapa nome, tipo e observações, sem executar conteúdo informado pelo usuário', () => {
-  const result = buildReport({ glucose: [{ ...g('g'), observacao: '<script>alert(1)</script>&"' }],
-    insulin: [{ ...i('i'), tipo: '<img src=x onerror=alert(1)>' }] }, period, now);
+  const result = buildReport([g('g', 1, { observacao: '<script>alert(1)</script>&"' }),
+    i('i', 2, { tipo: '<img src=x onerror=alert(1)>' })], dashboard(), period, now);
   const html = reportHtml(result, '<Nome & sobrenome>');
   assert.equal(html.includes('<script>'), false); assert.equal(html.includes('<img'), false);
   assert.match(html, /&lt;Nome &amp; sobrenome&gt;/); assert.match(html, /&lt;script&gt;/);
   assert.equal(escapeHtml("'\"&<>"), '&#39;&quot;&amp;&lt;&gt;');
 });
 test('HTML exporta todos os registros, independentemente do limite da prévia', () => {
-  const result = buildReport({ glucose: Array.from({ length: 60 }, (_, index) => ({ ...g(String(index)), observacao: 'linha-' + index })), insulin: [] }, period, now);
+  const result = buildReport(Array.from({ length: 60 }, (_, index) => g(String(index), 1, { observacao: 'linha-' + index })), dashboard(), period, now);
   const html = reportHtml(result, 'Teste');
   assert.equal((html.match(/<tr>/g) ?? []).length, 61); assert.match(html, /linha-59/);
 });
 test('HTML é autocontido, não inclui tokens, IDs internos ou recursos externos', () => {
-  const html = reportHtml(buildReport(sources, period, now), 'Teste');
+  const html = reportHtml(buildReport(records, dashboard(), period, now), 'Teste');
   assert.equal(/<script|<link|src="https?:/i.test(html), false);
   assert.equal(html.includes('glucose:g'), false); assert.equal(html.includes('Bearer'), false);
   assert.match(html, /thead\{display:table-header-group\}/);
 });
 const calls = [];
 let failure;
-let data = { '/glycemias': sources.glucose, '/insulin-applications': sources.insulin };
+let data = { '/reports/records': records, '/dashboard': dashboardApi() };
 api.defaults.headers.common.Authorization = 'Bearer synthetic-token';
 api.defaults.adapter = async (config) => {
   calls.push(config); if (failure) throw failure;
   return { config, status: 200, statusText: 'OK', headers: {}, data: data[config.url] };
 };
-test('consulta reutiliza os dois GETs autenticados', async () => {
-  const result = await loadReport(period); assert.equal(result.rows.length, 2);
-  assert.deepEqual(calls.slice(-2).map((config) => config.url).sort(), ['/glycemias', '/insulin-applications'].sort());
-  for (const config of calls.slice(-2)) { assert.equal(config.method, 'get'); assert.equal(config.headers.Authorization, 'Bearer synthetic-token'); }
+test('consulta /reports/records e /dashboard autenticados, com o mesmo período', async () => {
+  const result = await loadReport(period); assert.equal(result.rows.length, 2); assert.equal(result.summary.measurements, 1);
+  assert.deepEqual(calls.slice(-2).map((config) => config.url).sort(), ['/dashboard', '/reports/records']);
+  for (const config of calls.slice(-2)) {
+    assert.equal(config.method, 'get'); assert.equal(config.headers.Authorization, 'Bearer synthetic-token');
+    assert.deepEqual(config.params, { startDate: '2026-01-01', endDate: '2026-01-03' });
+  }
 });
 test('período inválido e cancelamento não disparam HTTP', async () => {
   const before = calls.length; await assert.rejects(loadReport({ start: period.end, end: period.start }));

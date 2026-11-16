@@ -1,4 +1,4 @@
-import { formatNumber } from '@/shared/format';
+import { formatDateTime, formatNumber } from '@/shared/format';
 import { contentWidth } from '@/shared/theme';
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
@@ -7,9 +7,8 @@ import { AppButton, AppInput } from '@/shared/components';
 import { colors } from '@/shared/theme';
 import { errorMessage } from '@/shared/api/errors';
 import { formatBirthDateInput } from '@/features/auth/services/auth-contract';
-import { DailyGlucoseChart } from '../components/DailyGlucoseChart';
 import { loadDashboard } from '../services/dashboard-service';
-import { buildDashboard, displayDay, periodDays, periodInput, presetPeriod, type DashboardSummary, type Period } from '../services/dashboard-model';
+import { displayDay, periodDays, periodInput, presetPeriod, type DashboardSummary, type Period } from '../services/dashboard-model';
 
 function Metric({ label, value }: { label: string; value: string }) {
   return <View style={styles.metric}><Text>{label}</Text><Text style={styles.value}>{value}</Text></View>;
@@ -31,8 +30,8 @@ export function DashboardScreen() {
     setLoading(true);
     setSummary(null);
     setError('');
-    void loadDashboard(controller.signal).then((sources) => {
-      if (!controller.signal.aborted) setSummary(buildDashboard(sources, period));
+    void loadDashboard(period, controller.signal).then((data) => {
+      if (!controller.signal.aborted) setSummary(data);
     }).catch((cause: unknown) => {
       if (!controller.signal.aborted) setError(errorMessage(cause));
     }).finally(() => {
@@ -53,7 +52,6 @@ export function DashboardScreen() {
       setSelected('custom'); setFilterError(''); setSummary(null); setLoading(true); setPeriod(next);
     } catch (cause) { setFilterError(errorMessage(cause)); }
   }
-  const labels = { BAIXA: 'Baixa', NORMAL: 'Normal', ALTA: 'Alta' } as const;
   const measure = (value: number | null) => value == null ? '—' : value.toLocaleString('pt-BR', { maximumFractionDigits: 1 });
   return <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
     <Text style={styles.heading}>Dashboard</Text>
@@ -66,22 +64,42 @@ export function DashboardScreen() {
       <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : summary ? <>
       <View style={styles.metrics}>
         <Metric label="Medições de glicemia" value={String(summary.measurements)} />
-        <Metric label="Aplicações de insulina" value={String(summary.applications)} />
+        <Metric label="Aplicações de insulina" value={`${summary.applications} · ${formatNumber(summary.insulinTotal)} UI no total`} />
         <Metric label="Média (mg/dL)" value={measure(summary.mean)} />
-        <Metric label="Mínimo / máximo (mg/dL)" value={`${measure(summary.min)} / ${measure(summary.max)}`} />
+        <Metric label="Mínimo / máximo (mg/dL)" value={`${measure(summary.min?.value ?? null)} / ${measure(summary.max?.value ?? null)}`} />
       </View>
-      {summary.measurements === 0 ? <Text>Nenhuma medição de glicemia neste período.</Text> : null}
+      {summary.min && summary.max ? <Text style={styles.note}>
+        Mínimo em {formatDateTime(summary.min.at)} ({summary.min.moment}). Máximo em {formatDateTime(summary.max.at)} ({summary.max.moment}).
+      </Text> : null}
+      {summary.measurements === 0 ? <Text>Nenhuma medição de glicemia neste período.</Text> : <>
+        <View style={styles.filter}>
+          <Text style={styles.subheading}>Faixas das medições</Text>
+          <Text>Percentual das medições em cada faixa (mg/dL). Não representa tempo.</Text>
+          {summary.bands.map((band) => <View key={band.key} style={{ gap: 5 }}>
+            <Text>{band.label}: {band.count} · {band.percentage == null ? '—' : formatNumber(band.percentage) + '%'}</Text>
+            <View style={styles.track}>
+              <View style={[styles.bar, { width: `${band.percentage ?? 0}%` }, band.key === 'muitoBaixa' && styles.barAlert]} />
+            </View>
+          </View>)}
+        </View>
+        <View style={styles.filter}>
+          <Text style={styles.subheading}>Média por momento do dia</Text>
+          {summary.byMoment.map((item) => <View key={item.moment} style={styles.row}>
+            <Text style={{ flex: 1 }}>{item.moment}</Text>
+            <Text style={styles.rowValue}>{measure(item.mean)} mg/dL</Text>
+            <Text style={styles.rowCount}>{item.count} {item.count === 1 ? 'medição' : 'medições'}</Text>
+          </View>)}
+        </View>
+      </>}
       <View style={styles.filter}>
-        <Text style={styles.subheading}>Classificação das medições</Text>
-        <Text>Percentuais sobre a quantidade de medições; não representam duração.</Text>
-        {summary.distribution.map((item) => <View key={item.status} style={{ gap: 5 }}>
-          <Text>{labels[item.status]}: {item.count} · {item.percentage == null ? '—' : formatNumber(item.percentage) + '%'}</Text>
-          <View style={{ height: 8, backgroundColor: '#E2E8F0', borderRadius: 4 }}>
-            <View style={{ height: 8, width: `${item.percentage ?? 0}%`, backgroundColor: colors.primary, borderRadius: 4 }} />
-          </View>
-        </View>)}
+        <Text style={styles.subheading}>Insulina por dia</Text>
+        {summary.insulinDaily.length === 0 ? <Text>Nenhuma aplicação de insulina neste período.</Text> :
+          summary.insulinDaily.map((day) => <View key={day.date} style={styles.row}>
+            <Text style={{ flex: 1 }}>{day.label}</Text>
+            <Text style={styles.rowValue}>{formatNumber(day.totalUi)} UI</Text>
+            <Text style={styles.rowCount}>{day.count} {day.count === 1 ? 'aplicação' : 'aplicações'}</Text>
+          </View>)}
       </View>
-      <DailyGlucoseChart data={summary.daily} />
     </> : null}
     <View style={styles.filter}>
       <Text style={styles.subheading}>Período personalizado</Text>
@@ -109,4 +127,11 @@ const styles = StyleSheet.create({
   metric: { backgroundColor: '#FFFFFF', borderRadius: 12, padding: 16, gap: 6 },
   value: { fontSize: 24, fontWeight: '700', color: colors.primary },
   error: { color: colors.error },
+  note: { color: colors.textSecondary, fontSize: 13 },
+  track: { height: 8, backgroundColor: '#E2E8F0', borderRadius: 4 },
+  bar: { height: 8, backgroundColor: colors.primary, borderRadius: 4 },
+  barAlert: { backgroundColor: colors.error },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 4 },
+  rowValue: { width: 96, textAlign: 'right', fontWeight: '600', color: colors.text },
+  rowCount: { width: 92, textAlign: 'right', color: colors.textSecondary, fontSize: 13 },
 });
