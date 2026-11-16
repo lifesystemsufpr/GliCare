@@ -18,6 +18,7 @@ export type DashboardApiResponse = {
   };
   mediaPorMomento: { momento: ApiMoment; media: number; quantidade: number }[];
 };
+export type Reading = { at: string; label: string; value: number; moment: string };
 export type Extreme = { value: number; at: string; moment: string };
 export type Band = { key: string; label: string; count: number; percentage: number | null };
 export type DashboardSummary = {
@@ -26,6 +27,7 @@ export type DashboardSummary = {
   bands: Band[];
   byMoment: { moment: string; mean: number; count: number }[];
   insulinDaily: { date: string; label: string; totalUi: number; count: number }[];
+  readings: Reading[];
 };
 
 function parseDay(value: string): Date {
@@ -89,7 +91,7 @@ function extreme(value: ApiExtreme | null): Extreme | null {
 
 export function toDashboardSummary(data: DashboardApiResponse): DashboardSummary {
   if (!data || typeof data !== 'object' || !data.distribuicaoLeituras || !Array.isArray(data.insulinaTotalDiaria)
-    || !Array.isArray(data.mediaPorMomento)) invalid();
+    || !Array.isArray(data.mediaPorMomento) || !Array.isArray(data.glicemiaAoLongoDoDia)) invalid();
   const bands = bandLabels.map(([key, label]): Band => {
     const band = data.distribuicaoLeituras[key];
     if (!band) invalid();
@@ -109,5 +111,13 @@ export function toDashboardSummary(data: DashboardApiResponse): DashboardSummary
       moment: momentLabels[item.momento] ?? item.momento, mean: amount(item.media), count: count(item.quantidade),
     })),
     insulinDaily,
+    readings: data.glicemiaAoLongoDoDia.map((point) => {
+      const date = new Date(point.dataHora);
+      if (!Number.isFinite(date.getTime())) invalid();
+      return {
+        at: point.dataHora, value: amount(point.valor), moment: momentLabels[point.momento] ?? point.momento,
+        label: date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+      };
+    }),
   };
 }

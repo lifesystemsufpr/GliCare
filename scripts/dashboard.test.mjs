@@ -32,7 +32,10 @@ const full = () => ({
   mediaGlicemia: 128.5,
   maiorValor: { valor: 260, dataHora: '2026-11-02T15:00:00.000Z', momento: 'APOS_ALMOCO' },
   menorValor: { valor: 50, dataHora: '2026-11-01T11:00:00.000Z', momento: 'JEJUM' },
-  glicemiaAoLongoDoDia: [],
+  glicemiaAoLongoDoDia: [
+    { valor: 50, dataHora: '2026-11-01T11:00:00.000Z', momento: 'JEJUM' },
+    { valor: 260, dataHora: '2026-11-02T15:00:00.000Z', momento: 'APOS_ALMOCO' },
+  ],
   insulinaTotalDiaria: [{ data: '2026-11-01', totalUi: 14.5, quantidade: 2 }, { data: '2026-11-03', totalUi: 8, quantidade: 1 }],
   distribuicaoLeituras: { total: 4, muitoBaixa: band(1, 25), baixa: band(0, 0), noAlvo: band(2, 50), alta: band(0, 0), muitoAlta: band(1, 25) },
   mediaPorMomento: [{ momento: 'JEJUM', media: 75, quantidade: 2 }, { momento: 'APOS_ALMOCO', media: 182, quantidade: 2 }],
@@ -92,6 +95,12 @@ test('aplicações e total de insulina somam os dias informados pela API', () =>
   assert.equal(result.applications, 3); assert.equal(result.insulinTotal, 22.5);
   assert.deepEqual(result.insulinDaily.map((day) => [day.date, day.totalUi, day.count]), [['2026-11-01', 14.5, 2], ['2026-11-03', 8, 1]]);
   assert.equal(result.insulinDaily[0].label, displayDay('2026-11-01'));
+});
+test('gráfico usa as medições da API na ordem recebida, sem agregar', () => {
+  const result = toDashboardSummary(full());
+  assert.deepEqual(result.readings.map((point) => [point.value, point.moment]), [[50, 'Jejum'], [260, 'Após o almoço']]);
+  assert.deepEqual(toDashboardSummary(empty()).readings, []);
+  assert.throws(() => toDashboardSummary({ ...full(), glicemiaAoLongoDoDia: [{ valor: 100, dataHora: 'x', momento: 'JEJUM' }] }));
 });
 test('resposta não é alterada', () => {
   const data = full(); const before = structuredClone(data); toDashboardSummary(data); assert.deepEqual(data, before);
