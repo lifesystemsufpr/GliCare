@@ -137,7 +137,7 @@ export function ProfileScreen() {
         <Ionicons
           name="log-out-outline"
           size={19}
-          color="#DC2626"
+          color={colors.error}
         />
 
         <Text style={styles.logoutText}>
@@ -168,7 +168,7 @@ export function ProfileScreen() {
               disabled={deleting}
               accessibilityRole="button"
             >
-              {deleting ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.modalDangerText}>Excluir conta</Text>}
+              {deleting ? <ActivityIndicator color={colors.white} /> : <Text style={styles.modalDangerText}>Excluir conta</Text>}
             </Pressable>
             <AppButton title="Cancelar" variant="secondary" disabled={deleting} onPress={() => setConfirmingDelete(false)} />
           </View>
@@ -181,7 +181,7 @@ export function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: colors.screen,
   },
 
   content: {
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
 
     borderRadius: 17,
 
-    backgroundColor: '#EEF2FF',
+    backgroundColor: colors.indigo50,
   },
 
   brandText: {
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
   },
 
   notificationButtonPressed: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.gray100,
   },
 
   incomplete: {
@@ -246,8 +246,8 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#93C5FD',
-    backgroundColor: '#EFF6FF',
+    borderColor: colors.blue300,
+    backgroundColor: colors.blue50,
   },
 
   incompleteTitle: {
@@ -269,13 +269,13 @@ const styles = StyleSheet.create({
   deleteText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#B91C1C',
+    color: colors.danger,
     textDecorationLine: 'underline',
   },
 
   modalBackdrop: {
     flex: 1,
-    backgroundColor: '#00000066',
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     padding: 24,
   },
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 420,
     alignSelf: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.white,
     padding: 24,
     borderRadius: 16,
     gap: 16,
@@ -307,13 +307,13 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#B91C1C',
+    backgroundColor: colors.danger,
   },
 
   modalDangerText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: colors.white,
   },
 
   logoutButton: {
@@ -328,19 +328,19 @@ const styles = StyleSheet.create({
     marginTop: 2,
 
     borderWidth: 1,
-    borderColor: '#FECACA',
+    borderColor: colors.dangerBorder,
     borderRadius: 10,
 
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.white,
   },
 
   logoutPressed: {
-    backgroundColor: '#FEF2F2',
+    backgroundColor: colors.dangerSoft,
   },
 
   logoutText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#DC2626',
+    color: colors.error,
   },
 });

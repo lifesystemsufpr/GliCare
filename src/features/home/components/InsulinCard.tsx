@@ -42,10 +42,10 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 135,
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.white,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#F0F0F0',
+    borderColor: colors.neutralSoftAlt,
     elevation: 2,
   },
 
@@ -70,24 +70,24 @@ valueRow: {
 value: {
   fontSize: 27,
   fontWeight: '700',
-  color: '#111111',
+  color: colors.ink,
 },
 
 unit: {
   marginLeft: 4,
   fontSize: 11,
-  color: '#6B7280',
+  color: colors.gray500,
 },
 
 type: {
   marginTop: 3,
   fontSize: 12,
-  color: '#111111',
+  color: colors.ink,
 },
 
 date: {
   marginTop: 5,
   fontSize: 10,
-  color: '#6B7280',
+  color: colors.gray500,
 },
 });

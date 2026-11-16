@@ -71,8 +71,8 @@ const styles = StyleSheet.create({
 
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-    backgroundColor: '#F3F4F6',
+    borderColor: colors.gray200,
+    backgroundColor: colors.gray100,
   },
 
   selectedOption: {
@@ -83,11 +83,11 @@ const styles = StyleSheet.create({
   optionText: {
     fontSize: 11,
     fontWeight: '500',
-    color: '#374151',
+    color: colors.gray700,
     textAlign: 'center',
   },
 
   selectedOptionText: {
-    color: '#FFFFFF',
+    color: colors.white,
   },
 });

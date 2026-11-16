@@ -16,7 +16,7 @@ export function DiabetesCard({
         <Ionicons
           name="medical-outline"
           size={20}
-          color="#FFFFFF"
+          color={colors.white}
         />
       </View>
 
@@ -41,10 +41,10 @@ const styles = StyleSheet.create({
     padding: 14,
 
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: colors.gray200,
     borderRadius: 10,
 
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.white,
 
     elevation: 1,
   },

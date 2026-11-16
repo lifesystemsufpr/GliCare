@@ -21,25 +21,25 @@ export default function MainLayout() {
         // Área segura do topo (recorte/barra de status) para todas as abas.
         sceneStyle: {
           paddingTop: insets.top,
-          backgroundColor: '#FAFAFA',
+          backgroundColor: colors.screen,
         },
 
         tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: '#4B5563',
+        tabBarInactiveTintColor: colors.gray600,
 
         tabBarStyle: {
           height: 68 + insets.bottom,
           paddingTop: 6,
           paddingBottom: Math.max(insets.bottom, 8),
 
-          backgroundColor: '#FFFFFF',
+          backgroundColor: colors.white,
 
           borderTopWidth: 1,
-          borderTopColor: '#E5E7EB',
+          borderTopColor: colors.gray200,
 
           elevation: 8,
 
-          shadowColor: '#000',
+          shadowColor: colors.black,
           shadowOffset: {
             width: 0,
             height: -2,
@@ -225,6 +225,6 @@ const styles = StyleSheet.create({
   },
 
   activeIcon: {
-    backgroundColor: '#DCEFFE',
+    backgroundColor: colors.secondary,
   },
 });

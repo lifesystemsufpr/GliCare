@@ -74,10 +74,10 @@ const styles = StyleSheet.create({
 
     borderRadius: 20,
 
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.gray100,
 
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: colors.gray200,
   },
 
   selectedChip: {
@@ -88,10 +88,10 @@ const styles = StyleSheet.create({
   chipText: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#374151',
+    color: colors.gray700,
   },
 
   selectedChipText: {
-    color: '#FFFFFF',
+    color: colors.white,
   },
 });

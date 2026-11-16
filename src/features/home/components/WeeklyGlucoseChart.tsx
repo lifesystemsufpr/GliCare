@@ -17,7 +17,7 @@ export function WeeklyGlucoseChart({
       <View style={styles.header}>
         <Text style={styles.sectionTitle}>Últimos 7 dias</Text>
       </View>
-      <Text style={{ fontSize: 12, marginBottom: 8, color: '#4B5563' }}>Última medição de cada dia · mg/dL · — sem registro</Text>
+      <Text style={{ fontSize: 12, marginBottom: 8, color: colors.gray600 }}>Última medição de cada dia · mg/dL · — sem registro</Text>
 
       <View style={styles.card}>
         <View style={{ flexDirection: 'row' }}>
@@ -91,10 +91,10 @@ card: {
   paddingRight: 14,
   paddingBottom: 14,
   paddingLeft: 12,
-  backgroundColor: '#FFFFFF',
+  backgroundColor: colors.white,
   borderRadius: 12,
   borderWidth: 1,
-  borderColor: '#E5E7EB',
+  borderColor: colors.gray200,
 },
 
   chart: {
@@ -125,7 +125,7 @@ card: {
   day: {
     marginTop: 3,
     fontSize: 10,
-    color: '#6B7280',
+    color: colors.gray500,
   },
 
   labels: {
@@ -138,6 +138,6 @@ card: {
 
   axisLabel: {
     fontSize: 10,
-    color: '#9CA3AF',
+    color: colors.gray400,
   },
 });

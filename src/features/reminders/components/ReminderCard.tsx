@@ -64,13 +64,13 @@ export function ReminderCard({
           onValueChange={onToggle}
           disabled={disabled}
           trackColor={{
-            false: '#D1D5DB',
-            true: '#93C5FD',
+            false: colors.gray300,
+            true: colors.blue300,
           }}
           thumbColor={
             active
               ? colors.primary
-              : '#FFFFFF'
+              : colors.white
           }
           {...({ activeThumbColor: colors.primary } as object)}
         />
@@ -107,7 +107,7 @@ export function ReminderCard({
           <Ionicons
             name="trash-outline"
             size={19}
-            color="#DC2626"
+            color={colors.error}
           />
 
           <Text style={styles.deleteText}>
@@ -127,14 +127,14 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
 
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: colors.gray200,
     borderRadius: 12,
 
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.white,
 
     elevation: 1,
 
-    shadowColor: '#000000',
+    shadowColor: colors.black,
     shadowOffset: {
       width: 0,
       height: 1,
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   },
 
   cardInactive: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.gray50,
   },
 
   mainRow: {
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
 
     borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
+    borderTopColor: colors.gray100,
   },
 
   actionButton: {
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
   },
 
   actionPressed: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.gray100,
   },
 
   editText: {
@@ -215,6 +215,6 @@ const styles = StyleSheet.create({
   deleteText: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#DC2626',
+    color: colors.error,
   },
 });

@@ -84,10 +84,10 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
 
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: colors.gray200,
     borderRadius: 12,
 
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.white,
 
     elevation: 1,
   },
@@ -103,10 +103,10 @@ const styles = StyleSheet.create({
 
     borderRadius: 36,
 
-    backgroundColor: '#EEF2FF',
+    backgroundColor: colors.indigo50,
 
     borderWidth: 2,
-    borderColor: '#E0E7FF',
+    borderColor: colors.indigo100,
   },
 
   name: {
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
 
     borderRadius: 8,
 
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.gray100,
   },
 
   infoLabel: {

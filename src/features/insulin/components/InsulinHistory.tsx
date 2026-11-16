@@ -54,7 +54,7 @@ export function InsulinHistory({ revision }: { revision: number }) {
 const styles = StyleSheet.create({
   container: { marginTop: 28, gap: 12 },
   heading: { fontSize: 20, fontWeight: '700', color: colors.text },
-  card: { padding: 16, gap: 5, backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: '#E5E7EB' },
+  card: { padding: 16, gap: 5, backgroundColor: colors.white, borderRadius: 12, borderWidth: 1, borderColor: colors.gray200 },
   value: { fontSize: 19, fontWeight: '600', color: colors.text },
   error: { color: colors.error },
 });

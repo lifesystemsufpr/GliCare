@@ -69,20 +69,20 @@ const styles = StyleSheet.create({
 
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: colors.slate300,
 
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.white,
   },
 
   selectedOption: {
     borderColor: colors.primary,
-    backgroundColor: '#EAF5FC',
+    backgroundColor: colors.blueTint,
   },
 
   optionText: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#374151',
+    color: colors.gray700,
   },
 
   selectedOptionText: {

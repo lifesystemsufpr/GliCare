@@ -131,8 +131,8 @@ export function RemindersScreen() {
       initialData={initialData} onClose={closeModal} onSave={save} />
     <Modal visible={Boolean(pendingDelete)} transparent animationType="fade"
       onRequestClose={() => { if (!busyRef.current) setPendingDelete(null); }}>
-      <View style={{ flex: 1, backgroundColor: '#00000066', justifyContent: 'center', padding: 24 }}>
-        <View style={{ backgroundColor: '#FFFFFF', padding: 24, borderRadius: 16, gap: 16 }}>
+      <View style={{ flex: 1, backgroundColor: colors.overlay, justifyContent: 'center', padding: 24 }}>
+        <View style={{ backgroundColor: colors.white, padding: 24, borderRadius: 16, gap: 16 }}>
           <Text style={styles.sectionTitle}>Excluir lembrete?</Text>
           <Text>{pendingDelete?.titulo}</Text>
           {actionError ? <Text accessibilityRole="alert" style={{ color: colors.error }}>{actionError}</Text> : null}
@@ -147,7 +147,7 @@ export function RemindersScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: colors.screen,
   },
 
   header: {
@@ -159,10 +159,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 8,
 
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.white,
 
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: colors.gray200,
   },
 
   headerButton: {
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   },
 
   headerButtonPressed: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.gray100,
   },
 
   headerTitle: {
@@ -236,6 +236,6 @@ const styles = StyleSheet.create({
   addButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: colors.white,
   },
 });
