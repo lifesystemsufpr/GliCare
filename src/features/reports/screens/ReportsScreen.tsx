@@ -1,3 +1,4 @@
+import { contentWidth } from '@/shared/theme';
 import { useCallback, useRef, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { ActivityIndicator, Platform, ScrollView, Text, View } from 'react-native';
@@ -60,7 +61,7 @@ export function ReportsScreen() {
     catch (cause) { if (!controller.signal.aborted) setExportError(errorMessage(cause)); }
     finally { busy.current = false; setExporting(false); exportAbort.current = null; }
   }
-  return <ScrollView style={{ flex: 1, backgroundColor: '#FAFAFA' }} contentContainerStyle={{ padding: 20, gap: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+  return <ScrollView style={{ flex: 1, backgroundColor: '#FAFAFA' }} contentContainerStyle={{ ...contentWidth, padding: 20, gap: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
     <Text style={{ fontSize: 26, fontWeight: '700', color: colors.text }}>Relatórios</Text>
     <Text>Consulte e exporte glicemias e aplicações de insulina.</Text>
     <View style={{ flexDirection: 'row', gap: 8 }}>{([7, 30, 90] as const).map((days) => <View key={days} style={{ flex: 1 }}>

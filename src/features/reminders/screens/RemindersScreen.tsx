@@ -1,3 +1,4 @@
+import { contentWidth } from '@/shared/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useRef, useState, useSyncExternalStore } from 'react';
@@ -121,8 +122,10 @@ export function RemindersScreen() {
         </View>}
       {actionError && !pendingDelete ? <Text accessibilityRole="alert" style={{ color: colors.error }}>{actionError}</Text> : null}
       {busy ? <ActivityIndicator accessibilityLabel="Atualizando lembrete" color={colors.primary} /> : null}
-      <AppButton title="Atualizar lista" variant="secondary" disabled={disabled} onPress={() => { setActionError(''); setRevision((value) => value + 1); void reminderNotifications.refresh().catch(() => undefined); }} />
-      <AppButton title="Adicionar lembrete" disabled={disabled} onPress={openCreate} />
+      <View style={{ gap: 12, marginTop: 16 }}>
+        <AppButton title="Adicionar lembrete" disabled={disabled} onPress={openCreate} />
+        <AppButton title="Atualizar lista" variant="secondary" disabled={disabled} onPress={() => { setActionError(''); setRevision((value) => value + 1); void reminderNotifications.refresh().catch(() => undefined); }} />
+      </View>
     </ScrollView>
     <ReminderFormModal visible={modalVisible} mode={editingReminder ? 'edit' : 'create'}
       initialData={initialData} onClose={closeModal} onSave={save} />
@@ -191,6 +194,7 @@ const styles = StyleSheet.create({
   },
 
   content: {
+    ...contentWidth,
     paddingHorizontal: 20,
     paddingTop: 24,
     paddingBottom: 140,

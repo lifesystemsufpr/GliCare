@@ -1,3 +1,4 @@
+import { contentWidth } from '@/shared/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useFocusEffect } from 'expo-router';
@@ -135,6 +136,7 @@ const styles = StyleSheet.create({
   },
 
   content: {
+    ...contentWidth,
     paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 150,

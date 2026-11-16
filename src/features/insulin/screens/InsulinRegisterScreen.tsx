@@ -1,3 +1,4 @@
+import { contentWidth } from '@/shared/theme';
 import { colors } from '@/shared/theme';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker, {
@@ -416,6 +417,7 @@ const styles = StyleSheet.create({
   },
 
   content: {
+    ...contentWidth,
     paddingHorizontal: 20,
     paddingTop: 28,
     paddingBottom: 140,

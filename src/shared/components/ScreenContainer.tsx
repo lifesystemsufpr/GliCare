@@ -10,7 +10,7 @@ import {
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { colors } from '../theme';
+import { colors, contentWidth } from '../theme';
 
 type ScreenContainerProps = {
   children: ReactNode;
@@ -65,11 +65,13 @@ const styles = StyleSheet.create({
   },
 
   content: {
+    ...contentWidth,
     flex: 1,
     paddingHorizontal: 24,
   },
 
   scrollContent: {
+    ...contentWidth,
     flexGrow: 1,
     paddingHorizontal: 24,
     paddingBottom: 32,

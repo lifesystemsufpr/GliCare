@@ -1,3 +1,4 @@
+import { contentWidth } from '@/shared/theme';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -70,6 +71,7 @@ const styles = StyleSheet.create({
   },
 
   content: {
+    ...contentWidth,
     paddingHorizontal: 20,
     paddingTop: 28,
     paddingBottom: 36,

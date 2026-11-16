@@ -1,3 +1,4 @@
+import { contentWidth } from '@/shared/theme';
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -98,7 +99,7 @@ export function DashboardScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FAFAFA' },
-  content: { padding: 20, paddingBottom: 40, gap: 16 },
+  content: { ...contentWidth, padding: 20, paddingBottom: 40, gap: 16 },
   heading: { fontSize: 26, fontWeight: '700', color: colors.text },
   subheading: { fontSize: 17, fontWeight: '600', color: colors.text },
   presets: { flexDirection: 'row', gap: 8 },

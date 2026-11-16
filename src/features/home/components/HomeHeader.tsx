@@ -23,9 +23,9 @@ export function HomeHeader({
           />
         </View>
 
-        <View>
+        <View style={styles.texts}>
           <Text style={styles.greeting}>Bom dia,</Text>
-          <Text style={styles.name}>{userName}!</Text>
+          <Text style={styles.name} numberOfLines={1}>{userName}!</Text>
         </View>
       </View>
 
@@ -52,9 +52,17 @@ const styles = StyleSheet.create({
 },
 
 profile: {
+  flex: 1,
+  minWidth: 0,
   flexDirection: 'row',
   alignItems: 'center',
   gap: 10,
+  marginRight: 12,
+},
+
+texts: {
+  flex: 1,
+  minWidth: 0,
 },
 
 avatar: {
