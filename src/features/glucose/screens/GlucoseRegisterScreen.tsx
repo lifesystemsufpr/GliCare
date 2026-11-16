@@ -4,6 +4,9 @@ import DateTimePicker, {
   DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
 import { useRef, useState } from 'react';
+import {
+  HYPO_PAST_TEXT, HYPO_URGENT_TEXT, HYPO_URGENT_TITLE, isRecentReading,
+} from '../services/hypoglycemia-warning';
 import { createGlucose } from '../services/glucose-service';
 import { errorMessage } from '@/shared/api/errors';
 import { GlucoseHistory } from '../components/GlucoseHistory';
@@ -30,6 +33,7 @@ export function GlucoseRegisterScreen() {
   const c = useThemeColors();
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [hypoWarning, setHypoWarning] = useState('');
   const [revision, setRevision] = useState(0);
   const busy = useRef(false);
   const [glucoseValue, setGlucoseValue] = useState('');
@@ -133,7 +137,15 @@ export function GlucoseRegisterScreen() {
       setDateTime(new Date());
       setNotes('');
       setRevision((value) => value + 1);
-      Alert.alert(saved.hipoglicemiaNivel2 ? 'Atenção: glicemia muito baixa' : 'Registro salvo', saved.hipoglicemiaNivel2 ? 'Glicemia abaixo de 54 mg/dL. Isso é uma hipoglicemia que precisa de atenção agora. Siga o plano para hipoglicemia combinado com sua equipe de saúde e meça de novo. Se houver confusão, desmaio ou convulsão, ligue 192 (SAMU).' : 'Sua glicemia foi registrada com sucesso.');
+      if (saved.hipoglicemiaNivel2) {
+        // Cartão na tela (o Alert não aparece no web) e, no aparelho, o alerta.
+        const text = isRecentReading(saved.dataHora) ? HYPO_URGENT_TEXT : HYPO_PAST_TEXT;
+        setHypoWarning(text);
+        Alert.alert(isRecentReading(saved.dataHora) ? HYPO_URGENT_TITLE : 'Registro salvo', text);
+      } else {
+        setHypoWarning('');
+        Alert.alert('Registro salvo', 'Sua glicemia foi registrada com sucesso.');
+      }
     } catch (error) {
       setSaveError(errorMessage(error));
     } finally {
@@ -322,6 +334,12 @@ export function GlucoseRegisterScreen() {
 
           {/* Botão */}
 
+          {hypoWarning ? <View accessibilityRole="alert" style={styles.hypoCard}>
+            <Text style={styles.hypoText}>{hypoWarning}</Text>
+            <Pressable onPress={() => setHypoWarning('')} accessibilityRole="button" hitSlop={8}>
+              <Text style={styles.hypoDismiss}>Entendi</Text>
+            </Pressable>
+          </View> : null}
           {saveError ? <Text accessibilityRole="alert" style={styles.errorText}>{saveError}</Text> : null}
           <Pressable
             style={({ pressed }) => [
@@ -437,6 +455,12 @@ const useStyles = makeStyles((c) => StyleSheet.create({
     color: c.textSecondary,
   },
 
+  hypoCard: {
+    gap: 8, padding: 12, borderRadius: 12, borderWidth: 1,
+    borderColor: c.dangerBorder, backgroundColor: c.dangerSoft,
+  },
+  hypoText: { fontSize: 14, lineHeight: 20, color: c.danger, fontWeight: '600' },
+  hypoDismiss: { fontSize: 14, fontWeight: '700', color: c.danger, alignSelf: 'flex-end' },
   errorText: {
     marginTop: 2,
 

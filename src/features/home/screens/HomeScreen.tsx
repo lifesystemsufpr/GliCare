@@ -70,7 +70,7 @@ export function HomeScreen() {
     </View> : null}
     {loading ? <ActivityIndicator accessibilityLabel="Carregando resumo da rotina" /> : error ?
       <Text accessibilityRole="alert" style={{ color: c.danger }}>{error}</Text> : summary ? <>
-      <GlucoseCard hipoglicemiaNivel2={glucose?.hipoglicemiaNivel2 === true} value={glucose?.valor ?? null} status={glucose?.status ?? null}
+      <GlucoseCard hipoglicemiaNivel2={glucose?.hipoglicemiaNivel2 === true} measuredAtIso={glucose?.dataHora ?? null} value={glucose?.valor ?? null} status={glucose?.status ?? null}
         measuredAt={glucose ? formatDateTime(glucose.dataHora) : 'Nenhuma medição registrada.'} />
       <View style={styles.cardsRow}>
         <InsulinCard dose={insulin?.doseUi ?? null} type={insulin ? insulinTypeLabel(insulin.tipo) : 'Nenhuma aplicação registrada.'}
