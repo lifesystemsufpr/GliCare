@@ -1,11 +1,13 @@
-import { listGlucose } from '@/features/glucose/services/glucose-service';
-import { listInsulin } from '@/features/insulin/services/insulin-service';
-import { listReminders } from '@/features/reminders/services/reminder-service';
+import { api } from '@/shared/api';
 import type { HomeSources } from './home-model';
 
+// Uma consulta só: GET /home/summary continua liberada enquanto o perfil
+// estiver incompleto (as listas de glicemia, insulina e lembretes, não).
 export async function loadHomeSources(signal?: AbortSignal): Promise<HomeSources> {
-  const [glucose, insulin, reminders] = await Promise.all([
-    listGlucose(signal), listInsulin(signal), listReminders(signal),
-  ]);
-  return { glucose, insulin, reminders };
+  const { data } = await api.get<HomeSources>('/home/summary', { signal });
+  if (!data || typeof data !== 'object' || !Array.isArray(data.glicemiaUltimos7Dias) || typeof data.resumoDiario !== 'object' ||
+      !('ultimaGlicemia' in data) || !('ultimaInsulina' in data) || !('proximoLembrete' in data)) {
+    throw new Error('A API retornou um resumo da Home inválido.');
+  }
+  return data;
 }

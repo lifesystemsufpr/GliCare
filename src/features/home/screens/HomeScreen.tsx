@@ -11,7 +11,7 @@ import { InsulinCard } from '../components/InsulinCard';
 import { ReminderCard } from '../components/ReminderCard';
 import { WeeklyGlucoseChart } from '../components/WeeklyGlucoseChart';
 import { loadHomeSources } from '../services/home-service';
-import { buildHomeSummary, type HomeSources, type HomeSummary } from '../services/home-model';
+import { buildHomeSummary, homeNeedsReload, type HomeSources, type HomeSummary } from '../services/home-model';
 
 export function HomeScreen() {
   const { user } = useAuth();
@@ -22,21 +22,34 @@ export function HomeScreen() {
   useFocusEffect(useCallback(() => {
     const controller = new AbortController();
     let sources: HomeSources | null = null;
+    let loadedAt = new Date();
+    let reloading = false;
     setLoading(true);
     setSummary(null);
     setError('');
-    void loadHomeSources(controller.signal).then((data) => {
+    const load = () => loadHomeSources(controller.signal).then((data) => {
       if (controller.signal.aborted) return;
       const result = buildHomeSummary(data);
       sources = data;
+      loadedAt = new Date();
       setSummary(result);
-    }).catch((cause: unknown) => {
+    });
+    void load().catch((cause: unknown) => {
       if (!controller.signal.aborted) setError(errorMessage(cause));
     }).finally(() => {
       if (!controller.signal.aborted) setLoading(false);
     });
-    // Reavalia virada do dia e passagem de lembretes sem repetir as consultas.
-    const clock = setInterval(() => { if (sources) setSummary(buildHomeSummary(sources)); }, 60000);
+    // A cada minuto reavalia o resumo já carregado e, se ele ficou velho
+    // (virada do dia ou lembrete que passou), consulta a API de novo em
+    // segundo plano, mantendo o que já está na tela se a consulta falhar.
+    const clock = setInterval(() => {
+      if (!sources) return;
+      setSummary(buildHomeSummary(sources));
+      if (!reloading && homeNeedsReload(sources, loadedAt)) {
+        reloading = true;
+        void load().catch(() => undefined).finally(() => { reloading = false; });
+      }
+    }, 60000);
     return () => { controller.abort(); clearInterval(clock); };
   }, [revision]));
   const glucose = summary?.lastGlucose;
