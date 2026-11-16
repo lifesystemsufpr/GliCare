@@ -6,6 +6,7 @@ import { useCallback, useState } from 'react';
 import {
     Alert,
     ActivityIndicator,
+    Modal,
     Pressable,
     ScrollView,
     StyleSheet,
@@ -19,10 +20,9 @@ import { errorMessage } from '@/shared/api/errors';
 import { DiabetesCard } from '../components/DiabetesCard';
 import { EmergencyContactCard } from '../components/EmergencyContactCard';
 import { ProfileCard } from '../components/ProfileCard';
-import { SettingsCard } from '../components/SettingsCard';
 import { ProfileEditForm } from '../components/ProfileEditForm';
 import { AppButton } from '@/shared/components';
-import { getProfile } from '../services/profile-service';
+import { deleteAccount, getProfile } from '../services/profile-service';
 import { diabetesLabels, profileToForm, type Profile } from '../services/profile-contract';
 
 export function ProfileScreen() {
@@ -32,6 +32,9 @@ export function ProfileScreen() {
   const [loadError, setLoadError] = useState('');
   const [editing, setEditing] = useState(false);
   const [retry, setRetry] = useState(0);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
   useFocusEffect(useCallback(() => {
     if (editing) return;
     const controller = new AbortController();
@@ -46,6 +49,22 @@ export function ProfileScreen() {
     });
     return () => controller.abort();
   }, [editing, retry]));
+  async function handleDeleteAccount() {
+    if (deleting) return;
+    setDeleting(true);
+    setDeleteError('');
+    try {
+      await deleteAccount();
+    } catch (error) {
+      setDeleteError(errorMessage(error));
+      setDeleting(false);
+      return;
+    }
+    // Conta excluída: encerra a sessão pelo fluxo de logout (limpa token e
+    // alertas locais dos lembretes) e volta ao login.
+    setConfirmingDelete(false);
+    await handleLogout();
+  }
   async function handleLogout() {
     try { await signOut(); }
     catch (error) { Alert.alert('Não foi possível limpar a sessão salva', errorMessage(error)); }
@@ -95,18 +114,18 @@ export function ProfileScreen() {
         onSaved={(saved) => { setProfile(saved); setEditing(false); Alert.alert('Perfil atualizado', 'Suas alterações foram salvas.'); }}
         onCancel={() => setEditing(false)} /> : <>
         <ProfileCard name={profile.nome} age={profile.idade} weight={profile.pesoKg}
+          birthDate={profileToForm(profile).birthDate}
           height={profile.alturaCm == null ? null : profile.alturaCm / 100} />
-        <Text>Data de nascimento: {profileToForm(profile).birthDate || 'Não informada'}</Text>
         <DiabetesCard type={profile.tipoDiabetes ? diabetesLabels[profile.tipoDiabetes] : 'Não informado'} />
         {profile.contatoEmergencia ? <EmergencyContactCard
           name={profile.contatoEmergencia.nome ?? 'Não informado'}
           relationship={profile.contatoEmergencia.relacao ?? 'Não informada'}
           phone={profile.contatoEmergencia.telefone ?? 'Não informado'} /> : <Text>Contato de emergência não informado.</Text>}
-        <AppButton title="Editar perfil" onPress={() => setEditing(true)} />
-        <AppButton title="Atualizar perfil" variant="secondary" onPress={() => setRetry((value) => value + 1)} />
+        <View style={styles.actions}>
+          <AppButton title="Editar perfil" onPress={() => setEditing(true)} />
+          <AppButton title="Recarregar dados" variant="secondary" onPress={() => setRetry((value) => value + 1)} />
+        </View>
       </> : null}
-
-      <SettingsCard />
 
       <Pressable
         style={({ pressed }) => [
@@ -125,6 +144,36 @@ export function ProfileScreen() {
           Sair da Conta
         </Text>
       </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [styles.deleteButton, pressed && styles.logoutPressed]}
+        onPress={() => { setDeleteError(''); setConfirmingDelete(true); }}
+        accessibilityRole="button"
+      >
+        <Text style={styles.deleteText}>Excluir minha conta</Text>
+      </Pressable>
+
+      <Modal visible={confirmingDelete} transparent animationType="fade"
+        onRequestClose={() => { if (!deleting) setConfirmingDelete(false); }}>
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Excluir sua conta?</Text>
+            <Text style={styles.modalText}>
+              Seu perfil, glicemias, aplicações de insulina e lembretes serão apagados. Essa ação não pode ser desfeita.
+            </Text>
+            {deleteError ? <Text accessibilityRole="alert" style={{ color: colors.error }}>{deleteError}</Text> : null}
+            <Pressable
+              style={({ pressed }) => [styles.modalDanger, (pressed || deleting) && styles.logoutPressed]}
+              onPress={() => void handleDeleteAccount()}
+              disabled={deleting}
+              accessibilityRole="button"
+            >
+              {deleting ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.modalDangerText}>Excluir conta</Text>}
+            </Pressable>
+            <AppButton title="Cancelar" variant="secondary" disabled={deleting} onPress={() => setConfirmingDelete(false)} />
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -190,6 +239,66 @@ const styles = StyleSheet.create({
 
   notificationButtonPressed: {
     backgroundColor: '#F3F4F6',
+  },
+
+  actions: {
+    gap: 12,
+    marginTop: 4,
+  },
+
+  deleteButton: {
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+
+  deleteText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#B91C1C',
+    textDecorationLine: 'underline',
+  },
+
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: '#00000066',
+    justifyContent: 'center',
+    padding: 24,
+  },
+
+  modalCard: {
+    width: '100%',
+    maxWidth: 420,
+    alignSelf: 'center',
+    backgroundColor: '#FFFFFF',
+    padding: 24,
+    borderRadius: 16,
+    gap: 16,
+  },
+
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.text,
+  },
+
+  modalText: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: colors.text,
+  },
+
+  modalDanger: {
+    minHeight: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#B91C1C',
+  },
+
+  modalDangerText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
 
   logoutButton: {
