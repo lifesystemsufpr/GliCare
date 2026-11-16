@@ -2,7 +2,7 @@ import { formatNumber } from '@/shared/format';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { colors } from '@/shared/theme';
+import { makeStyles, useThemeColors } from '@/shared/theme';
 
 interface ProfileCardProps {
   name: string;
@@ -19,13 +19,15 @@ export function ProfileCard({
   weight,
   height,
 }: ProfileCardProps) {
+  const styles = useStyles();
+  const c = useThemeColors();
   return (
     <View style={styles.card}>
       <View style={styles.avatar}>
         <Ionicons
           name="person-outline"
           size={34}
-          color={colors.primary}
+          color={c.primary}
         />
       </View>
 
@@ -74,7 +76,7 @@ export function ProfileCard({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
   card: {
     width: '100%',
     alignItems: 'center',
@@ -84,10 +86,10 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
 
     borderWidth: 1,
-    borderColor: colors.gray200,
+    borderColor: c.gray200,
     borderRadius: 12,
 
-    backgroundColor: colors.white,
+    backgroundColor: c.white,
 
     elevation: 1,
   },
@@ -103,24 +105,24 @@ const styles = StyleSheet.create({
 
     borderRadius: 36,
 
-    backgroundColor: colors.indigo50,
+    backgroundColor: c.indigo50,
 
     borderWidth: 2,
-    borderColor: colors.indigo100,
+    borderColor: c.indigo100,
   },
 
   name: {
     textAlign: 'center',
     fontSize: 20,
     fontWeight: '700',
-    color: colors.text,
+    color: c.text,
   },
 
   age: {
     marginTop: 4,
 
     fontSize: 12,
-    color: colors.textSecondary,
+    color: c.textSecondary,
   },
 
   infoRow: {
@@ -144,7 +146,7 @@ const styles = StyleSheet.create({
 
     borderRadius: 8,
 
-    backgroundColor: colors.gray100,
+    backgroundColor: c.gray100,
   },
 
   infoLabel: {
@@ -152,14 +154,14 @@ const styles = StyleSheet.create({
 
     fontSize: 11,
     fontWeight: '500',
-    color: colors.textSecondary,
+    color: c.textSecondary,
     textAlign: 'center',
   },
 
   infoValue: {
     fontSize: 15,
     fontWeight: '600',
-    color: colors.text,
+    color: c.text,
     textAlign: 'center',
   },
-});
+}));

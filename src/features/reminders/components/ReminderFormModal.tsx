@@ -13,7 +13,7 @@ import {
   View,
 } from 'react-native';
 
-import { colors } from '@/shared/theme';
+import { makeStyles, useThemeColors } from '@/shared/theme';
 
 type ReminderFormModalProps = {
   visible: boolean;
@@ -30,6 +30,8 @@ export function ReminderFormModal({
   onClose,
   onSave,
 }: ReminderFormModalProps) {
+  const styles = useStyles();
+  const c = useThemeColors();
   const [title, setTitle] = useState('');
   const [time, setTime] = useState('');
   const [date, setDate] = useState('');
@@ -83,7 +85,7 @@ export function ReminderFormModal({
               <Ionicons
                 name="close"
                 size={23}
-                color={colors.text}
+                color={c.text}
               />
             </Pressable>
           </View>
@@ -98,7 +100,7 @@ export function ReminderFormModal({
               value={title}
               onChangeText={setTitle}
               placeholder="Ex: Medir glicemia"
-              placeholderTextColor={colors.gray400}
+              placeholderTextColor={c.gray400}
               maxLength={150}
               editable={!saving}
             />
@@ -120,14 +122,14 @@ export function ReminderFormModal({
               value={time}
               onChangeText={(value) => setTime(formatTimeInput(value))}
               placeholder="Ex: 08:00"
-              placeholderTextColor={colors.gray400}
+              placeholderTextColor={c.gray400}
               keyboardType="numbers-and-punctuation"
               maxLength={5}
               editable={!saving}
             />
           </View>
 
-          {error ? <Text accessibilityRole="alert" style={{ color: colors.error }}>{error}</Text> : null}
+          {error ? <Text accessibilityRole="alert" style={{ color: c.error }}>{error}</Text> : null}
           <View style={styles.actions}>
             <Pressable
               style={styles.cancelButton}
@@ -158,7 +160,7 @@ export function ReminderFormModal({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
   overlay: {
     flex: 1,
 
@@ -178,7 +180,7 @@ const styles = StyleSheet.create({
 
     borderRadius: 14,
 
-    backgroundColor: colors.white,
+    backgroundColor: c.white,
   },
 
   header: {
@@ -193,7 +195,7 @@ const styles = StyleSheet.create({
 
     fontSize: 19,
     fontWeight: '700',
-    color: colors.text,
+    color: c.text,
   },
 
   closeButton: {
@@ -215,7 +217,7 @@ const styles = StyleSheet.create({
 
     fontSize: 13,
     fontWeight: '600',
-    color: colors.text,
+    color: c.text,
   },
 
   input: {
@@ -225,13 +227,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
 
     borderWidth: 1,
-    borderColor: colors.gray300,
+    borderColor: c.gray300,
     borderRadius: 8,
 
     fontSize: 14,
-    color: colors.text,
+    color: c.text,
 
-    backgroundColor: colors.white,
+    backgroundColor: c.white,
   },
 
   actions: {
@@ -250,16 +252,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
 
     borderWidth: 1,
-    borderColor: colors.gray300,
+    borderColor: c.gray300,
     borderRadius: 8,
 
-    backgroundColor: colors.white,
+    backgroundColor: c.white,
   },
 
   cancelText: {
     fontSize: 14,
     fontWeight: '600',
-    color: colors.text,
+    color: c.text,
   },
 
   saveButton: {
@@ -271,12 +273,12 @@ const styles = StyleSheet.create({
 
     borderRadius: 8,
 
-    backgroundColor: colors.primary,
+    backgroundColor: c.primary,
   },
 
   saveText: {
     fontSize: 14,
     fontWeight: '600',
-    color: colors.white,
+    color: c.onPrimary,
   },
-});
+}));

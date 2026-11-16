@@ -1,3 +1,4 @@
+import { makeStyles } from '@/shared/theme';
 import {
   Pressable,
   StyleSheet,
@@ -5,11 +6,7 @@ import {
   View,
 } from 'react-native';
 
-import {
-  colors,
-  spacing,
-  typography,
-} from '../../../shared/theme';
+import { spacing, typography } from '../../../shared/theme';
 
 export type DiabetesType =
   | 'type1'
@@ -46,6 +43,7 @@ export function DiabetesTypeSelector({
   value,
   onChange,
 }: DiabetesTypeSelectorProps) {
+  const styles = useStyles();
   return (
     <View style={styles.container}>
       <Text style={styles.label}>
@@ -88,7 +86,7 @@ export function DiabetesTypeSelector({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
   container: {
     width: '100%',
 
@@ -96,7 +94,7 @@ const styles = StyleSheet.create({
   },
 
   label: {
-    color: colors.text,
+    color: c.text,
 
     fontSize: typography.sizes.sm,
     fontWeight: typography.weights.medium,
@@ -119,24 +117,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
 
     borderWidth: 1,
-    borderColor: colors.primary,
+    borderColor: c.primary,
     borderRadius: 21,
 
-    backgroundColor: colors.background,
+    backgroundColor: c.background,
   },
 
   selectedOption: {
-    backgroundColor: colors.primary,
+    backgroundColor: c.primary,
   },
 
   optionText: {
-    color: colors.primary,
+    color: c.primary,
 
     fontSize: typography.sizes.sm,
     fontWeight: typography.weights.medium,
   },
 
   selectedOptionText: {
-    color: colors.white,
+    color: c.onPrimary,
   },
-});
+}));

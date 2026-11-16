@@ -1,9 +1,8 @@
-import { contentWidth } from '@/shared/theme';
+import { makeStyles, useThemeColors, contentWidth } from '@/shared/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { colors } from '@/shared/theme';
 import { AppButton } from '@/shared/components';
 import { errorMessage } from '@/shared/api/errors';
 import { ReminderCard } from '../components/ReminderCard';
@@ -14,6 +13,8 @@ import { reminderNotifications } from '../services/reminder-notifications';
 import { NotificationSettings } from '../components/NotificationSettings';
 
 export function RemindersScreen() {
+  const styles = useStyles();
+  const c = useThemeColors();
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
@@ -89,21 +90,21 @@ export function RemindersScreen() {
   return <View style={styles.container}>
     <View style={styles.header}>
       <Pressable style={styles.headerButton} onPress={() => router.back()} accessibilityLabel="Voltar">
-        <Ionicons name="arrow-back" size={24} color={colors.text} />
+        <Ionicons name="arrow-back" size={24} color={c.text} />
       </Pressable>
       <Text style={styles.headerTitle}>Lembretes</Text>
       <View style={styles.headerSpacer} />
     </View>
     <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.sectionTitle}>Todos os lembretes</Text>
-      <Text>Lembretes para data e hora específicas.</Text>
+      <Text style={{ color: c.defaultText }}>Lembretes para data e hora específicas.</Text>
       <View style={{ marginVertical: 16 }}>
         <NotificationSettings disabled={busy} />
       </View>
-      {loading ? <ActivityIndicator accessibilityLabel="Carregando lembretes" color={colors.primary} /> : loadError ?
-        <Text accessibilityRole="alert" style={{ color: colors.error }}>{loadError}</Text> :
+      {loading ? <ActivityIndicator accessibilityLabel="Carregando lembretes" color={c.primary} /> : loadError ?
+        <Text accessibilityRole="alert" style={{ color: c.error }}>{loadError}</Text> :
         <View style={styles.remindersList}>
-          {reminders.length === 0 ? <Text>Nenhum lembrete cadastrado.</Text> : reminders.map((reminder) => {
+          {reminders.length === 0 ? <Text style={{ color: c.defaultText }}>Nenhum lembrete cadastrado.</Text> : reminders.map((reminder) => {
             const form = reminderToForm(reminder);
             return <ReminderCard key={reminder.id} time={form.time} date={form.date} title={reminder.titulo}
               active={reminder.status === 'ATIVO'} disabled={disabled}
@@ -112,8 +113,8 @@ export function RemindersScreen() {
               onDelete={() => { if (!busyRef.current) { setActionError(''); setPendingDelete(reminder); } }} />;
           })}
         </View>}
-      {actionError && !pendingDelete ? <Text accessibilityRole="alert" style={{ color: colors.error }}>{actionError}</Text> : null}
-      {busy ? <ActivityIndicator accessibilityLabel="Atualizando lembrete" color={colors.primary} /> : null}
+      {actionError && !pendingDelete ? <Text accessibilityRole="alert" style={{ color: c.error }}>{actionError}</Text> : null}
+      {busy ? <ActivityIndicator accessibilityLabel="Atualizando lembrete" color={c.primary} /> : null}
       <View style={{ gap: 12, marginTop: 16 }}>
         <AppButton title="Adicionar lembrete" disabled={disabled} onPress={openCreate} />
         <AppButton title="Atualizar lista" variant="secondary" disabled={disabled} onPress={() => { setActionError(''); setRevision((value) => value + 1); void reminderNotifications.refresh().catch(() => undefined); }} />
@@ -123,11 +124,11 @@ export function RemindersScreen() {
       initialData={initialData} onClose={closeModal} onSave={save} />
     <Modal visible={Boolean(pendingDelete)} transparent animationType="fade"
       onRequestClose={() => { if (!busyRef.current) setPendingDelete(null); }}>
-      <View style={{ flex: 1, backgroundColor: colors.overlay, justifyContent: 'center', padding: 24 }}>
-        <View style={{ backgroundColor: colors.white, padding: 24, borderRadius: 16, gap: 16 }}>
+      <View style={{ flex: 1, backgroundColor: c.overlay, justifyContent: 'center', padding: 24 }}>
+        <View style={{ backgroundColor: c.white, padding: 24, borderRadius: 16, gap: 16 }}>
           <Text style={styles.sectionTitle}>Excluir lembrete?</Text>
-          <Text>{pendingDelete?.titulo}</Text>
-          {actionError ? <Text accessibilityRole="alert" style={{ color: colors.error }}>{actionError}</Text> : null}
+          <Text style={{ color: c.defaultText }}>{pendingDelete?.titulo}</Text>
+          {actionError ? <Text accessibilityRole="alert" style={{ color: c.error }}>{actionError}</Text> : null}
           <AppButton title="Confirmar exclusão" loading={busy} onPress={confirmDelete} />
           <AppButton title="Cancelar" variant="secondary" disabled={busy} onPress={() => setPendingDelete(null)} />
         </View>
@@ -136,10 +137,10 @@ export function RemindersScreen() {
   </View>;
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.screen,
+    backgroundColor: c.screen,
   },
 
   header: {
@@ -151,10 +152,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 8,
 
-    backgroundColor: colors.white,
+    backgroundColor: c.white,
 
     borderBottomWidth: 1,
-    borderBottomColor: colors.gray200,
+    borderBottomColor: c.gray200,
   },
 
   headerButton: {
@@ -168,7 +169,7 @@ const styles = StyleSheet.create({
   },
 
   headerButtonPressed: {
-    backgroundColor: colors.gray100,
+    backgroundColor: c.gray100,
   },
 
   headerTitle: {
@@ -176,7 +177,7 @@ const styles = StyleSheet.create({
 
     fontSize: 20,
     fontWeight: '700',
-    color: colors.text,
+    color: c.text,
     textAlign: 'center',
   },
 
@@ -197,7 +198,7 @@ const styles = StyleSheet.create({
 
     fontSize: 16,
     fontWeight: '700',
-    color: colors.text,
+    color: c.text,
   },
 
   remindersList: {
@@ -218,7 +219,7 @@ const styles = StyleSheet.create({
 
     borderRadius: 10,
 
-    backgroundColor: colors.primary,
+    backgroundColor: c.primary,
   },
 
   addButtonPressed: {
@@ -228,6 +229,6 @@ const styles = StyleSheet.create({
   addButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: colors.white,
+    color: c.onPrimary,
   },
-});
+}));

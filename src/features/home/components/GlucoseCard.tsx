@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { colors } from '@/shared/theme';
+import { makeStyles, useThemeColors } from '@/shared/theme';
 
 interface GlucoseCardProps {
   value: number | null;
@@ -14,15 +14,17 @@ export function GlucoseCard({
   status,
   measuredAt,
 }: GlucoseCardProps) {
+  const styles = useStyles();
+  const c = useThemeColors();
   const statusText = status ? { NORMAL: 'Normal', ALTA: 'Alta', BAIXA: 'Baixa' }[status] : 'Sem registro';
-  const statusColor = status === 'NORMAL' ? colors.success : status ? colors.warning : colors.gray500;
+  const statusColor = status === 'NORMAL' ? c.success : status ? c.warning : c.gray500;
   return (
     <View style={styles.card}>
       {/* Gota decorativa no fundo */}
       <Ionicons
         name="water-outline"
         size={72}
-        color={colors.watermark}
+        color={c.watermark}
         style={styles.watermark}
       />
 
@@ -32,7 +34,7 @@ export function GlucoseCard({
           <Ionicons
             name="water"
             size={17}
-            color={colors.primary}
+            color={c.primary}
           />
 
           <Text style={styles.title}>
@@ -40,7 +42,7 @@ export function GlucoseCard({
           </Text>
         </View>
 
-        <View style={[styles.statusBadge, { backgroundColor: status === 'NORMAL' ? colors.successSoft : status ? colors.warningSoft : colors.gray100 }]}>
+        <View style={[styles.statusBadge, { backgroundColor: status === 'NORMAL' ? c.successSoft : status ? c.warningSoft : c.gray100 }]}>
           <Ionicons
             name={status === 'NORMAL' ? 'checkmark-circle-outline' : 'information-circle-outline'}
             size={13}
@@ -72,7 +74,7 @@ export function GlucoseCard({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
   card: {
     position: 'relative',
     overflow: 'hidden',
@@ -80,15 +82,15 @@ const styles = StyleSheet.create({
     minHeight: 145,
     padding: 18,
 
-    backgroundColor: colors.white,
+    backgroundColor: c.white,
 
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.gray200,
+    borderColor: c.gray200,
 
     elevation: 2,
 
-    shadowColor: colors.black,
+    shadowColor: c.black,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -112,7 +114,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 14,
     fontWeight: '700',
-    color: colors.primary,
+    color: c.primary,
   },
 
   statusBadge: {
@@ -124,13 +126,13 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
 
     borderRadius: 12,
-    backgroundColor: colors.successSoft,
+    backgroundColor: c.successSoft,
   },
 
   statusText: {
     fontSize: 11,
     fontWeight: '600',
-    color: colors.success,
+    color: c.success,
   },
 
   valueRow: {
@@ -143,20 +145,20 @@ const styles = StyleSheet.create({
     fontSize: 38,
     lineHeight: 42,
     fontWeight: '700',
-    color: colors.ink,
+    color: c.ink,
   },
 
   unit: {
     marginLeft: 5,
     fontSize: 12,
     fontWeight: '500',
-    color: colors.gray500,
+    color: c.gray500,
   },
 
   date: {
     marginTop: 3,
     fontSize: 11,
-    color: colors.gray500,
+    color: c.gray500,
   },
 
   watermark: {
@@ -164,4 +166,4 @@ const styles = StyleSheet.create({
     right: -8,
     bottom: -10,
   },
-});
+}));

@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { colors } from '@/shared/theme';
+import { makeStyles, useThemeColors } from '@/shared/theme';
 
 interface DiabetesCardProps {
   type: string;
@@ -10,13 +10,15 @@ interface DiabetesCardProps {
 export function DiabetesCard({
   type,
 }: DiabetesCardProps) {
+  const styles = useStyles();
+  const c = useThemeColors();
   return (
     <View style={styles.card}>
       <View style={styles.iconContainer}>
         <Ionicons
           name="medical-outline"
           size={20}
-          color={colors.white}
+          color={c.onPrimary}
         />
       </View>
 
@@ -33,7 +35,7 @@ export function DiabetesCard({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -41,10 +43,10 @@ const styles = StyleSheet.create({
     padding: 14,
 
     borderWidth: 1,
-    borderColor: colors.gray200,
+    borderColor: c.gray200,
     borderRadius: 10,
 
-    backgroundColor: colors.white,
+    backgroundColor: c.white,
 
     elevation: 1,
   },
@@ -60,7 +62,7 @@ const styles = StyleSheet.create({
 
     borderRadius: 19,
 
-    backgroundColor: colors.primary,
+    backgroundColor: c.primary,
   },
 
   content: {
@@ -69,7 +71,7 @@ const styles = StyleSheet.create({
 
   label: {
     fontSize: 11,
-    color: colors.textSecondary,
+    color: c.textSecondary,
   },
 
   value: {
@@ -77,6 +79,6 @@ const styles = StyleSheet.create({
 
     fontSize: 14,
     fontWeight: '500',
-    color: colors.text,
+    color: c.text,
   },
-});
+}));

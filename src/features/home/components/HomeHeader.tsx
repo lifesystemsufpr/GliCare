@@ -2,7 +2,7 @@ import { greetingFor } from '@/shared/format';
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors } from '@/shared/theme';
+import { makeStyles, useThemeColors } from '@/shared/theme';
 
 interface HomeHeaderProps {
   userName: string;
@@ -13,6 +13,8 @@ export function HomeHeader({
   userName,
   onPressNotifications,
 }: HomeHeaderProps) {
+  const styles = useStyles();
+  const c = useThemeColors();
   return (
     <View style={styles.container}>
       <View style={styles.profile}>
@@ -20,7 +22,7 @@ export function HomeHeader({
           <Ionicons
             name="person"
             size={16}
-            color={colors.gray400}
+            color={c.gray400}
           />
         </View>
 
@@ -37,14 +39,14 @@ export function HomeHeader({
         <Ionicons
           name="notifications-outline"
           size={25}
-          color={colors.primary}
+          color={c.primary}
         />
       </Pressable>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
  container: {
   height: 58,
   flexDirection: 'row',
@@ -70,20 +72,20 @@ avatar: {
   width: 38,
   height: 38,
   borderRadius: 19,
-  backgroundColor: colors.avatarBackground,
+  backgroundColor: c.avatarBackground,
   alignItems: 'center',
   justifyContent: 'center',
 },
 
 greeting: {
   fontSize: 13,
-  color: colors.gray600,
+  color: c.gray600,
 },
 
 name: {
   fontSize: 19,
   lineHeight: 22,
   fontWeight: '700',
-  color: colors.primary,
+  color: c.primary,
 },
-});
+}));

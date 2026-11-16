@@ -1,3 +1,4 @@
+import { makeStyles, useLogoSource } from '@/shared/theme';
 import {
   Image,
   StyleSheet,
@@ -7,18 +8,16 @@ import {
 
 import { ScreenContainer } from '../../../shared/components';
 
-import {
-  colors,
-  spacing,
-  typography,
-} from '../../../shared/theme';
+import { spacing, typography } from '../../../shared/theme';
 
 export function SplashScreen() {
+  const styles = useStyles();
+  const logoSource = useLogoSource();
   return (
     <ScreenContainer>
       <View style={styles.container}>
         <Image
-  source={require('../../../../assets/images/logo.png')}
+  source={logoSource}
   style={styles.logoImage}
   resizeMode="contain"
 />
@@ -35,7 +34,7 @@ export function SplashScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
   container: {
     flex: 1,
 
@@ -53,7 +52,7 @@ const styles = StyleSheet.create({
 },
 
   title: {
-    color: colors.text,
+    color: c.text,
 
     fontSize: typography.sizes.xl,
     fontWeight: typography.weights.bold,
@@ -62,7 +61,7 @@ const styles = StyleSheet.create({
   },
 
   subtitle: {
-    color: colors.textSecondary,
+    color: c.textSecondary,
 
     fontSize: typography.sizes.sm,
 
@@ -70,4 +69,4 @@ const styles = StyleSheet.create({
 
     marginTop: spacing.sm,
   },
-});
+}));

@@ -1,5 +1,4 @@
-import { contentWidth } from '@/shared/theme';
-import { colors } from '@/shared/theme';
+import { makeStyles, useThemeColors, contentWidth } from '@/shared/theme';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker, {
   DateTimePickerEvent,
@@ -27,6 +26,8 @@ import {
 } from '../components/MeasurementMomentSelector';
 
 export function GlucoseRegisterScreen() {
+  const styles = useStyles();
+  const c = useThemeColors();
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [revision, setRevision] = useState(0);
@@ -189,7 +190,7 @@ export function GlucoseRegisterScreen() {
                 value={glucoseValue}
                 onChangeText={handleGlucoseChange}
                 placeholder="Ex: 105"
-                placeholderTextColor={colors.gray400}
+                placeholderTextColor={c.gray400}
                 keyboardType="decimal-pad"
                 maxLength={6}
                 editable={!saving}
@@ -240,7 +241,7 @@ export function GlucoseRegisterScreen() {
                 <Ionicons
                   name="calendar-outline"
                   size={20}
-                  color={colors.primary}
+                  color={c.primary}
                 />
 
                 <Text style={styles.dateTimeText}>
@@ -265,7 +266,7 @@ export function GlucoseRegisterScreen() {
                 <Ionicons
                   name="time-outline"
                   size={20}
-                  color={colors.primary}
+                  color={c.primary}
                 />
 
                 <Text style={styles.dateTimeText}>
@@ -310,7 +311,7 @@ export function GlucoseRegisterScreen() {
               value={notes}
               onChangeText={setNotes}
               placeholder="Sintomas, refeições atípicas..."
-              placeholderTextColor={colors.gray400}
+              placeholderTextColor={c.gray400}
               multiline
               textAlignVertical="top"
               maxLength={255}
@@ -333,10 +334,10 @@ export function GlucoseRegisterScreen() {
             accessibilityRole="button"
             accessibilityState={{ disabled: saving, busy: saving }}
           >
-            {saving ? <ActivityIndicator color={colors.white} /> : <Ionicons
+            {saving ? <ActivityIndicator color={c.onPrimary} /> : <Ionicons
               name="save-outline"
               size={19}
-              color={colors.white}
+              color={c.onPrimary}
             />}
 
             <Text style={styles.saveButtonText}>
@@ -350,10 +351,10 @@ export function GlucoseRegisterScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.screen,
+    backgroundColor: c.screen,
   },
 
   content: {
@@ -370,23 +371,23 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: colors.text,
+    color: c.text,
   },
 
   subtitle: {
     marginTop: 5,
     fontSize: 13,
-    color: colors.textSecondary,
+    color: c.textSecondary,
   },
 
   form: {
     padding: 18,
 
-    backgroundColor: colors.white,
+    backgroundColor: c.white,
 
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.gray200,
+    borderColor: c.gray200,
 
     gap: 20,
 
@@ -400,7 +401,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 13,
     fontWeight: '600',
-    color: colors.text,
+    color: c.text,
   },
 
   glucoseInput: {
@@ -412,14 +413,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
 
     borderWidth: 1,
-    borderColor: colors.slate300,
+    borderColor: c.slate300,
     borderRadius: 8,
 
-    backgroundColor: colors.white,
+    backgroundColor: c.white,
   },
 
   inputError: {
-    borderColor: colors.error,
+    borderColor: c.error,
   },
 
   glucoseTextInput: {
@@ -428,19 +429,19 @@ const styles = StyleSheet.create({
     fontSize: 27,
     fontWeight: '600',
 
-    color: colors.text,
+    color: c.text,
   },
 
   unit: {
     fontSize: 12,
-    color: colors.textSecondary,
+    color: c.textSecondary,
   },
 
   errorText: {
     marginTop: 2,
 
     fontSize: 11,
-    color: colors.error,
+    color: c.error,
   },
 
   dateTimeRow: {
@@ -463,17 +464,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
 
     borderWidth: 1,
-    borderColor: colors.slate300,
+    borderColor: c.slate300,
     borderRadius: 8,
 
-    backgroundColor: colors.white,
+    backgroundColor: c.white,
   },
 
   dateTimeText: {
     flex: 1,
 
     fontSize: 13,
-    color: colors.text,
+    color: c.text,
   },
 
   notesInput: {
@@ -482,13 +483,13 @@ const styles = StyleSheet.create({
     padding: 14,
 
     borderWidth: 1,
-    borderColor: colors.slate300,
+    borderColor: c.slate300,
     borderRadius: 8,
 
-    backgroundColor: colors.white,
+    backgroundColor: c.white,
 
     fontSize: 13,
-    color: colors.text,
+    color: c.text,
   },
 
   saveButton: {
@@ -503,7 +504,7 @@ const styles = StyleSheet.create({
 
     borderRadius: 26,
 
-    backgroundColor: colors.primary,
+    backgroundColor: c.primary,
   },
 
   saveButtonPressed: {
@@ -513,6 +514,6 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: 15,
     fontWeight: '600',
-    color: colors.white,
+    color: c.onPrimary,
   },
-});
+}));

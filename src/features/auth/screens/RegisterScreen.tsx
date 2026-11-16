@@ -1,3 +1,4 @@
+import { makeStyles, useThemeColors, useLogoSource } from '@/shared/theme';
 import { useRef, useState } from 'react';
 import { registerRequest } from '../services/auth-service';
 import { errorMessage } from '@/shared/api/errors';
@@ -19,15 +20,14 @@ import {
   ScreenContainer,
 } from '../../../shared/components';
 
-import {
-  colors,
-  spacing,
-  typography,
-} from '../../../shared/theme';
+import { spacing, typography } from '../../../shared/theme';
 
 import { PasswordRules } from '../components/PasswordRules';
 
 export function RegisterScreen() {
+  const styles = useStyles();
+  const c = useThemeColors();
+  const logoSource = useLogoSource();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [registered, setRegistered] = useState(false);
@@ -83,7 +83,7 @@ function handleLogin() {
             <Ionicons
   name="arrow-back"
   size={24}
-  color={colors.text}
+  color={c.text}
 />
           </Pressable>
 
@@ -104,7 +104,7 @@ function handleLogin() {
 
         <View style={styles.header}>
           <Image
-  source={require('../../../../assets/images/logo.png')}
+  source={logoSource}
   style={styles.logoImage}
   resizeMode="contain"
 />
@@ -162,7 +162,7 @@ function handleLogin() {
 
         {/* Ações */}
 
-        {error ? <Text accessibilityRole="alert" style={{ color: colors.error, marginBottom: 12 }}>{error}</Text> : null}
+        {error ? <Text accessibilityRole="alert" style={{ color: c.error, marginBottom: 12 }}>{error}</Text> : null}
         <AppButton
           title="Criar Conta"
           onPress={handleRegister}
@@ -185,8 +185,7 @@ function handleLogin() {
   );
 }
 
-const styles =
-  StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
     container: {
       width: '100%',
 
@@ -203,7 +202,7 @@ const styles =
     },
 
     topBarTitle: {
-      color: colors.text,
+      color: c.text,
 
       fontSize:
         typography.sizes.md,
@@ -232,7 +231,7 @@ const styles =
 },
 
     title: {
-      color: colors.primary,
+      color: c.primary,
 
       fontSize:
         typography.sizes.xl,
@@ -245,7 +244,7 @@ const styles =
 
     subtitle: {
       color:
-        colors.textSecondary,
+        c.textSecondary,
 
       fontSize:
         typography.sizes.sm,
@@ -271,10 +270,10 @@ const styles =
     emergencyCard: {
   width: '100%',
 
-  backgroundColor: colors.blueTintLight,
+  backgroundColor: c.blueTintLight,
 
   borderWidth: 1,
-  borderColor: colors.blueBorderSoft,
+  borderColor: c.blueBorderSoft,
   borderRadius: 16,
 
   padding: spacing.md,
@@ -284,18 +283,18 @@ const styles =
 },
 
 sectionTitle: {
-  color: colors.text,
+  color: c.text,
 
   fontSize: typography.sizes.md,
   fontWeight: typography.weights.semibold,
 },
 
 sectionDescription: {
-  color: colors.textSecondary,
+  color: c.textSecondary,
 
   fontSize: typography.sizes.xs,
   lineHeight: 17,
 
   marginTop: spacing.xs,
 },
-  });
+  }));

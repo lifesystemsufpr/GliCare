@@ -1,3 +1,4 @@
+import { makeStyles, useThemeColors } from '@/shared/theme';
 import {
   ActivityIndicator,
   Pressable,
@@ -5,8 +6,6 @@ import {
   Text,
   ViewStyle,
 } from 'react-native';
-
-import { colors } from '../theme';
 
 type AppButtonProps = {
   title: string;
@@ -28,6 +27,8 @@ export function AppButton({
   loading = false,
   style,
 }: AppButtonProps) {
+  const styles = useStyles();
+  const c = useThemeColors();
   const isDisabled = disabled || loading;
 
   return (
@@ -49,7 +50,7 @@ export function AppButton({
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'secondary' ? colors.onSecondary : colors.white} />
+        <ActivityIndicator color={variant === 'secondary' ? c.onSecondary : c.onPrimary} />
       ) : (
         <Text style={[styles.text, variant === 'secondary' && styles.secondaryText]}>{title}</Text>
       )}
@@ -57,7 +58,7 @@ export function AppButton({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => StyleSheet.create({
   button: {
     width: '100%',
     minHeight: 48,
@@ -71,21 +72,21 @@ const styles = StyleSheet.create({
   },
 
   primaryButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: c.primary,
   },
 
   secondaryButton: {
-    backgroundColor: colors.secondary,
+    backgroundColor: c.secondary,
   },
 
   text: {
-    color: colors.white,
+    color: c.onPrimary,
     fontSize: 16,
     fontWeight: '600',
   },
 
   secondaryText: {
-    color: colors.onSecondary,
+    color: c.onSecondary,
   },
 
   pressed: {
@@ -95,4 +96,4 @@ const styles = StyleSheet.create({
   disabled: {
     opacity: 0.5,
   },
-});
+}));

@@ -1,3 +1,4 @@
+import { useThemeColors } from '@/shared/theme';
 import { useSyncExternalStore } from 'react';
 import { Text, View } from 'react-native';
 
@@ -7,10 +8,11 @@ import { localNotificationsSupported, reminderNotifications } from '../services/
 // Controles dos alertas locais dos lembretes neste aparelho. Usado em
 // Lembretes e em Perfil > Notificações, com o mesmo estado.
 export function NotificationSettings({ disabled = false }: { disabled?: boolean }) {
+  const c = useThemeColors();
   const notifications = useSyncExternalStore(reminderNotifications.subscribe,
     reminderNotifications.getSnapshot, reminderNotifications.getSnapshot);
   return <View style={{ gap: 10 }}>
-    <Text accessibilityLiveRegion="polite">{notifications.message}</Text>
+    <Text style={{ color: c.defaultText }} accessibilityLiveRegion="polite">{notifications.message}</Text>
     {localNotificationsSupported ? <>
       <AppButton title={notifications.enabled ? 'Desativar alertas neste aparelho' : 'Ativar alertas neste aparelho'}
         variant="secondary" disabled={notifications.busy || disabled}

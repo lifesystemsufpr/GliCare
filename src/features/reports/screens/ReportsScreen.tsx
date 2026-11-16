@@ -1,10 +1,9 @@
 import { formatDateTime } from '@/shared/format';
-import { contentWidth } from '@/shared/theme';
+import { useThemeColors, contentWidth } from '@/shared/theme';
 import { useCallback, useRef, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { ActivityIndicator, Platform, ScrollView, Text, View } from 'react-native';
 import { AppButton, AppInput } from '@/shared/components';
-import { colors } from '@/shared/theme';
 import { errorMessage } from '@/shared/api/errors';
 import { useAuth } from '@/features/auth/hooks/AuthProvider';
 import { formatBirthDateInput } from '@/features/auth/services/auth-contract';
@@ -15,6 +14,7 @@ import { exportReport } from '../services/report-export';
 import type { Report } from '../services/report-model';
 
 export function ReportsScreen() {
+  const c = useThemeColors();
   const { user } = useAuth();
   const [period, setPeriod] = useState<Period>(() => presetPeriod(30));
   const [selected, setSelected] = useState<7 | 30 | 90 | 'custom'>(30);
@@ -63,29 +63,29 @@ export function ReportsScreen() {
     catch (cause) { if (!controller.signal.aborted) setExportError(errorMessage(cause)); }
     finally { busy.current = false; setExporting(false); exportAbort.current = null; }
   }
-  return <ScrollView style={{ flex: 1, backgroundColor: colors.screen }} contentContainerStyle={{ ...contentWidth, padding: 20, gap: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
-    <Text style={{ fontSize: 26, fontWeight: '700', color: colors.text }}>Relatórios</Text>
-    <Text>Consulte e exporte glicemias e aplicações de insulina.</Text>
+  return <ScrollView style={{ flex: 1, backgroundColor: c.screen }} contentContainerStyle={{ ...contentWidth, padding: 20, gap: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+    <Text style={{ fontSize: 26, fontWeight: '700', color: c.text }}>Relatórios</Text>
+    <Text style={{ color: c.defaultText }}>Consulte e exporte glicemias e aplicações de insulina.</Text>
     <View style={{ flexDirection: 'row', gap: 8 }}>{([7, 30, 90] as const).map((days) => <View key={days} style={{ flex: 1 }}>
       <AppButton title={`${days} dias`} variant={selected === days ? 'primary' : 'secondary'} disabled={exporting} onPress={() => choose(days)} />
     </View>)}</View>
-    <View style={{ backgroundColor: colors.white, padding: 16, borderRadius: 12, gap: 8 }}>
-      <Text>Período personalizado · até 366 dias</Text>
+    <View style={{ backgroundColor: c.white, padding: 16, borderRadius: 12, gap: 8 }}>
+      <Text style={{ color: c.defaultText }}>Período personalizado · até 366 dias</Text>
       <AppInput label="Data inicial" value={start} onChangeText={(value) => setStart(formatBirthDateInput(value))} maxLength={10} keyboardType="numeric" editable={!exporting} />
       <AppInput label="Data final" value={end} onChangeText={(value) => setEnd(formatBirthDateInput(value))} maxLength={10} keyboardType="numeric" editable={!exporting} />
-      {filterError ? <Text accessibilityRole="alert" style={{ color: colors.error }}>{filterError}</Text> : null}
+      {filterError ? <Text accessibilityRole="alert" style={{ color: c.error }}>{filterError}</Text> : null}
       <AppButton title="Aplicar período" disabled={exporting} onPress={apply} />
     </View>
-    <Text>Período aplicado: {displayDay(period.start)} a {displayDay(period.end)}</Text>
-    {loading ? <ActivityIndicator accessibilityLabel="Carregando relatório" /> : error ? <Text accessibilityRole="alert" style={{ color: colors.error }}>{error}</Text> : report ? <>
-      <Text style={{ fontSize: 18, fontWeight: '600' }}>{report.summary.measurements} medições · {report.summary.applications} aplicações</Text>
-      <Text>O PDF inclui todos os registros e observações deste período.</Text>
+    <Text style={{ color: c.defaultText }}>Período aplicado: {displayDay(period.start)} a {displayDay(period.end)}</Text>
+    {loading ? <ActivityIndicator accessibilityLabel="Carregando relatório" /> : error ? <Text accessibilityRole="alert" style={{ color: c.error }}>{error}</Text> : report ? <>
+      <Text style={[{ fontSize: 18, fontWeight: '600' }, { color: c.defaultText }]}>{report.summary.measurements} medições · {report.summary.applications} aplicações</Text>
+      <Text style={{ color: c.defaultText }}>O PDF inclui todos os registros e observações deste período.</Text>
       <AppButton title={Platform.OS === 'web' ? 'Imprimir / salvar PDF' : 'Gerar e compartilhar PDF'} loading={exporting} onPress={share} />
-      {exportError ? <Text accessibilityRole="alert" style={{ color: colors.error }}>{exportError}</Text> : null}
-      {report.rows.length === 0 ? <Text>Nenhum registro no período selecionado.</Text> : report.rows.slice(0, visible).map((row) => <View key={row.id} style={{ padding: 16, gap: 5, backgroundColor: colors.white, borderRadius: 12 }}>
-        <Text style={{ fontSize: 17, fontWeight: '600' }}>{row.kind} · {row.value}</Text>
-        <Text>{formatDateTime(row.occurredAt)}</Text><Text>{row.detail}</Text>
-        {row.notes ? <Text>{row.notes}</Text> : null}
+      {exportError ? <Text accessibilityRole="alert" style={{ color: c.error }}>{exportError}</Text> : null}
+      {report.rows.length === 0 ? <Text style={{ color: c.defaultText }}>Nenhum registro no período selecionado.</Text> : report.rows.slice(0, visible).map((row) => <View key={row.id} style={{ padding: 16, gap: 5, backgroundColor: c.white, borderRadius: 12 }}>
+        <Text style={[{ fontSize: 17, fontWeight: '600' }, { color: c.defaultText }]}>{row.kind} · {row.value}</Text>
+        <Text style={{ color: c.defaultText }}>{formatDateTime(row.occurredAt)}</Text><Text style={{ color: c.defaultText }}>{row.detail}</Text>
+        {row.notes ? <Text style={{ color: c.defaultText }}>{row.notes}</Text> : null}
       </View>)}
       {report.rows.length > visible ? <AppButton title="Mostrar mais registros" variant="secondary" onPress={() => setVisible((value) => value + 20)} /> : null}
     </> : null}
