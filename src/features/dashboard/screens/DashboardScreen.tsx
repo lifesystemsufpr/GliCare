@@ -7,6 +7,7 @@ import { AppButton, AppInput } from '@/shared/components';
 import { colors } from '@/shared/theme';
 import { errorMessage } from '@/shared/api/errors';
 import { formatBirthDateInput } from '@/features/auth/services/auth-contract';
+import { GlucoseReadingsChart } from '../components/GlucoseReadingsChart';
 import { loadDashboard } from '../services/dashboard-service';
 import { displayDay, periodDays, periodInput, presetPeriod, type DashboardSummary, type Period } from '../services/dashboard-model';
 
@@ -82,6 +83,7 @@ export function DashboardScreen() {
             </View>
           </View>)}
         </View>
+        <GlucoseReadingsChart data={summary.readings} />
         <View style={styles.filter}>
           <Text style={styles.subheading}>Média por momento do dia</Text>
           {summary.byMoment.map((item) => <View key={item.moment} style={styles.row}>
