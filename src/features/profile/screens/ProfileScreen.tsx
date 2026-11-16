@@ -10,11 +10,12 @@ import {
     Pressable,
     ScrollView,
     StyleSheet,
+    Switch,
     Text,
     View,
 } from 'react-native';
 
-import { colors } from '@/shared/theme';
+import { colors, useTheme } from '@/shared/theme';
 import { useAuth } from '@/features/auth/hooks/AuthProvider';
 import { errorMessage } from '@/shared/api/errors';
 import { DiabetesCard } from '../components/DiabetesCard';
@@ -26,6 +27,7 @@ import { diabetesLabels, profileToForm, type Profile } from '../services/profile
 
 export function ProfileScreen() {
   const { signOut, setProfileComplete } = useAuth();
+  const theme = useTheme();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
@@ -141,6 +143,18 @@ export function ProfileScreen() {
           <Text style={styles.settingsText}>Notificações</Text>
           <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
         </Pressable>
+        <View style={styles.settingsItem}>
+          <Ionicons name="moon-outline" size={19} color={colors.text} />
+          <Text style={styles.settingsText}>Tema escuro</Text>
+          <Switch
+            value={theme.mode === 'dark'}
+            onValueChange={(on) => theme.setMode(on ? 'dark' : 'light')}
+            accessibilityLabel="Tema escuro"
+            trackColor={{ false: colors.gray300, true: colors.blue300 }}
+            thumbColor={theme.mode === 'dark' ? colors.primary : colors.white}
+            {...({ activeThumbColor: colors.primary } as object)}
+          />
+        </View>
       </View>
 
       <Pressable
