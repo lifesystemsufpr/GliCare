@@ -12,6 +12,11 @@ export async function getProfile(signal?: AbortSignal): Promise<Profile> {
   const { data } = await api.get<Profile>('/profile', { signal });
   return confirmedProfile(data);
 }
+// Exclusão de conta (LGPD): a API apaga perfil, registros e lembretes e
+// anonimiza a conta. Depois disso o token deixa de valer.
+export async function deleteAccount(): Promise<void> {
+  await api.delete('/users/me');
+}
 export async function updateProfile(form: ProfileForm, initial: Profile): Promise<Profile> {
   const payload = profileToPatch(form, initial);
   try {

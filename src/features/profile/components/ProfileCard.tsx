@@ -6,6 +6,7 @@ import { colors } from '@/shared/theme';
 interface ProfileCardProps {
   name: string;
   age: number | null;
+  birthDate?: string;
   weight: number | null;
   height: number | null;
 }
@@ -13,6 +14,7 @@ interface ProfileCardProps {
 export function ProfileCard({
   name,
   age,
+  birthDate,
   weight,
   height,
 }: ProfileCardProps) {
@@ -32,6 +34,10 @@ export function ProfileCard({
 
       <Text style={styles.age}>
         {age == null ? 'Idade não informada' : `${age} anos`}
+      </Text>
+
+      <Text style={styles.age}>
+        {birthDate ? `Nascimento: ${birthDate}` : 'Data de nascimento não informada'}
       </Text>
 
       <View style={styles.infoRow}>

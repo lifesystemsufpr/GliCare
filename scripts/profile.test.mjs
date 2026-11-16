@@ -19,7 +19,7 @@ registerHooks({
 process.env.EXPO_PUBLIC_API_URL = 'https://api.example.test/api';
 const { profileToForm, profileToPatch } = await import('../src/features/profile/services/profile-contract.ts');
 const { api } = await import('../src/shared/api/api.ts');
-const { getProfile, updateProfile } = await import('../src/features/profile/services/profile-service.ts');
+const { deleteAccount, getProfile, updateProfile } = await import('../src/features/profile/services/profile-service.ts');
 const profile = { nome: 'Pessoa sintética', dataNascimento: '1995-04-12', idade: 31,
   alturaCm: 170.55, pesoKg: 60.5, tipoDiabetes: 'TIPO_1',
   contatoEmergencia: { nome: 'Contato', relacao: 'Familiar', telefone: '41999999999' } };
@@ -114,4 +114,13 @@ test('falha de rede e 401/400 não simulam atualização bem-sucedida', async ()
     await assert.rejects(updateProfile({ ...form(), weight: '62' }, profile), (error) => error.response.status === status);
   }
   failure = undefined;
+});
+test('exclusão de conta chama DELETE /users/me autenticado e repassa falha', async () => {
+  data = undefined; await deleteAccount();
+  const config = calls.at(-1);
+  assert.equal(config.method, 'delete');
+  assert.equal(api.getUri(config), 'https://api.example.test/api/users/me');
+  assert.equal(config.headers.Authorization, 'Bearer synthetic-token');
+  failure = new AxiosError('network'); await assert.rejects(deleteAccount()); failure = undefined;
+  data = profile;
 });
