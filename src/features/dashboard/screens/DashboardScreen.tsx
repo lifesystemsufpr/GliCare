@@ -1,3 +1,4 @@
+import { formatNumber } from '@/shared/format';
 import { contentWidth } from '@/shared/theme';
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
@@ -60,16 +61,6 @@ export function DashboardScreen() {
     <View style={styles.presets}>{([7, 30, 90] as const).map((days) => <View key={days} style={{ flex: 1 }}>
       <AppButton title={`${days} dias`} variant={selected === days ? 'primary' : 'secondary'} onPress={() => choose(days)} />
     </View>)}</View>
-    <View style={styles.filter}>
-      <Text style={styles.subheading}>Período personalizado</Text>
-      <Text>Até 366 dias, incluindo as datas inicial e final.</Text>
-      <AppInput label="Data inicial" value={start} onChangeText={(value) => setStart(formatBirthDateInput(value))}
-        placeholder="dd/mm/aaaa" keyboardType="numeric" maxLength={10} />
-      <AppInput label="Data final" value={end} onChangeText={(value) => setEnd(formatBirthDateInput(value))}
-        placeholder="dd/mm/aaaa" keyboardType="numeric" maxLength={10} />
-      {filterError ? <Text accessibilityRole="alert" style={styles.error}>{filterError}</Text> : null}
-      <AppButton title="Aplicar período" onPress={apply} />
-    </View>
     <Text style={styles.subheading}>Período aplicado: {displayDay(period.start)} a {displayDay(period.end)}</Text>
     {loading ? <ActivityIndicator accessibilityLabel="Carregando indicadores" color={colors.primary} /> : error ?
       <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : summary ? <>
@@ -84,7 +75,7 @@ export function DashboardScreen() {
         <Text style={styles.subheading}>Classificação das medições</Text>
         <Text>Percentuais sobre a quantidade de medições; não representam duração.</Text>
         {summary.distribution.map((item) => <View key={item.status} style={{ gap: 5 }}>
-          <Text>{labels[item.status]}: {item.count} · {item.percentage == null ? '—' : item.percentage.toFixed(1) + '%'}</Text>
+          <Text>{labels[item.status]}: {item.count} · {item.percentage == null ? '—' : formatNumber(item.percentage) + '%'}</Text>
           <View style={{ height: 8, backgroundColor: '#E2E8F0', borderRadius: 4 }}>
             <View style={{ height: 8, width: `${item.percentage ?? 0}%`, backgroundColor: colors.primary, borderRadius: 4 }} />
           </View>
@@ -92,6 +83,16 @@ export function DashboardScreen() {
       </View>
       <DailyGlucoseChart data={summary.daily} />
     </> : null}
+    <View style={styles.filter}>
+      <Text style={styles.subheading}>Período personalizado</Text>
+      <Text>Até 366 dias, incluindo as datas inicial e final.</Text>
+      <AppInput label="Data inicial" value={start} onChangeText={(value) => setStart(formatBirthDateInput(value))}
+        placeholder="dd/mm/aaaa" keyboardType="numeric" maxLength={10} />
+      <AppInput label="Data final" value={end} onChangeText={(value) => setEnd(formatBirthDateInput(value))}
+        placeholder="dd/mm/aaaa" keyboardType="numeric" maxLength={10} />
+      {filterError ? <Text accessibilityRole="alert" style={styles.error}>{filterError}</Text> : null}
+      <AppButton title="Aplicar período" onPress={apply} />
+    </View>
     <AppButton title={error ? 'Tentar novamente' : 'Atualizar indicadores'} variant="secondary" disabled={loading}
       onPress={() => setRevision((value) => value + 1)} />
   </ScrollView>;

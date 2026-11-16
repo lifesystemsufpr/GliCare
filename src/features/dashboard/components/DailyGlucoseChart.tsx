@@ -1,3 +1,4 @@
+import { formatNumber } from '@/shared/format';
 import { ScrollView, Text, View } from 'react-native';
 import { colors } from '@/shared/theme';
 import type { DailyGlucose } from '../services/dashboard-model';
@@ -11,13 +12,13 @@ export function DailyGlucoseChart({ data }: { data: DailyGlucose[] }) {
     <ScrollView horizontal showsHorizontalScrollIndicator>
       <View style={{ flexDirection: 'row' }}>
         {data.map((point) => <View key={point.date} style={{ width: 54, alignItems: 'center' }}
-          accessible accessibilityLabel={`${point.label}: ${point.mean == null ? 'sem medições' : point.mean.toFixed(1) + ' mg/dL, ' + point.count + ' medições'}`}>
+          accessible accessibilityLabel={`${point.label}: ${point.mean == null ? 'sem medições' : formatNumber(point.mean) + ' mg/dL, ' + point.count + ' medições'}`}>
           <View style={{ height: 100, width: '100%', borderBottomWidth: 1, borderBottomColor: '#CBD5E1' }}>
             {point.mean == null ? null : <View style={{ position: 'absolute', bottom: point.mean / ceiling * 90,
               alignSelf: 'center', width: 7, height: 7, borderRadius: 4, backgroundColor: colors.primary }} />}
           </View>
           <Text style={{ fontSize: 11 }}>{point.label}</Text>
-          <Text style={{ fontSize: 11 }}>{point.mean == null ? '—' : point.mean.toFixed(1)}</Text>
+          <Text style={{ fontSize: 11 }}>{point.mean == null ? '—' : formatNumber(point.mean)}</Text>
         </View>)}
       </View>
     </ScrollView>

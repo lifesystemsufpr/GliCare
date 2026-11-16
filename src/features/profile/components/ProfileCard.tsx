@@ -1,3 +1,4 @@
+import { formatNumber } from '@/shared/format';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -51,7 +52,7 @@ export function ProfileCard({
             numberOfLines={1}
             adjustsFontSizeToFit
           >
-            {weight == null ? 'Não informado' : `${weight} kg`}
+            {weight == null ? 'Não informado' : `${formatNumber(weight, 2)} kg`}
           </Text>
         </View>
 
