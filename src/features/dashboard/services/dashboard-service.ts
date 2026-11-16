@@ -1,8 +1,11 @@
-import { listGlucose } from '@/features/glucose/services/glucose-service';
-import { listInsulin } from '@/features/insulin/services/insulin-service';
-import type { DashboardSources } from './dashboard-model';
+import { api } from '@/shared/api';
+import { periodDays, toDashboardSummary, type DashboardApiResponse, type DashboardSummary, type Period } from './dashboard-model';
 
-export async function loadDashboard(signal?: AbortSignal): Promise<DashboardSources> {
-  const [glucose, insulin] = await Promise.all([listGlucose(signal), listInsulin(signal)]);
-  return { glucose, insulin };
+// GET /dashboard com o período em dias civis (AAAA-MM-DD, inclusivos).
+export async function loadDashboard(period: Period, signal?: AbortSignal): Promise<DashboardSummary> {
+  periodDays(period);
+  const { data } = await api.get<DashboardApiResponse>('/dashboard', {
+    params: { startDate: period.start, endDate: period.end }, signal,
+  });
+  return toDashboardSummary(data);
 }

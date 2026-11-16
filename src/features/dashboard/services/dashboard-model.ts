@@ -1,15 +1,35 @@
-import type { GlucoseRecord } from '../../glucose/services/glucose-contract';
-import type { InsulinRecord } from '../../insulin/services/insulin-contract';
 import { dayKey } from '../../home/services/home-model';
+import { momentLabels, type ApiMoment } from '../../glucose/services/glucose-contract';
 
 export type Period = { start: string; end: string };
-export type DailyGlucose = { date: string; label: string; count: number; mean: number | null };
-export type DashboardSources = { glucose: GlucoseRecord[]; insulin: InsulinRecord[] };
-export type DashboardSummary = {
-  measurements: number; applications: number; mean: number | null; min: number | null; max: number | null;
-  distribution: { status: 'BAIXA' | 'NORMAL' | 'ALTA'; count: number; percentage: number | null }[];
-  daily: DailyGlucose[];
+
+// Resposta de GET /dashboard. Os cálculos são da API; o app só valida o
+// formato e prepara para exibir.
+type ApiExtreme = { valor: number; dataHora: string; momento: ApiMoment };
+type ApiBand = { quantidade: number; percentual: number | null };
+export type DashboardApiResponse = {
+  mediaGlicemia: number | null;
+  maiorValor: ApiExtreme | null;
+  menorValor: ApiExtreme | null;
+  glicemiaAoLongoDoDia: { valor: number; dataHora: string; momento: ApiMoment }[];
+  insulinaTotalDiaria: { data: string; totalUi: number; quantidade: number }[];
+  distribuicaoLeituras: {
+    total: number; muitoBaixa: ApiBand; baixa: ApiBand; noAlvo: ApiBand; alta: ApiBand; muitoAlta: ApiBand;
+  };
+  mediaPorMomento: { momento: ApiMoment; media: number; quantidade: number }[];
 };
+export type Reading = { at: string; label: string; value: number; moment: string };
+export type Extreme = { value: number; at: string; moment: string };
+export type Band = { key: string; label: string; count: number; percentage: number | null };
+export type DashboardSummary = {
+  measurements: number; applications: number; insulinTotal: number;
+  mean: number | null; min: Extreme | null; max: Extreme | null;
+  bands: Band[];
+  byMoment: { moment: string; mean: number; count: number }[];
+  insulinDaily: { date: string; label: string; totalUi: number; count: number }[];
+  readings: Reading[];
+};
+
 function parseDay(value: string): Date {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
   if (!match) throw new Error('Informe datas válidas.');
@@ -44,52 +64,60 @@ export function periodInput(value: string): string {
 export function displayDay(value: string): string {
   return parseDay(value).toLocaleDateString('pt-BR');
 }
-function recordDate(value: string): Date {
-  if (typeof value !== 'string' || !Number.isFinite(new Date(value).getTime())) throw new Error('A API retornou uma data inválida.');
-  return new Date(value);
+const bandLabels = [
+  ['muitoBaixa', 'Muito baixa (abaixo de 54)'],
+  ['baixa', 'Baixa (54 a 69)'],
+  ['noAlvo', 'No alvo (70 a 180)'],
+  ['alta', 'Alta (181 a 250)'],
+  ['muitoAlta', 'Muito alta (acima de 250)'],
+] as const;
+
+function invalid(): never {
+  throw new Error('A API retornou indicadores inválidos.');
 }
-export function buildDashboard(sources: DashboardSources, period: Period, now = new Date()): DashboardSummary {
-  const days = periodDays(period, now);
-  const inPeriod = (value: string) => {
-    const date = recordDate(value);
-    const key = dayKey(date);
-    return date <= now && key >= period.start && key <= period.end;
-  };
-  const glucose = sources.glucose.filter((record) => {
-    if (!Number.isFinite(record.valor) || record.valor <= 0 || !['BAIXA', 'NORMAL', 'ALTA'].includes(record.status)) {
-      throw new Error('A API retornou uma medição inválida.');
-    }
-    return inPeriod(record.dataHora);
+function count(value: unknown): number {
+  if (typeof value !== 'number' || !Number.isInteger(value) || value < 0) invalid();
+  return value;
+}
+function amount(value: unknown): number {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) invalid();
+  return value;
+}
+function extreme(value: ApiExtreme | null): Extreme | null {
+  if (value == null) return null;
+  if (typeof value !== 'object' || !Number.isFinite(new Date(value.dataHora).getTime())) invalid();
+  return { value: amount(value.valor), at: value.dataHora, moment: momentLabels[value.momento] ?? value.momento };
+}
+
+export function toDashboardSummary(data: DashboardApiResponse): DashboardSummary {
+  if (!data || typeof data !== 'object' || !data.distribuicaoLeituras || !Array.isArray(data.insulinaTotalDiaria)
+    || !Array.isArray(data.mediaPorMomento) || !Array.isArray(data.glicemiaAoLongoDoDia)) invalid();
+  const bands = bandLabels.map(([key, label]): Band => {
+    const band = data.distribuicaoLeituras[key];
+    if (!band) invalid();
+    return { key, label, count: count(band.quantidade), percentage: band.percentual == null ? null : amount(band.percentual) };
   });
-  const insulin = sources.insulin.filter((record) => {
-    if (!Number.isFinite(record.doseUi) || record.doseUi <= 0) throw new Error('A API retornou uma aplicação inválida.');
-    return inPeriod(record.dataHora);
+  const insulinDaily = data.insulinaTotalDiaria.map((day) => {
+    if (typeof day.data !== 'string') invalid();
+    return { date: day.data, label: displayDay(day.data), totalUi: amount(day.totalUi), count: count(day.quantidade) };
   });
-  const values = glucose.map((record) => record.valor);
-  const sum = values.reduce((total, value) => total + value, 0);
-  const dailyGroups = new Map<string, { sum: number; count: number }>();
-  for (const record of glucose) {
-    const key = dayKey(new Date(record.dataHora));
-    const group = dailyGroups.get(key) ?? { sum: 0, count: 0 };
-    group.sum += record.valor;
-    group.count++;
-    dailyGroups.set(key, group);
-  }
-  const statuses = ['BAIXA', 'NORMAL', 'ALTA'] as const;
   return {
-    measurements: glucose.length, applications: insulin.length,
-    mean: values.length ? sum / values.length : null,
-    min: values.length ? values.reduce((a, b) => Math.min(a, b)) : null,
-    max: values.length ? values.reduce((a, b) => Math.max(a, b)) : null,
-    distribution: statuses.map((status) => {
-      const count = glucose.filter((record) => record.status === status).length;
-      return { status, count, percentage: glucose.length ? count / glucose.length * 100 : null };
-    }),
-    daily: days.map((date) => {
-      const key = dayKey(date);
-      const group = dailyGroups.get(key);
-      return { date: key, label: date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }), count: group?.count ?? 0,
-        mean: group ? group.sum / group.count : null };
+    measurements: count(data.distribuicaoLeituras.total),
+    applications: insulinDaily.reduce((total, day) => total + day.count, 0),
+    insulinTotal: insulinDaily.reduce((total, day) => total + day.totalUi, 0),
+    mean: data.mediaGlicemia == null ? null : amount(data.mediaGlicemia),
+    min: extreme(data.menorValor), max: extreme(data.maiorValor), bands,
+    byMoment: data.mediaPorMomento.map((item) => ({
+      moment: momentLabels[item.momento] ?? item.momento, mean: amount(item.media), count: count(item.quantidade),
+    })),
+    insulinDaily,
+    readings: data.glicemiaAoLongoDoDia.map((point) => {
+      const date = new Date(point.dataHora);
+      if (!Number.isFinite(date.getTime())) invalid();
+      return {
+        at: point.dataHora, value: amount(point.valor), moment: momentLabels[point.momento] ?? point.momento,
+        label: date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+      };
     }),
   };
 }

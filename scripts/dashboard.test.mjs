@@ -17,16 +17,29 @@ registerHooks({
   },
 });
 process.env.EXPO_PUBLIC_API_URL = 'https://api.example.test/api';
-const { buildDashboard, presetPeriod, periodDays, periodInput, displayDay } = await import('../src/features/dashboard/services/dashboard-model.ts');
+const { toDashboardSummary, presetPeriod, periodDays, periodInput, displayDay } = await import('../src/features/dashboard/services/dashboard-model.ts');
 const { api } = await import('../src/shared/api/api.ts');
 const { loadDashboard } = await import('../src/features/dashboard/services/dashboard-service.ts');
 const now = new Date(2026, 10, 3, 12);
 const period = { start: '2026-11-01', end: '2026-11-03' };
-const date = (day, hour = 8, minute = 0) => new Date(2026, 10, day, hour, minute).toISOString();
-const glucose = (id, day, valor = 100, status = 'NORMAL', hour = 8, minute = 0) =>
-  ({ id, valor, status, momento: 'JEJUM', dataHora: date(day, hour, minute), observacao: null });
-const insulin = (id, day) => ({ id, doseUi: 10, tipo: 'NPH', dataHora: date(day), localAplicacao: null, observacao: null });
-const empty = () => ({ glucose: [], insulin: [] });
+const band = (quantidade, percentual) => ({ quantidade, percentual });
+const empty = () => ({
+  mediaGlicemia: null, maiorValor: null, menorValor: null, glicemiaAoLongoDoDia: [], insulinaTotalDiaria: [],
+  distribuicaoLeituras: { total: 0, muitoBaixa: band(0, null), baixa: band(0, null), noAlvo: band(0, null), alta: band(0, null), muitoAlta: band(0, null) },
+  mediaPorMomento: [],
+});
+const full = () => ({
+  mediaGlicemia: 128.5,
+  maiorValor: { valor: 260, dataHora: '2026-11-02T15:00:00.000Z', momento: 'APOS_ALMOCO' },
+  menorValor: { valor: 50, dataHora: '2026-11-01T11:00:00.000Z', momento: 'JEJUM' },
+  glicemiaAoLongoDoDia: [
+    { valor: 50, dataHora: '2026-11-01T11:00:00.000Z', momento: 'JEJUM' },
+    { valor: 260, dataHora: '2026-11-02T15:00:00.000Z', momento: 'APOS_ALMOCO' },
+  ],
+  insulinaTotalDiaria: [{ data: '2026-11-01', totalUi: 14.5, quantidade: 2 }, { data: '2026-11-03', totalUi: 8, quantidade: 1 }],
+  distribuicaoLeituras: { total: 4, muitoBaixa: band(1, 25), baixa: band(0, 0), noAlvo: band(2, 50), alta: band(0, 0), muitoAlta: band(1, 25) },
+  mediaPorMomento: [{ momento: 'JEJUM', media: 75, quantidade: 2 }, { momento: 'APOS_ALMOCO', media: 182, quantidade: 2 }],
+});
 
 test('presets usam dias de calendário inclusivos', () => {
   for (const days of [7, 30, 90]) {
@@ -53,85 +66,82 @@ test('até 366 dias são permitidos, incluindo ano bissexto', () => {
 test('um único dia é um período válido', () => {
   assert.equal(periodDays({ start: '2026-11-03', end: '2026-11-03' }, now).length, 1);
 });
-test('vazio mantém média, mínimo, máximo e percentuais ausentes', () => {
-  const result = buildDashboard(empty(), period, now);
-  assert.equal(result.measurements, 0); assert.equal(result.applications, 0);
+test('período sem dados mantém média, extremos e percentuais ausentes, sem inventar zeros', () => {
+  const result = toDashboardSummary(empty());
+  assert.equal(result.measurements, 0); assert.equal(result.applications, 0); assert.equal(result.insulinTotal, 0);
   assert.equal(result.mean, null); assert.equal(result.min, null); assert.equal(result.max, null);
-  assert.ok(result.distribution.every((item) => item.count === 0 && item.percentage === null));
+  assert.ok(result.bands.every((item) => item.count === 0 && item.percentage === null));
+  assert.deepEqual(result.byMoment, []); assert.deepEqual(result.insulinDaily, []);
 });
-test('média global usa todas as medições, não média não ponderada dos dias', () => {
-  const result = buildDashboard({ ...empty(), glucose: [glucose('a', 1, 50), glucose('b', 1, 150), glucose('c', 2, 150)] }, period, now);
-  assert.equal(result.mean, 350 / 3); assert.equal(result.min, 50); assert.equal(result.max, 150);
-  assert.equal(result.measurements, 3);
+test('indicadores vêm da API sem recálculo no aparelho', () => {
+  const result = toDashboardSummary(full());
+  assert.equal(result.measurements, 4); assert.equal(result.mean, 128.5);
+  assert.deepEqual(result.min, { value: 50, at: '2026-11-01T11:00:00.000Z', moment: 'Jejum' });
+  assert.equal(result.max.value, 260);
 });
-test('distribuição usa status da API e percentual por contagem, sem recálculo clínico', () => {
-  const result = buildDashboard({ ...empty(), glucose: [glucose('a', 1, 100, 'ALTA'), glucose('b', 2, 100, 'BAIXA'), glucose('c', 3, 100)] }, period, now);
-  for (const item of result.distribution) { assert.equal(item.count, 1); assert.ok(Math.abs(item.percentage - 100 / 3) < 1e-10); }
+test('cinco faixas na ordem do consenso, com a faixa abaixo de 54 separada', () => {
+  const result = toDashboardSummary(full());
+  assert.deepEqual(result.bands.map((item) => item.key), ['muitoBaixa', 'baixa', 'noAlvo', 'alta', 'muitoAlta']);
+  assert.match(result.bands[0].label, /abaixo de 54/);
+  assert.deepEqual(result.bands.map((item) => item.count), [1, 0, 2, 0, 1]);
+  assert.equal(result.bands[2].percentage, 50);
 });
-test('aplicações são contadas sem somar doses de tipos diferentes', () => {
-  const result = buildDashboard({ ...empty(), insulin: [insulin('a', 1), { ...insulin('b', 2), tipo: 'Rápida' }, insulin('old', -1)] }, period, now);
-  assert.equal(result.applications, 2); assert.equal(result.mean, null);
+test('média por momento usa os rótulos do app', () => {
+  const result = toDashboardSummary(full());
+  assert.deepEqual(result.byMoment, [{ moment: 'Jejum', mean: 75, count: 2 }, { moment: 'Após o almoço', mean: 182, count: 2 }]);
 });
-test('extremos incluem início à meia-noite e fim às 23:59 locais', () => {
-  const range = { start: '2026-11-01', end: '2026-11-02' };
-  const result = buildDashboard({ ...empty(), glucose: [glucose('start', 1, 90, 'NORMAL', 0),
-    glucose('end', 2, 110, 'NORMAL', 23, 59), glucose('after', 3), glucose('before', 0)] }, range, now);
-  assert.equal(result.measurements, 2); assert.equal(result.mean, 100);
+test('aplicações e total de insulina somam os dias informados pela API', () => {
+  const result = toDashboardSummary(full());
+  assert.equal(result.applications, 3); assert.equal(result.insulinTotal, 22.5);
+  assert.deepEqual(result.insulinDaily.map((day) => [day.date, day.totalUi, day.count]), [['2026-11-01', 14.5, 2], ['2026-11-03', 8, 1]]);
+  assert.equal(result.insulinDaily[0].label, displayDay('2026-11-01'));
 });
-test('registros futuros são excluídos mesmo quando o dia final é hoje', () => {
-  const result = buildDashboard({ ...empty(), glucose: [glucose('future', 3, 200, 'ALTA', 13)],
-    insulin: [{ ...insulin('future', 3), dataHora: date(3, 14) }] }, period, now);
-  assert.equal(result.measurements, 0); assert.equal(result.applications, 0);
+test('gráfico usa as medições da API na ordem recebida, sem agregar', () => {
+  const result = toDashboardSummary(full());
+  assert.deepEqual(result.readings.map((point) => [point.value, point.moment]), [[50, 'Jejum'], [260, 'Após o almoço']]);
+  assert.deepEqual(toDashboardSummary(empty()).readings, []);
+  assert.throws(() => toDashboardSummary({ ...full(), glicemiaAoLongoDoDia: [{ valor: 100, dataHora: 'x', momento: 'JEJUM' }] }));
 });
-test('gráfico calcula a média diária e não apenas o último registro', () => {
-  const result = buildDashboard({ ...empty(), glucose: [glucose('a', 1, 80), glucose('b', 1, 120, 'NORMAL', 10)] }, period, now);
-  assert.equal(result.daily[0].mean, 100); assert.equal(result.daily[0].count, 2);
+test('resposta não é alterada', () => {
+  const data = full(); const before = structuredClone(data); toDashboardSummary(data); assert.deepEqual(data, before);
 });
-test('dias sem registros permanecem lacunas em ordem cronológica', () => {
-  const result = buildDashboard({ ...empty(), glucose: [glucose('a', 3)] }, period, now);
-  assert.deepEqual(result.daily.map((point) => point.date), ['2026-11-01', '2026-11-02', '2026-11-03']);
-  assert.deepEqual(result.daily.map((point) => point.mean), [null, null, 100]);
-});
-test('filtragem não modifica as fontes nem depende da ordem delas', () => {
-  const sources = { ...empty(), glucose: [glucose('last', 3, 200), glucose('first', 1, 100)] };
-  const before = structuredClone(sources); const result = buildDashboard(sources, period, now);
-  assert.equal(result.mean, 150); assert.deepEqual(sources, before);
-});
-test('respostas com números, datas ou status inválidos não geram indicadores falsos', () => {
-  for (const invalid of [{ ...glucose('a', 1), valor: NaN }, { ...glucose('a', 1), dataHora: null }, { ...glucose('a', 1), status: 'OTHER' }]) {
-    assert.throws(() => buildDashboard({ ...empty(), glucose: [invalid] }, period, now));
-  }
-  assert.throws(() => buildDashboard({ ...empty(), insulin: [{ ...insulin('a', 1), doseUi: 0 }] }, period, now));
+test('respostas incompatíveis não geram indicadores falsos', () => {
+  for (const broken of [
+    null, { ...full(), distribuicaoLeituras: undefined }, { ...full(), insulinaTotalDiaria: {} },
+    { ...full(), mediaGlicemia: NaN }, { ...full(), maiorValor: { valor: 100, dataHora: 'x', momento: 'JEJUM' } },
+    { ...full(), insulinaTotalDiaria: [{ data: '2026-11-01', totalUi: 10 }] },
+    { ...full(), distribuicaoLeituras: { ...full().distribuicaoLeituras, alta: undefined } },
+  ]) assert.throws(() => toDashboardSummary(broken));
 });
 
 const calls = [];
-let responses = { '/glycemias': [glucose('g', 1)], '/insulin-applications': [insulin('i', 1)] };
-let failPath;
+let response = full();
+let failure;
 api.defaults.headers.common.Authorization = 'Bearer synthetic-token';
 api.defaults.adapter = async (config) => {
   calls.push(config);
-  if (config.url === failPath) throw new AxiosError('network');
-  return { config, status: 200, statusText: 'OK', headers: {}, data: responses[config.url] };
+  if (failure) throw failure;
+  return { config, status: 200, statusText: 'OK', headers: {}, data: response };
 };
-test('reutiliza dois GETs autenticados sem enviar IDs ou filtros no fuso do servidor', async () => {
-  const result = await loadDashboard();
-  assert.equal(result.glucose[0].id, 'g'); assert.equal(result.insulin[0].id, 'i');
-  for (const config of calls.slice(-2)) {
-    assert.equal(config.method, 'get'); assert.equal(config.headers.Authorization, 'Bearer synthetic-token');
-    assert.equal(config.params, undefined); assert.equal(config.data, undefined);
-  }
+test('um GET autenticado de /dashboard com o período em dias civis', async () => {
+  const range = { start: '2026-11-01', end: '2026-11-03' };
+  const result = await loadDashboard(range);
+  assert.equal(result.measurements, 4);
+  const config = calls.at(-1);
+  assert.equal(config.url, '/dashboard'); assert.equal(config.method, 'get');
+  assert.deepEqual(config.params, { startDate: '2026-11-01', endDate: '2026-11-03' });
+  assert.equal(config.headers.Authorization, 'Bearer synthetic-token'); assert.equal(config.data, undefined);
 });
-test('cancelamento impede consultas', async () => {
-  const controller = new AbortController(); controller.abort(); const before = calls.length;
-  await assert.rejects(loadDashboard(controller.signal)); assert.equal(calls.length, before);
+test('período inválido e cancelamento não disparam HTTP', async () => {
+  const before = calls.length;
+  await assert.rejects(loadDashboard({ start: '2026-11-03', end: '2026-11-01' }));
+  const controller = new AbortController(); controller.abort();
+  await assert.rejects(loadDashboard({ start: '2026-11-01', end: '2026-11-03' }, controller.signal));
+  assert.equal(calls.length, before);
 });
-test('falha de uma fonte não é transformada em conjunto vazio', async () => {
-  failPath = '/glycemias'; await assert.rejects(loadDashboard()); failPath = undefined;
+test('falha HTTP não vira indicador vazio', async () => {
+  failure = new AxiosError('network'); await assert.rejects(loadDashboard({ start: '2026-11-01', end: '2026-11-03' })); failure = undefined;
 });
-test('fontes vazias são aceitas sem criar medições', async () => {
-  responses = { '/glycemias': [], '/insulin-applications': [] };
-  assert.deepEqual(await loadDashboard(), empty());
-});
-test('resposta incompatível rejeita carregamento', async () => {
-  responses['/glycemias'] = { records: [] }; await assert.rejects(loadDashboard());
+test('resposta incompatível rejeita o carregamento', async () => {
+  response = { records: [] }; await assert.rejects(loadDashboard({ start: '2026-11-01', end: '2026-11-03' })); response = full();
 });
