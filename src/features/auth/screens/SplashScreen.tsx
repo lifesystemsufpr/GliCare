@@ -1,4 +1,4 @@
-import { makeStyles } from '@/shared/theme';
+import { makeStyles, useLogoSource } from '@/shared/theme';
 import {
   Image,
   StyleSheet,
@@ -12,11 +12,12 @@ import { spacing, typography } from '../../../shared/theme';
 
 export function SplashScreen() {
   const styles = useStyles();
+  const logoSource = useLogoSource();
   return (
     <ScreenContainer>
       <View style={styles.container}>
         <Image
-  source={require('../../../../assets/images/logo.png')}
+  source={logoSource}
   style={styles.logoImage}
   resizeMode="contain"
 />

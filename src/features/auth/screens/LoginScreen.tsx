@@ -1,4 +1,4 @@
-import { makeStyles, useThemeColors } from '@/shared/theme';
+import { makeStyles, useThemeColors, useLogoSource } from '@/shared/theme';
 import { useRef, useState } from 'react';
 import { useAuth } from '../hooks/AuthProvider';
 import { errorMessage } from '@/shared/api/errors';
@@ -23,6 +23,7 @@ import { spacing, typography } from '../../../shared/theme';
 export function LoginScreen() {
   const styles = useStyles();
   const c = useThemeColors();
+  const logoSource = useLogoSource();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -60,7 +61,7 @@ function handleCreateAccount() {
         {/* Cabeçalho */}
         <View style={styles.header}>
           <Image
-  source={require('../../../../assets/images/logo.png')}
+  source={logoSource}
   style={styles.logoImage}
   resizeMode="contain"
 />

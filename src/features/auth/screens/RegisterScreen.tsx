@@ -1,4 +1,4 @@
-import { makeStyles, useThemeColors } from '@/shared/theme';
+import { makeStyles, useThemeColors, useLogoSource } from '@/shared/theme';
 import { useRef, useState } from 'react';
 import { registerRequest } from '../services/auth-service';
 import { errorMessage } from '@/shared/api/errors';
@@ -27,6 +27,7 @@ import { PasswordRules } from '../components/PasswordRules';
 export function RegisterScreen() {
   const styles = useStyles();
   const c = useThemeColors();
+  const logoSource = useLogoSource();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [registered, setRegistered] = useState(false);
@@ -103,7 +104,7 @@ function handleLogin() {
 
         <View style={styles.header}>
           <Image
-  source={require('../../../../assets/images/logo.png')}
+  source={logoSource}
   style={styles.logoImage}
   resizeMode="contain"
 />
