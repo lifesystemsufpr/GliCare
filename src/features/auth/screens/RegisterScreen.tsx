@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react';
 import { registerRequest } from '../services/auth-service';
-import { formatBirthDateInput } from '../services/auth-contract';
 import { errorMessage } from '@/shared/api/errors';
 
 import {
@@ -26,11 +25,6 @@ import {
   typography,
 } from '../../../shared/theme';
 
-import {
-  DiabetesType,
-  DiabetesTypeSelector,
-} from '../components/DiabetesTypeSelector';
-
 import { PasswordRules } from '../components/PasswordRules';
 
 export function RegisterScreen() {
@@ -52,51 +46,18 @@ export function RegisterScreen() {
     setConfirmPassword,
   ] = useState('');
 
-  const [birthDate, setBirthDate] =
-    useState('');
-
-  const [height, setHeight] =
-    useState('');
-
-  const [weight, setWeight] =
-    useState('');
-
-  const [
-    diabetesType,
-    setDiabetesType,
-  ] =
-    useState<DiabetesType | null>(
-      null,
-    );
-
-  const [
-    emergencyName,
-    setEmergencyName,
-  ] = useState('');
-
-  const [
-    emergencyRelation,
-    setEmergencyRelation,
-  ] = useState('');
-
-  const [
-    emergencyPhone,
-    setEmergencyPhone,
-  ] = useState('');
-
   async function handleRegister() {
     if (busy.current || registered) return;
     busy.current = true;
     setSubmitting(true);
     setError('');
     try {
-      await registerRequest({ name, email, password, confirmPassword, birthDate,
-        height, weight, diabetesType, emergencyName, emergencyRelation, emergencyPhone });
+      await registerRequest({ name, email, password, confirmPassword });
       setRegistered(true);
       setPassword('');
       setConfirmPassword('');
       router.replace('/(auth)/login');
-      Alert.alert('Conta criada', 'Cadastro concluído. Entre com seu e-mail e sua senha.');
+      Alert.alert('Conta criada', 'Entre com seu e-mail e sua senha. Depois, complete seus dados de saúde no Perfil.');
     } catch (cause) {
       setError(errorMessage(cause));
     } finally {
@@ -198,114 +159,6 @@ function handleLogin() {
         <PasswordRules
           password={password}
         />
-
-        {/* Dados pessoais */}
-
-        <AppInput
-          label="Data de nascimento"
-          placeholder="dd/mm/aaaa"
-          icon="calendar-outline"
-          value={birthDate}
-          onChangeText={(value) => setBirthDate(formatBirthDateInput(value))}
-          keyboardType="numeric"
-          maxLength={10}
-        />
-
-        <View
-          style={
-            styles.measurementsRow
-          }
-        >
-          <View
-            style={
-              styles.measurement
-            }
-          >
-            <AppInput
-              label="Altura"
-              placeholder="Ex.: 1,70 m"
-              value={height}
-              onChangeText={
-                setHeight
-              }
-              keyboardType="decimal-pad"
-            />
-          </View>
-
-          <View
-            style={
-              styles.measurement
-            }
-          >
-            <AppInput
-              label="Peso"
-              placeholder="Ex.: 70 kg"
-              value={weight}
-              onChangeText={
-                setWeight
-              }
-              keyboardType="decimal-pad"
-            />
-          </View>
-        </View>
-
-        <DiabetesTypeSelector
-          value={diabetesType}
-          onChange={
-            setDiabetesType
-          }
-        />
-
-        {/* Emergência */}
-
-        <View style={styles.emergencyCard}>
-  <View style={styles.emergencyHeader}>
-    <View style={styles.emergencyIcon}>
-      <Ionicons
-        name="call"
-        size={18}
-        color={colors.primary}
-      />
-    </View>
-
-    <View style={styles.emergencyHeaderText}>
-      <Text style={styles.sectionTitle}>
-        Contato de emergência
-      </Text>
-
-      <Text style={styles.sectionDescription}>
-        Informe alguém que possa ser contatado em caso de necessidade.
-      </Text>
-    </View>
-  </View>
-
-  <AppInput
-    label="Nome"
-    placeholder="Ex.: Maria"
-    icon="person-outline"
-    value={emergencyName}
-    onChangeText={setEmergencyName}
-    autoCapitalize="words"
-  />
-
-  <AppInput
-    label="Relação"
-    placeholder="Ex.: Mãe"
-    icon="people-outline"
-    value={emergencyRelation}
-    onChangeText={setEmergencyRelation}
-    autoCapitalize="words"
-  />
-
-  <AppInput
-    label="Número de telefone"
-    placeholder="(00) 00000-0000"
-    icon="call-outline"
-    value={emergencyPhone}
-    onChangeText={setEmergencyPhone}
-    keyboardType="phone-pad"
-  />
-</View>
 
         {/* Ações */}
 
@@ -428,31 +281,6 @@ const styles =
 
   marginTop: spacing.sm,
   marginBottom: spacing.xl,
-},
-
-emergencyHeader: {
-  flexDirection: 'row',
-  alignItems: 'flex-start',
-
-  marginBottom: spacing.lg,
-},
-
-emergencyIcon: {
-  width: 36,
-  height: 36,
-
-  borderRadius: 18,
-
-  alignItems: 'center',
-  justifyContent: 'center',
-
-  backgroundColor: '#E4F2FC',
-
-  marginRight: spacing.sm,
-},
-
-emergencyHeaderText: {
-  flex: 1,
 },
 
 sectionTitle: {

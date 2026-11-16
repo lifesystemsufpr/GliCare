@@ -18,7 +18,6 @@ import { colors } from '@/shared/theme';
 import { useAuth } from '@/features/auth/hooks/AuthProvider';
 import { errorMessage } from '@/shared/api/errors';
 import { DiabetesCard } from '../components/DiabetesCard';
-import { EmergencyContactCard } from '../components/EmergencyContactCard';
 import { ProfileCard } from '../components/ProfileCard';
 import { ProfileEditForm } from '../components/ProfileEditForm';
 import { AppButton } from '@/shared/components';
@@ -26,7 +25,7 @@ import { deleteAccount, getProfile } from '../services/profile-service';
 import { diabetesLabels, profileToForm, type Profile } from '../services/profile-contract';
 
 export function ProfileScreen() {
-  const { signOut } = useAuth();
+  const { signOut, setProfileComplete } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
@@ -41,14 +40,17 @@ export function ProfileScreen() {
     setLoading(true);
     setLoadError('');
     void getProfile(controller.signal).then((data) => {
-      if (!controller.signal.aborted) setProfile(data);
+      if (controller.signal.aborted) return;
+      setProfile(data);
+      // Mantém a sessão em dia se o perfil foi completado em outro aparelho.
+      if (typeof data.perfilCompleto === 'boolean') setProfileComplete(data.perfilCompleto);
     }).catch((error: unknown) => {
       if (!controller.signal.aborted) { setProfile(null); setLoadError(errorMessage(error)); }
     }).finally(() => {
       if (!controller.signal.aborted) setLoading(false);
     });
     return () => controller.abort();
-  }, [editing, retry]));
+  }, [editing, retry, setProfileComplete]));
   async function handleDeleteAccount() {
     if (deleting) return;
     setDeleting(true);
@@ -111,16 +113,17 @@ export function ProfileScreen() {
         <Text accessibilityRole="alert" style={{ color: colors.error }}>{loadError}</Text>
         <AppButton title="Tentar novamente" onPress={() => setRetry((value) => value + 1)} />
       </> : profile ? editing ? <ProfileEditForm initial={profile}
-        onSaved={(saved) => { setProfile(saved); setEditing(false); Alert.alert('Perfil atualizado', 'Suas alterações foram salvas.'); }}
+        onSaved={(saved) => { setProfile(saved); setEditing(false); if (typeof saved.perfilCompleto === 'boolean') setProfileComplete(saved.perfilCompleto); Alert.alert('Perfil atualizado', 'Suas alterações foram salvas.'); }}
         onCancel={() => setEditing(false)} /> : <>
+        {profile.perfilCompleto === false ? <View style={styles.incomplete}>
+          <Text style={styles.incompleteTitle}>Complete seu perfil</Text>
+          <Text>Informe data de nascimento, tipo de diabetes, altura e peso para registrar glicemia e insulina e ver seus relatórios.</Text>
+          <AppButton title="Completar perfil" onPress={() => setEditing(true)} />
+        </View> : null}
         <ProfileCard name={profile.nome} age={profile.idade} weight={profile.pesoKg}
           birthDate={profileToForm(profile).birthDate}
           height={profile.alturaCm == null ? null : profile.alturaCm / 100} />
         <DiabetesCard type={profile.tipoDiabetes ? diabetesLabels[profile.tipoDiabetes] : 'Não informado'} />
-        {profile.contatoEmergencia ? <EmergencyContactCard
-          name={profile.contatoEmergencia.nome ?? 'Não informado'}
-          relationship={profile.contatoEmergencia.relacao ?? 'Não informada'}
-          phone={profile.contatoEmergencia.telefone ?? 'Não informado'} /> : <Text>Contato de emergência não informado.</Text>}
         <View style={styles.actions}>
           <AppButton title="Editar perfil" onPress={() => setEditing(true)} />
           <AppButton title="Recarregar dados" variant="secondary" onPress={() => setRetry((value) => value + 1)} />
@@ -239,6 +242,21 @@ const styles = StyleSheet.create({
 
   notificationButtonPressed: {
     backgroundColor: '#F3F4F6',
+  },
+
+  incomplete: {
+    gap: 10,
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#93C5FD',
+    backgroundColor: '#EFF6FF',
+  },
+
+  incompleteTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text,
   },
 
   actions: {

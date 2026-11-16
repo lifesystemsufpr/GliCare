@@ -1,3 +1,6 @@
 import { RemindersScreen } from '@/features/reminders';
+import { ProfileRequired } from '@/features/profile';
 
-export default RemindersScreen;
+export default function Route() {
+  return <ProfileRequired><RemindersScreen /></ProfileRequired>;
+}

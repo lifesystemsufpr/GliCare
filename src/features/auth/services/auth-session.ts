@@ -111,6 +111,12 @@ export class AuthSession {
     if (requestToken === this.token) void this.signOut().catch(() => undefined);
   };
 
+  // Depois de salvar o perfil, a resposta da API diz se ele ficou completo.
+  setProfileComplete = (complete: boolean): void => {
+    if (!this.state.user) return;
+    this.update({ ...this.state, user: { ...this.state.user, perfilCompleto: complete } });
+  };
+
   hasSession = (): boolean => this.token !== null;
 
   cancelPending = (): void => { this.generation++; };

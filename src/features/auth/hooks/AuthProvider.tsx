@@ -62,5 +62,6 @@ export function useAuth() {
   if (!session) throw new Error('useAuth deve ser usado dentro de AuthProvider.');
   const state = useSyncExternalStore(session.subscribe, session.getSnapshot, session.getSnapshot);
   return { user: state.user, loading: state.loading, sessionError: state.error,
-    signIn: session.signIn, signOut: session.signOut, retrySession: session.restore };
+    signIn: session.signIn, signOut: session.signOut, retrySession: session.restore,
+    setProfileComplete: session.setProfileComplete };
 }

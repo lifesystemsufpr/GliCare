@@ -21,10 +21,9 @@ const { profileToForm, profileToPatch } = await import('../src/features/profile/
 const { api } = await import('../src/shared/api/api.ts');
 const { deleteAccount, getProfile, updateProfile } = await import('../src/features/profile/services/profile-service.ts');
 const profile = { nome: 'Pessoa sintética', dataNascimento: '1995-04-12', idade: 31,
-  alturaCm: 170.55, pesoKg: 60.5, tipoDiabetes: 'TIPO_1',
-  contatoEmergencia: { nome: 'Contato', relacao: 'Familiar', telefone: '41999999999' } };
+  alturaCm: 170.55, pesoKg: 60.5, tipoDiabetes: 'TIPO_1', perfilCompleto: true };
 const empty = { nome: 'Teste', dataNascimento: null, idade: null, alturaCm: null,
-  pesoKg: null, tipoDiabetes: null, contatoEmergencia: null };
+  pesoKg: null, tipoDiabetes: null, perfilCompleto: false };
 const form = () => profileToForm(profile);
 const calls = [];
 let data = profile;
@@ -41,8 +40,7 @@ test('consulta converte cm para metros sem perder precisão e formata nascimento
   assert.equal(form().weight, '60,5');
 });
 test('campos nulos permanecem vazios no formulário, sem inventar zeros', () => {
-  assert.deepEqual(profileToForm(empty), { birthDate: '', height: '', weight: '', diabetesType: '',
-    emergencyName: '', emergencyRelation: '', emergencyPhone: '' });
+  assert.deepEqual(profileToForm(empty), { birthDate: '', height: '', weight: '', diabetesType: '' });
 });
 test('perfil inalterado não gera PATCH vazio', () => {
   assert.throws(() => profileToPatch(form(), profile), /Nenhuma alteração/);
@@ -73,12 +71,10 @@ test('tipo de diabetes mantém o enum do backend', () => {
   }
   assert.throws(() => profileToPatch({ ...form(), diabetesType: '' }, profile));
 });
-test('contato alterado envia objeto completo e normalizado', () => {
-  assert.deepEqual(profileToPatch({ ...form(), emergencyName: ' Outro contato ' }, profile), {
-    contatoEmergencia: { nome: 'Outro contato', relacao: 'Familiar', telefone: '41999999999' },
-  });
-  assert.throws(() => profileToPatch({ ...form(), emergencyPhone: 'abc' }, profile));
-  assert.throws(() => profileToPatch({ ...form(), emergencyRelation: '' }, profile));
+test('perfil incompleto pode ser completado de uma vez, sem contato de emergência', () => {
+  const patch = profileToPatch({ birthDate: '12/04/1995', height: '1,70', weight: '60', diabetesType: 'TIPO_2' }, empty);
+  assert.deepEqual(patch, { dataNascimento: '1995-04-12', alturaCm: 170, pesoKg: 60, tipoDiabetes: 'TIPO_2' });
+  assert.equal('contatoEmergencia' in patch, false);
 });
 test('GET usa /profile, Bearer e preserva campos nulos', async () => {
   data = empty; assert.deepEqual(await getProfile(), empty);
