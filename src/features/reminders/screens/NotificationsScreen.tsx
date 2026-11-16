@@ -6,10 +6,12 @@ import { AppButton } from '@/shared/components';
 import { colors, contentWidth } from '@/shared/theme';
 import { NotificationSettings } from '../components/NotificationSettings';
 
+// Aberta pelo Perfil. O voltar vai direto ao Perfil porque, entre abas,
+// router.back() leva à primeira aba (Início).
 export function NotificationsScreen() {
   return <View style={styles.container}>
     <View style={styles.header}>
-      <Pressable style={styles.headerButton} onPress={() => router.back()} accessibilityLabel="Voltar">
+      <Pressable style={styles.headerButton} onPress={() => router.navigate('/perfil')} accessibilityLabel="Voltar">
         <Ionicons name="arrow-back" size={24} color={colors.text} />
       </Pressable>
       <Text style={styles.headerTitle}>Notificações</Text>
