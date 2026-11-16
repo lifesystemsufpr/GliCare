@@ -18,12 +18,18 @@ export default function MainLayout() {
       screenOptions={{
         headerShown: false,
 
+        // Área segura do topo (recorte/barra de status) para todas as abas.
+        sceneStyle: {
+          paddingTop: insets.top,
+          backgroundColor: '#FAFAFA',
+        },
+
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: '#4B5563',
 
         tabBarStyle: {
-          height: 64 + insets.bottom,
-          paddingTop: 8,
+          height: 68 + insets.bottom,
+          paddingTop: 6,
           paddingBottom: Math.max(insets.bottom, 8),
 
           backgroundColor: '#FFFFFF',
@@ -43,7 +49,8 @@ export default function MainLayout() {
         },
 
         tabBarLabelStyle: {
-          fontSize: 9,
+          fontSize: 10,
+          lineHeight: 14,
           fontWeight: '500',
         },
 

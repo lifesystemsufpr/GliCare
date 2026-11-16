@@ -103,6 +103,7 @@ const styles = StyleSheet.create({
   },
 
   name: {
+    textAlign: 'center',
     fontSize: 20,
     fontWeight: '700',
     color: colors.text,
