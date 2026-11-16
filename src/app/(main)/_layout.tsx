@@ -209,6 +209,13 @@ export default function MainLayout() {
           href: null,
         }}
       />
+
+      <Tabs.Screen
+        name="notificacoes"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
