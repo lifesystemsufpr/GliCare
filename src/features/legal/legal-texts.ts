@@ -59,7 +59,7 @@ export const termsOfUse: LegalDocument = {
     {
       title: '7. Mudanças nestes termos',
       paragraphs: [
-        'Se estes termos mudarem, avisaremos no aplicativo. Mudanças importantes podem exigir um novo aceite.',
+        'Se estes termos mudarem, a versão nova fica disponível no aplicativo, com a data da atualização. Mudanças importantes podem exigir um novo aceite.',
       ],
     },
     {
@@ -87,12 +87,15 @@ export const privacyPolicy: LegalDocument = {
     {
       title: '2. Dados que coletamos',
       paragraphs: [
-        'Conta: nome, e-mail e senha. A senha é guardada de forma criptografada (hash) e ninguém da equipe tem acesso a ela.',
+        'Conta: nome, e-mail e senha. A senha é guardada apenas como hash (bcrypt), um código que não permite ler a senha original.',
         'Perfil: data de nascimento, tipo de diabetes, altura e peso.',
         'Registros de saúde: glicemias (valor, momento da medição, data e hora, observações), aplicações de insulina (tipo, dose, local, data e hora, observações) e lembretes (título, data e hora, ativo ou não).',
         'Aceite: a versão destes documentos que você aceitou e a data do aceite.',
-        'Segurança: para limitar tentativas de login e de recuperação de senha, guardamos por pouco tempo um código derivado do endereço IP e do e-mail, que não permite recuperar esses dados.',
-        'No seu aparelho ficam a sessão de acesso e a preferência de tema (claro ou escuro). No navegador, a sessão fica só na memória e o tema fica no armazenamento local do navegador.',
+        'Recuperação de senha: quando você pede para recuperar a senha, guardamos um código de uso único, na forma de hash, com prazo de validade.',
+        'Segurança: para limitar tentativas de login e de recuperação de senha, guardamos temporariamente contadores identificados por códigos derivados do endereço IP e do e-mail. Esses códigos não permitem recuperar o IP nem o e-mail.',
+        'Registros técnicos: quando acontece um erro no servidor, registramos a rota acessada e a mensagem técnica do erro, para corrigir o problema. [preencher: por quanto tempo os registros do servidor ficam guardados].',
+        'Contato de emergência: versões anteriores do GliCare pediam nome, relação e telefone de um contato de emergência. Esse dado não é mais pedido nem usado. O que já tinha sido informado está numa cópia temporária, descrita no item 6.',
+        'No seu aparelho ficam a sessão de acesso, a preferência de tema (claro ou escuro) e a informação de que os alertas de lembrete estão ligados. Os lembretes ativos viram alertas agendados no próprio aparelho, com um texto genérico, sem o título do lembrete. No navegador, a sessão fica só na memória e o tema fica no armazenamento local do navegador.',
         'Não usamos ferramentas de publicidade, de análise de uso ou de rastreamento.',
       ],
     },
@@ -115,9 +118,9 @@ export const privacyPolicy: LegalDocument = {
     {
       title: '5. Com quem compartilhamos',
       paragraphs: [
-        'Não vendemos nem compartilhamos os seus dados com outras empresas.',
-        'Os dados ficam em servidores contratados para hospedar o serviço: [preencher: provedor de hospedagem e país]. O envio de e-mails de recuperação usa [preencher: provedor de e-mail].',
-        'O relatório em PDF só é compartilhado se você mesmo escolher enviá-lo, e pelo meio que você escolher.',
+        'Não vendemos os seus dados e não os usamos para publicidade.',
+        'Para o aplicativo funcionar, os dados passam por empresas que prestam serviço para nós (operadores). A hospedagem do servidor e do banco de dados é feita por [preencher: provedor de hospedagem e país]. O envio de e-mails é feito por [preencher: provedor de e-mail], que recebe o seu nome, o seu e-mail e o código de recuperação de senha, só quando você pede a recuperação.',
+        'O relatório em PDF é gerado no seu aparelho, num arquivo temporário que o aplicativo apaga depois do compartilhamento. Ele só é compartilhado se você mesmo escolher enviá-lo, e pelo meio que você escolher. A cópia que ficar no aplicativo de destino (e-mail, mensagens ou nuvem) não é controlada pelo GliCare.',
         'Podemos fornecer dados se uma lei ou ordem judicial exigir.',
       ],
     },
@@ -125,7 +128,9 @@ export const privacyPolicy: LegalDocument = {
       title: '6. Por quanto tempo guardamos',
       paragraphs: [
         'Enquanto a sua conta existir.',
-        'Quando você exclui a conta, apagamos o perfil, as glicemias, as aplicações de insulina, os lembretes e os pedidos de recuperação de senha. A conta fica apenas como um registro inativo, sem nome, e-mail ou senha válidos.',
+        'Quando você exclui a conta, apagamos o perfil, as glicemias, as aplicações de insulina, os lembretes, os pedidos de recuperação de senha e o registro do aceite. A conta fica apenas como um registro inativo, com um identificador interno e as datas de criação e de exclusão, sem nome, e-mail ou senha válidos.',
+        'Os contadores de tentativas de login não ficam ligados à sua conta e expiram sozinhos.',
+        'A cópia dos contatos de emergência informados em versões anteriores é apagada quando você exclui a conta. Ela será removida por completo depois de confirmada a versão atual do aplicativo.',
         'Cópias de segurança do banco de dados são apagadas em até [preencher: prazo] dias.',
       ],
     },
@@ -152,7 +157,7 @@ export const privacyPolicy: LegalDocument = {
     {
       title: '10. Mudanças nesta política',
       paragraphs: [
-        'Se esta política mudar, avisaremos no aplicativo. Mudanças importantes podem exigir um novo aceite.',
+        'Se esta política mudar, a versão nova fica disponível no aplicativo, com a data da atualização. Mudanças importantes podem exigir um novo aceite.',
       ],
     },
   ],
