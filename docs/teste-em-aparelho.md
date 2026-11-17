@@ -157,11 +157,27 @@ Roteiro para vocês testarem o GliCare em celulares Android e iOS. Ele cobre o q
 - [ ] Android
 - [ ] iOS
 
+## 13. Aceite dos Termos em conta antiga
+
+Este caso precisa de uma conta criada antes desta versão do app, que nunca aceitou os Termos. Se não houver, peçam a quem cuida do banco de teste para limpar o aceite de uma conta de teste.
+
+**O que fazer:**
+1. Na tela de login, entrem com a conta antiga.
+2. Na tela **Termos de Uso e Política de Privacidade**, toquem em **Aceitar e continuar** sem marcar a caixa.
+3. Toquem no link **Termos de Uso** e voltem. Façam o mesmo em **Política de Privacidade**.
+4. Marquem a caixa **Li e aceito os Termos de Uso e a Política de Privacidade** e toquem em **Aceitar e continuar**.
+5. Fechem o app por completo e abram de novo.
+6. Com outra conta antiga, toquem em **Sair** na tela de aceite.
+
+**Resultado esperado:** A tela de aceite aparece no lugar das abas. Sem a caixa marcada, o botão **Aceitar e continuar** não faz nada. Os dois textos abrem e voltam para a tela de aceite. Depois do aceite, o app abre a aba **Início** sem pedir login de novo. Ao reabrir o app, a tela de aceite não aparece mais. **Sair** volta para o login sem gravar o aceite.
+- [ ] Android
+- [ ] iOS
+
 ## Como registrar um problema
 
 Se algum caso falhar, abram uma issue no GitHub ou avisem o grupo, informando:
 - **Aparelho:** marca e modelo (ex.: Samsung Galaxy A34, iPhone 13).
 - **Versão do sistema:** versão do Android ou do iOS.
-- **Número do caso:** qual item deste roteiro estava sendo testado (1 a 12).
+- **Número do caso:** qual item deste roteiro estava sendo testado (1 a 13).
 - **O que apareceu:** passos feitos e mensagem ou comportamento observado.
 - **Print da tela:** imagem mostrando o erro ou o desalinhamento.
