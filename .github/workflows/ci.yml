@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [dev]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificar:
+    name: typecheck e testes
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # Exige Node >= 22.18.0 (import de .ts sem flag e module.registerHooks).
+          node-version: 22.x
+          cache: npm
+      - name: Instalar dependências
+        run: npm ci
+      - name: Checar tipos
+        run: npm run typecheck
+      - name: Rodar testes
+        run: npm test
