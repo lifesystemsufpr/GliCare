@@ -59,7 +59,7 @@ export const termsOfUse: LegalDocument = {
     {
       title: '7. Mudanças nestes termos',
       paragraphs: [
-        'Se estes termos mudarem, a versão nova fica disponível no aplicativo, com a data da atualização. Mudanças importantes podem exigir um novo aceite.',
+        'Se estes termos mudarem, a versão nova fica disponível no aplicativo, com a data da atualização. Quando o texto mudar, o aplicativo pede um novo aceite ao abrir.',
       ],
     },
     {
@@ -157,7 +157,7 @@ export const privacyPolicy: LegalDocument = {
     {
       title: '10. Mudanças nesta política',
       paragraphs: [
-        'Se esta política mudar, a versão nova fica disponível no aplicativo, com a data da atualização. Mudanças importantes podem exigir um novo aceite.',
+        'Se esta política mudar, a versão nova fica disponível no aplicativo, com a data da atualização. Quando o texto mudar, o aplicativo pede um novo aceite ao abrir.',
       ],
     },
   ],

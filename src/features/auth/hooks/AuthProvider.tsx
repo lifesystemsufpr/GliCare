@@ -63,5 +63,5 @@ export function useAuth() {
   const state = useSyncExternalStore(session.subscribe, session.getSnapshot, session.getSnapshot);
   return { user: state.user, loading: state.loading, sessionError: state.error,
     signIn: session.signIn, signOut: session.signOut, retrySession: session.restore,
-    setProfileComplete: session.setProfileComplete };
+    setProfileComplete: session.setProfileComplete, setUser: session.setUser };
 }
