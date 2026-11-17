@@ -81,7 +81,10 @@ As regras para quem contribui estão em `AGENTS.md`.
 - **Recuperação de senha:** o link do e-mail usa o esquema
   `glicaremobile://reset-password`. Ele só abre o app em build nativo ou no
   Expo Go com o esquema configurado.
-- **Tema escuro e notificações:** não implementados. Os itens foram tirados
-  do Perfil até existirem.
-- **Termos de Uso e Política de Privacidade:** os textos ainda não existem, e
-  o cadastro não mostra esses links.
+- **Termos de Uso e Política de Privacidade:** as telas existem e o cadastro
+  pede o aceite, mas os textos são rascunho, com trechos `[preencher: ...]`
+  (`src/features/legal/legal-texts.ts`). Não publique antes de a PO completar
+  esses trechos e de uma revisão jurídica.
+- **Teste em aparelho:** área segura, alertas dos lembretes, PDF, tema escuro
+  e aviso de glicemia abaixo de 54 mg/dL precisam ser conferidos num celular.
+  O roteiro está em [`docs/teste-em-aparelho.md`](docs/teste-em-aparelho.md).

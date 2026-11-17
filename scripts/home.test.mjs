@@ -22,7 +22,7 @@ const { api } = await import('../src/shared/api/api.ts');
 const { loadHomeSources } = await import('../src/features/home/services/home-service.ts');
 const now = new Date(2026, 9, 30, 12);
 const date = (day = 30, hour = 8) => new Date(2026, 9, day, hour).toISOString();
-const glucose = (id, day = 30, hour = 8, valor = 105) => ({ id, valor, momento: 'JEJUM', status: 'NORMAL', dataHora: date(day, hour), observacao: null });
+const glucose = (id, day = 30, hour = 8, valor = 105) => ({ id, valor, momento: 'JEJUM', status: 'NORMAL', hipoglicemiaNivel2: false, dataHora: date(day, hour), observacao: null });
 const insulin = (id, day = 30, hour = 8) => ({ id, doseUi: 10, tipo: 'NPH', localAplicacao: null, dataHora: date(day, hour), observacao: null });
 const reminder = (id, day = 30, hour = 13, status = 'ATIVO') => ({ id, titulo: 'Lembrete sintético', dataHora: date(day, hour), status });
 const point = (day = 30, hour = 8, valor = 105) => ({ dataHora: date(day, hour), valor });
@@ -103,6 +103,10 @@ test('valores inválidos da API são rejeitados', () => {
   assert.throws(() => buildHomeSummary({ ...empty(), ultimaGlicemia: { ...glucose('invalid'), valor: NaN } }, now));
   assert.throws(() => buildHomeSummary({ ...empty(), ultimaInsulina: { ...insulin('invalid'), doseUi: 0 } }, now));
   assert.throws(() => buildHomeSummary({ ...empty(), glicemiaUltimos7Dias: [point(30, 8, 0)] }, now));
+});
+test('Home preserva o aviso informado pela API', () => {
+  const result = buildHomeSummary({ ...empty(), ultimaGlicemia: { ...glucose('flag'), valor: 105, hipoglicemiaNivel2: true } }, now);
+  assert.equal(result.lastGlucose.hipoglicemiaNivel2, true);
 });
 test('classificação é preservada como recebida, sem regra clínica duplicada', () => {
   const result = buildHomeSummary({ ...empty(), ultimaGlicemia: { ...glucose('server-status'), status: 'ALTA' } }, now);

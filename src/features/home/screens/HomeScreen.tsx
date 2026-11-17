@@ -8,6 +8,7 @@ import { useAuth } from '@/features/auth/hooks/AuthProvider';
 import { AppButton } from '@/shared/components';
 import { errorMessage } from '@/shared/api/errors';
 import { DailySummary } from '../components/DailySummary';
+import { insulinTypeLabel } from '@/features/insulin/services/insulin-contract';
 import { GlucoseCard } from '../components/GlucoseCard';
 import { HomeHeader } from '../components/HomeHeader';
 import { InsulinCard } from '../components/InsulinCard';
@@ -69,10 +70,10 @@ export function HomeScreen() {
     </View> : null}
     {loading ? <ActivityIndicator accessibilityLabel="Carregando resumo da rotina" /> : error ?
       <Text accessibilityRole="alert" style={{ color: c.danger }}>{error}</Text> : summary ? <>
-      <GlucoseCard value={glucose?.valor ?? null} status={glucose?.status ?? null}
+      <GlucoseCard hipoglicemiaNivel2={glucose?.hipoglicemiaNivel2 === true} measuredAtIso={glucose?.dataHora ?? null} value={glucose?.valor ?? null} status={glucose?.status ?? null}
         measuredAt={glucose ? formatDateTime(glucose.dataHora) : 'Nenhuma medição registrada.'} />
       <View style={styles.cardsRow}>
-        <InsulinCard dose={insulin?.doseUi ?? null} type={insulin?.tipo ?? 'Nenhuma aplicação registrada.'}
+        <InsulinCard dose={insulin?.doseUi ?? null} type={insulin ? insulinTypeLabel(insulin.tipo) : 'Nenhuma aplicação registrada.'}
           appliedAt={insulin ? formatDateTime(insulin.dataHora) : ''} />
         <ReminderCard time={reminder ? new Date(reminder.dataHora).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '—'}
           date={reminder ? new Date(reminder.dataHora).toLocaleDateString('pt-BR') : ''}

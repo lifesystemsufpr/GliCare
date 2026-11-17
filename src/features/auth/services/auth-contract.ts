@@ -1,3 +1,5 @@
+import { LEGAL_VERSION } from '../../legal/legal-texts';
+
 export type AuthUser = { id: string; nome: string; email: string };
 export type CurrentUser = AuthUser & {
   // false enquanto faltar algum dado de saúde. Ausente em versões antigas da API.
@@ -13,7 +15,7 @@ export type CurrentUser = AuthUser & {
 // Cadastro em duas etapas: a conta nasce só com nome, e-mail e senha. Os dados
 // de saúde são completados depois, no Perfil.
 export type RegistrationForm = {
-  name: string; email: string; password: string; confirmPassword: string;
+  name: string; email: string; password: string; confirmPassword: string; acceptedTerms: boolean;
 };
 
 export function formatBirthDateInput(value: string): string {
@@ -36,6 +38,7 @@ export function birthDateToApi(value: string): string {
 }
 
 export function registrationToApi(form: RegistrationForm) {
+  if (!form.acceptedTerms) throw new Error('Aceite os Termos de Uso e a Política de Privacidade para criar a conta.');
   if (!form.name.trim() || !form.email.trim()) {
     throw new Error('Preencha seu nome e seu e-mail.');
   }
@@ -49,6 +52,6 @@ export function registrationToApi(form: RegistrationForm) {
   if (form.password !== form.confirmPassword) throw new Error('As senhas não coincidem.');
   return {
     nome: form.name.trim(), email: form.email.trim().toLowerCase(),
-    senha: form.password, confirmarSenha: form.confirmPassword,
+    senha: form.password, confirmarSenha: form.confirmPassword, versaoTermos: LEGAL_VERSION,
   };
 }

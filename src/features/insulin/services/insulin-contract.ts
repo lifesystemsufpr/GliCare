@@ -1,8 +1,15 @@
-// A API aceita texto livre em tipo. Enviamos os rótulos já existentes na interface.
 export const insulinTypeLabels = {
-  rapid: 'Rápida', regular: 'Regular', nph: 'NPH', longActing: 'Longa duração',
+  ULTRARRAPIDA: 'Ultrarrápida (lispro, asparte, glulisina, Fiasp)',
+  RAPIDA: 'Rápida (regular)',
+  INTERMEDIARIA: 'Intermediária (NPH, detemir)',
+  LONGA: 'Longa (glargina U100)',
+  ULTRALONGA: 'Ultralonga (degludeca, glargina U300)',
+  PRE_MISTURADA: 'Pré-misturada (70/30, Mix)',
 } as const;
 export type InsulinType = keyof typeof insulinTypeLabels;
+export function insulinTypeLabel(tipo: string): string {
+  return Object.hasOwn(insulinTypeLabels, tipo) ? insulinTypeLabels[tipo as InsulinType] : tipo;
+}
 export const siteToApi = {
   abdomen: 'ABDOMEN', arm: 'BRACO', thigh: 'COXA', glute: 'GLUTEO',
 } as const;
@@ -37,7 +44,7 @@ export function insulinToApi(form: InsulinForm, now = Date.now()) {
   }
   const observacao = form.notes.trim();
   if (observacao.length > 255) throw new Error('As observações devem ter até 255 caracteres.');
-  return { tipo: insulinTypeLabels[form.type], doseUi,
+  return { tipo: form.type, doseUi,
     localAplicacao: siteToApi[form.applicationSite], dataHora: form.appliedAt.toISOString(),
     ...(observacao ? { observacao } : {}) };
 }

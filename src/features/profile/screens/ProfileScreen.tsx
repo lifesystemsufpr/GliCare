@@ -1,6 +1,6 @@
 import { makeStyles, useThemeColors, contentWidth } from '@/shared/theme';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import {
@@ -143,6 +143,16 @@ export function ProfileScreen() {
         >
           <Ionicons name="notifications-outline" size={19} color={c.text} />
           <Text style={styles.settingsText}>Notificações</Text>
+          <Ionicons name="chevron-forward" size={18} color={c.textSecondary} />
+        </Pressable>
+        <Pressable style={({ pressed }) => [styles.settingsItem, pressed && styles.logoutPressed]} onPress={() => router.push('/termos' as Href)} accessibilityRole="button">
+          <Ionicons name="document-text-outline" size={19} color={c.text} />
+          <Text style={styles.settingsText}>Termos de Uso</Text>
+          <Ionicons name="chevron-forward" size={18} color={c.textSecondary} />
+        </Pressable>
+        <Pressable style={({ pressed }) => [styles.settingsItem, pressed && styles.logoutPressed]} onPress={() => router.push('/privacidade' as Href)} accessibilityRole="button">
+          <Ionicons name="shield-checkmark-outline" size={19} color={c.text} />
+          <Text style={styles.settingsText}>Política de Privacidade</Text>
           <Ionicons name="chevron-forward" size={18} color={c.textSecondary} />
         </Pressable>
         <View style={styles.settingsItem}>

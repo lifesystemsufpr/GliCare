@@ -21,7 +21,7 @@ process.env.EXPO_PUBLIC_API_URL = 'https://api.example.test/api';
 const { api } = await import('../src/shared/api/api.ts');
 const { createGlucose, listGlucose } = await import('../src/features/glucose/services/glucose-service.ts');
 const form = { value: '105,25', moment: 'fasting', measuredAt: new Date('2026-01-01T08:30:00-03:00'), notes: ' Teste sintético ' };
-const record = { id: 'synthetic-id', valor: 105.25, momento: 'JEJUM', status: 'NORMAL',
+const record = { id: 'synthetic-id', valor: 105.25, momento: 'JEJUM', status: 'NORMAL', hipoglicemiaNivel2: false,
   dataHora: '2026-01-01T11:30:00.000Z', observacao: 'Teste sintético' };
 let calls = [];
 let data = record;
@@ -67,6 +67,11 @@ test('POST usa Bearer, campos da API e resposta sem recalcular status', async ()
   assert.deepEqual(JSON.parse(request.data), glucoseToApi(form));
   assert.equal('usuarioId' in JSON.parse(request.data), false);
   assert.deepEqual(saved, record);
+});
+test('aviso de nível 2 é preservado da resposta sem calcular pelo valor', async () => {
+  data = { ...record, valor: 105, hipoglicemiaNivel2: true };
+  assert.equal((await createGlucose(form)).hipoglicemiaNivel2, true);
+  data = record;
 });
 test('entrada inválida não dispara requisição', async () => {
   const before = calls.length;

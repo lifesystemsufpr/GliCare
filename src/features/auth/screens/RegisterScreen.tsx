@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import {
   AppButton,
   AppInput,
@@ -31,6 +31,7 @@ export function RegisterScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [registered, setRegistered] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const busy = useRef(false);
   const [name, setName] =
     useState('');
@@ -52,7 +53,7 @@ export function RegisterScreen() {
     setSubmitting(true);
     setError('');
     try {
-      await registerRequest({ name, email, password, confirmPassword });
+      await registerRequest({ name, email, password, confirmPassword, acceptedTerms });
       setRegistered(true);
       setPassword('');
       setConfirmPassword('');
@@ -160,6 +161,15 @@ function handleLogin() {
           password={password}
         />
 
+        <View style={styles.termsRow}>
+          <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: acceptedTerms }}
+            accessibilityLabel="Aceito os Termos de Uso e a Política de Privacidade"
+            onPress={() => setAcceptedTerms((checked) => !checked)} style={styles.checkbox}>
+            {acceptedTerms ? <Ionicons name="checkmark" size={18} color={c.primary} /> : null}
+          </Pressable>
+          <Text style={styles.termsText}>Li e aceito os <Text accessibilityRole="link" style={styles.termsLink} onPress={() => router.push('/termos' as Href)}>Termos de Uso</Text> e a <Text accessibilityRole="link" style={styles.termsLink} onPress={() => router.push('/privacidade' as Href)}>Política de Privacidade</Text></Text>
+        </View>
+
         {/* Ações */}
 
         {error ? <Text accessibilityRole="alert" style={{ color: c.error, marginBottom: 12 }}>{error}</Text> : null}
@@ -186,6 +196,10 @@ function handleLogin() {
 }
 
 const useStyles = makeStyles((c) => StyleSheet.create({
+    termsRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 16 },
+    checkbox: { width: 24, height: 24, borderWidth: 1, borderColor: c.primary, borderRadius: 4, alignItems: 'center', justifyContent: 'center' },
+    termsText: { flex: 1, color: c.defaultText },
+    termsLink: { color: c.primary, textDecorationLine: 'underline' },
     container: {
       width: '100%',
 

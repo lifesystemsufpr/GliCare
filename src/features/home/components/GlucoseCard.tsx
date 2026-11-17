@@ -2,18 +2,27 @@ import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { makeStyles, useThemeColors } from '@/shared/theme';
+import {
+  HOME_HYPO_PAST, HOME_HYPO_RECENT, isRecentReading,
+} from '@/features/glucose/services/hypoglycemia-warning';
 
 interface GlucoseCardProps {
   value: number | null;
   status: 'NORMAL' | 'ALTA' | 'BAIXA' | null;
   measuredAt: string;
+  hipoglicemiaNivel2: boolean;
+  // Data da medição (ISO), para não tratar um registro antigo como urgente.
+  measuredAtIso: string | null;
 }
 
 export function GlucoseCard({
   value,
   status,
   measuredAt,
+  hipoglicemiaNivel2,
+  measuredAtIso,
 }: GlucoseCardProps) {
+  const recent = measuredAtIso ? isRecentReading(measuredAtIso) : false;
   const styles = useStyles();
   const c = useThemeColors();
   const statusText = status ? { NORMAL: 'Normal', ALTA: 'Alta', BAIXA: 'Baixa' }[status] : 'Sem registro';
@@ -66,6 +75,7 @@ export function GlucoseCard({
         </Text>
       </View>
 
+      {hipoglicemiaNivel2 ? <Text accessibilityRole="alert" style={styles.warning}>{recent ? HOME_HYPO_RECENT : HOME_HYPO_PAST}</Text> : null}
       {/* Horário da medição */}
       <Text style={styles.date}>
         {measuredAt}
@@ -155,6 +165,7 @@ const useStyles = makeStyles((c) => StyleSheet.create({
     color: c.gray500,
   },
 
+  warning: { color: c.danger, marginTop: 8 },
   date: {
     marginTop: 3,
     fontSize: 11,
