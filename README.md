@@ -7,7 +7,8 @@ Native, Expo, TypeScript e Expo Router. A API fica em outro repositório
 
 ## Pré-requisitos
 
-- Node.js 22 e npm.
+- Node.js 22.18 ou mais novo e npm. Os testes importam arquivos TypeScript
+  direto, o que só funciona a partir dessa versão.
 - A API rodando (veja o README da API).
 - Para Android: Android Studio com um emulador, ou um celular com Expo Go na
   mesma rede do computador.
@@ -46,19 +47,10 @@ Native, Expo, TypeScript e Expo Router. A API fica em outro repositório
 
 ```bash
 npm run typecheck
-npm run test:auth
-npm run test:glucose
-npm run test:insulin
-npm run test:profile
-npm run test:reminders
-npm run test:home
-npm run test:dashboard
-npm run test:reports
-npm run test:recovery
-npm run test:notifications
+npm test
 ```
 
-O repositório ainda não tem CI. Rode as verificações antes de abrir o PR.
+O CI roda essas verificações em todo PR e em push para `dev`.
 
 ## Estrutura
 
