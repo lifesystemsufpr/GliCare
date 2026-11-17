@@ -1,4 +1,4 @@
-import type { CurrentUser } from './auth-contract';
+import type { AuthUser, CurrentUser } from './auth-contract';
 
 export type SessionState = {
   user: CurrentUser | null;
@@ -12,7 +12,7 @@ type Storage = {
 };
 type Dependencies = {
   storage: Storage;
-  login(email: string, password: string): Promise<{ accessToken: string }>;
+  login(email: string, password: string): Promise<{ accessToken: string; user?: AuthUser }>;
   currentUser(token: string): Promise<CurrentUser>;
   isUnauthorized(error: unknown): boolean;
   message(error: unknown): string;
@@ -78,8 +78,14 @@ export class AuthSession {
   signIn = async (email: string, password: string): Promise<void> => {
     const operation = ++this.generation;
     const result = await this.dependencies.login(email, password);
-    const user = await this.dependencies.currentUser(result.accessToken);
+    const current = await this.dependencies.currentUser(result.accessToken);
     if (operation !== this.generation) return;
+    const termosVersaoAceita = current.termosVersaoAceita !== undefined
+      ? current.termosVersaoAceita
+      : result.user?.termosVersaoAceita;
+    const user = termosVersaoAceita !== undefined
+      ? { ...current, termosVersaoAceita }
+      : current;
     await this.persist(() => this.dependencies.storage.write(result.accessToken));
     if (operation !== this.generation) return;
     this.token = result.accessToken;
@@ -115,6 +121,11 @@ export class AuthSession {
   setProfileComplete = (complete: boolean): void => {
     if (!this.state.user) return;
     this.update({ ...this.state, user: { ...this.state.user, perfilCompleto: complete } });
+  };
+
+  setUser = (user: CurrentUser): void => {
+    if (!this.state.user || this.state.user.id !== user.id) return;
+    this.update({ ...this.state, user: { ...this.state.user, ...user } });
   };
 
   hasSession = (): boolean => this.token !== null;

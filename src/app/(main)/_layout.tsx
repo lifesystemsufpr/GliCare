@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Redirect, Tabs } from 'expo-router';
 import { useAuth } from '@/features/auth/hooks/AuthProvider';
 import { SessionGate } from '@/features/auth/components/SessionGate';
+import { precisaAceitarTermos, TermsAcceptanceScreen } from '@/features/legal';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -14,6 +15,7 @@ export default function MainLayout() {
   const { user, loading, sessionError } = useAuth();
   if (loading || sessionError) return <SessionGate />;
   if (!user) return <Redirect href="/(auth)/login" />;
+  if (precisaAceitarTermos(user.termosVersaoAceita)) return <TermsAcceptanceScreen />;
 
   return (
     <Tabs

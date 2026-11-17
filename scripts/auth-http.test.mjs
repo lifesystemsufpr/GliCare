@@ -24,7 +24,7 @@ registerHooks({
 
 process.env.EXPO_PUBLIC_API_URL = 'https://api.example.test/api';
 const { api } = await import('../src/shared/api/api.ts');
-const { loginRequest, currentUserRequest, registerRequest } = await import('../src/features/auth/services/auth-service.ts');
+const { acceptTermsRequest, loginRequest, currentUserRequest, registerRequest } = await import('../src/features/auth/services/auth-service.ts');
 const { errorMessage } = await import('../src/shared/api/errors.ts');
 let responseData;
 let lastRequest;
@@ -60,9 +60,22 @@ test('cadastro envia payload adaptado, sem campos do formulário', async () => {
   assert.equal(dto.senha, 'senha123'); assert.equal('password' in dto, false);
 });
 
-test('respostas incompletas de login e sessão não são aceitas', async () => {
-  responseData = {}; await assert.rejects(loginRequest('e', 's'), /Resposta de autenticação inválida/);
-  await assert.rejects(currentUserRequest('invalid'), /Resposta de sessão inválida/);
+test('respostas incompletas de login e sessão não são aceitas', () => {
+  responseData = {};
+  return Promise.all([
+    assert.rejects(loginRequest('e', 's'), /Resposta de autenticação inválida/),
+    assert.rejects(currentUserRequest('invalid'), /Resposta de sessão inválida/),
+    assert.rejects(acceptTermsRequest(), /Resposta de sessão inválida/),
+  ]);
+});
+
+test('aceite de termos envia POST /users/me/termos com versaoTermos atual', async () => {
+  responseData = { id: 'test-id', nome: 'Teste', email: 'teste@example.com', termosVersaoAceita: '2026-11-16' };
+  const updated = await acceptTermsRequest();
+  assert.equal(lastRequest.method, 'post');
+  assert.equal(api.getUri(lastRequest), 'https://api.example.test/api/users/me/termos');
+  assert.deepEqual(JSON.parse(lastRequest.data), { versaoTermos: '2026-11-16' });
+  assert.equal(updated.termosVersaoAceita, '2026-11-16');
 });
 
 function apiError(status, data) {

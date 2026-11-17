@@ -112,3 +112,23 @@ test('falha ao apagar token exige nova limpeza antes de restaurar', async () => 
   f.storage.clear = originalClear; await f.session.restore();
   assert.equal(f.stored(), null); assert.equal(f.session.getSnapshot().user, null);
 });
+
+test('sessão preserva termosVersaoAceita (texto, nulo ou undefined) e atualiza usuário após aceite', async () => {
+  const f1 = setup('saved', { currentUser: async () => ({ ...user, termosVersaoAceita: null }) });
+  await f1.session.restore();
+  assert.equal(f1.session.getSnapshot().user.termosVersaoAceita, null);
+
+  f1.session.setUser({ ...user, termosVersaoAceita: '2026-11-16' });
+  assert.equal(f1.session.getSnapshot().user.termosVersaoAceita, '2026-11-16');
+
+  const f2 = setup(null, {
+    login: async () => ({ accessToken: 'valid-token', user: { id: user.id, nome: user.nome, email: user.email, termosVersaoAceita: '2026-11-16' } }),
+    currentUser: async () => ({ ...user }),
+  });
+  await f2.session.signIn('e', 's');
+  assert.equal(f2.session.getSnapshot().user.termosVersaoAceita, '2026-11-16');
+
+  const f3 = setup('saved', { currentUser: async () => ({ ...user }) });
+  await f3.session.restore();
+  assert.equal(f3.session.getSnapshot().user.termosVersaoAceita, undefined);
+});

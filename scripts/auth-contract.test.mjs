@@ -10,7 +10,8 @@ registerHooks({ resolve(specifier, context, nextResolve) {
   }
   return nextResolve(specifier, context);
 } });
-const { birthDateToApi, formatBirthDateInput, registrationToApi } = await import('../src/features/auth/services/auth-contract.ts');
+const { birthDateToApi, formatBirthDateInput, precisaAceitarTermos, registrationToApi } = await import('../src/features/auth/services/auth-contract.ts');
+const { LEGAL_VERSION, privacyPolicy, termsOfUse } = await import('../src/features/legal/legal-texts.ts');
 
 const form = {
   name: ' Pessoa Teste ', email: ' TESTE@EXAMPLE.COM ', password: ' abc12345 ',
@@ -50,4 +51,20 @@ test('não envia cadastro incompleto ou senhas divergentes', () => {
 
 test('cadastro exige aceite dos documentos', () => {
   assert.throws(() => registrationToApi({ ...form, acceptedTerms: false }), /Aceite os Termos de Uso e a Política de Privacidade para criar a conta\./);
+});
+
+test('precisaAceitarTermos pede aceite apenas para nulo ou versão diferente da atual', () => {
+  assert.equal(precisaAceitarTermos(undefined, LEGAL_VERSION), false);
+  assert.equal(precisaAceitarTermos(undefined), false);
+  assert.equal(precisaAceitarTermos(null, LEGAL_VERSION), true);
+  assert.equal(precisaAceitarTermos('2026-01-01', LEGAL_VERSION), true);
+  assert.equal(precisaAceitarTermos(LEGAL_VERSION, LEGAL_VERSION), false);
+  assert.equal(precisaAceitarTermos(LEGAL_VERSION), false);
+});
+
+test('textos legais informam que mudanças pedem novo aceite ao abrir', () => {
+  assert.equal(LEGAL_VERSION, '2026-11-16');
+  const expected = 'Quando o texto mudar, o aplicativo pede um novo aceite ao abrir.';
+  assert.ok(termsOfUse.sections.some((s) => s.paragraphs.some((p) => p.includes(expected))));
+  assert.ok(privacyPolicy.sections.some((s) => s.paragraphs.some((p) => p.includes(expected))));
 });

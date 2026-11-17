@@ -1,6 +1,11 @@
 import { LEGAL_VERSION } from '../../legal/legal-texts';
 
-export type AuthUser = { id: string; nome: string; email: string };
+export type AuthUser = {
+  id: string;
+  nome: string;
+  email: string;
+  termosVersaoAceita?: string | null;
+};
 export type CurrentUser = AuthUser & {
   // false enquanto faltar algum dado de saúde. Ausente em versões antigas da API.
   perfilCompleto?: boolean;
@@ -11,6 +16,14 @@ export type CurrentUser = AuthUser & {
     pesoKg: number | null;
   } | null;
 };
+
+export function precisaAceitarTermos(
+  termosVersaoAceita: string | null | undefined,
+  versaoAtual: string = LEGAL_VERSION,
+): boolean {
+  if (termosVersaoAceita === undefined) return false;
+  return termosVersaoAceita !== versaoAtual;
+}
 
 // Cadastro em duas etapas: a conta nasce só com nome, e-mail e senha. Os dados
 // de saúde são completados depois, no Perfil.
